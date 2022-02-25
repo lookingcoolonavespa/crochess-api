@@ -1,7 +1,7 @@
 {
   "type": "module",
   "jest": {
-    "testEnvironment": "jest-environment-node",
+    "testEnvironment": "jsdom",
     "transform": {}
   },
   "scripts": {

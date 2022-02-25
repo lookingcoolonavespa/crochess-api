@@ -4,8 +4,8 @@ import moves from '../moves.js';
 const Rook = () => {
   const piece = Piece();
 
-  function isValidMove(square) {
-    return moves.vertAndLateral(piece.current)(piece.toXY(target));
+  function isValidMove(target) {
+    return moves.vertAndLateral(piece.toXY(piece.current))(piece.toXY(target));
   }
 
   return {
@@ -13,3 +13,5 @@ const Rook = () => {
     to: piece.to,
   };
 };
+
+export default Rook;

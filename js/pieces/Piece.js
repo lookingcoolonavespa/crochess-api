@@ -11,6 +11,7 @@ const Piece = () => {
   }
 
   function toXY(square) {
+    const [x, y] = square.split('');
     return {
       x: ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'].indexOf(x.toLowerCase()),
       y: Number(y),
@@ -27,8 +28,4 @@ const Piece = () => {
   };
 };
 
-/*
-i can have specific piece types extend the piece factory ie. Piece => Knight
-
-
-*/
+export default Piece;
