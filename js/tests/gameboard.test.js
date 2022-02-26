@@ -41,7 +41,9 @@ describe('testing getAllValidMoves', () => {
     const gameboard = Gameboard();
     const rook = Rook();
     gameboard.at('a1').place(rook);
-    expect(gameboard.at('a1').getAllValidMoves()).toEqual([
+
+    const allValidMoves = gameboard.at('a1').getAllValidMoves();
+    const expected = [
       'a2',
       'a3',
       'a4',
@@ -56,7 +58,10 @@ describe('testing getAllValidMoves', () => {
       'f1',
       'g1',
       'h1',
-    ]);
+    ];
+
+    expect(allValidMoves).toEqual(expect.arrayContaining(expected));
+    expect(allValidMoves.length).toBe(expected.length);
   });
 
   test('getAllValidMoves works when obstruction is in front of piece on vertical axis', () => {
@@ -65,16 +70,12 @@ describe('testing getAllValidMoves', () => {
     const secondRook = Rook();
     gameboard.at('a1').place(rook);
     gameboard.at('a3').place(secondRook);
-    expect(gameboard.at('a1').getAllValidMoves()).toEqual([
-      'a2',
-      'b1',
-      'c1',
-      'd1',
-      'e1',
-      'f1',
-      'g1',
-      'h1',
-    ]);
+
+    const allValidMoves = gameboard.at('a1').getAllValidMoves();
+    const expected = ['a2', 'a3', 'b1', 'c1', 'd1', 'e1', 'f1', 'g1', 'h1'];
+
+    expect(allValidMoves).toEqual(expect.arrayContaining(expected));
+    expect(allValidMoves.length).toBe(expected.length);
   });
 
   test('getAllValidMoves works when obstruction is in behind of piece on vertical axis', () => {
@@ -82,8 +83,10 @@ describe('testing getAllValidMoves', () => {
     const rook = Rook();
     const secondRook = Rook();
     gameboard.at('a3').place(rook);
-    gameboard.at('a1').place(secondRook);
-    expect(gameboard.at('a3').getAllValidMoves()).toEqual([
+    gameboard.at('a2').place(secondRook);
+
+    const allValidMoves = gameboard.at('a3').getAllValidMoves();
+    const expected = [
       'a2',
       'a4',
       'a5',
@@ -97,7 +100,10 @@ describe('testing getAllValidMoves', () => {
       'f3',
       'g3',
       'h3',
-    ]);
+    ];
+
+    expect(allValidMoves).toEqual(expect.arrayContaining(expected));
+    expect(allValidMoves.length).toBe(expected.length);
   });
 
   test('getAllValidMoves works when obstruction is both in front and behind a piece on vertical axis', () => {
@@ -110,9 +116,12 @@ describe('testing getAllValidMoves', () => {
     gameboard.at('a3').place(secondRook);
     gameboard.at('a7').place(thirdRook);
 
-    expect(gameboard.at('a5').getAllValidMoves()).toEqual([
+    const allValidMoves = gameboard.at('a5').getAllValidMoves();
+    const expected = [
+      'a3',
       'a4',
       'a6',
+      'a7',
       'b5',
       'c5',
       'd5',
@@ -120,6 +129,98 @@ describe('testing getAllValidMoves', () => {
       'f5',
       'g5',
       'h5',
-    ]);
+    ];
+
+    expect(allValidMoves).toEqual(expect.arrayContaining(expected));
+    expect(allValidMoves.length).toBe(expected.length);
+  });
+
+  test('getAllValidMoves works when obstruction is in front of piece on horizontal axis', () => {
+    const gameboard = Gameboard();
+    const rook = Rook();
+    const secondRook = Rook();
+    gameboard.at('a1').place(rook);
+    gameboard.at('c1').place(secondRook);
+    const allValidMoves = gameboard.at('a1').getAllValidMoves();
+    const expected = ['a2', 'a3', 'a4', 'a5', 'a6', 'a7', 'a8', 'b1', 'c1'];
+
+    expect(allValidMoves).toEqual(expect.arrayContaining(expected));
+    expect(allValidMoves.length).toBe(expected.length);
+  });
+
+  test('getAllValidMoves works when obstruction is behind piece on horizontal axis', () => {
+    const gameboard = Gameboard();
+    const rook = Rook();
+    const secondRook = Rook();
+    gameboard.at('b1').place(rook);
+    gameboard.at('d1').place(secondRook);
+    const allValidMoves = gameboard.at('d1').getAllValidMoves();
+
+    const expected = [
+      'd2',
+      'd3',
+      'd4',
+      'd5',
+      'd6',
+      'd7',
+      'd8',
+      'b1',
+      'c1',
+      'e1',
+      'f1',
+      'g1',
+      'h1',
+    ];
+    expect(allValidMoves).toEqual(expect.arrayContaining(expected));
+    expect(allValidMoves.length).toBe(expected.length);
+  });
+
+  test('getAllValidMoves works when obstruction is both behind and in front of piece on horizontal axis', () => {
+    const gameboard = Gameboard();
+    const rook = Rook();
+    const secondRook = Rook();
+    const thirdRook = Rook();
+
+    gameboard.at('b1').place(rook);
+    gameboard.at('d1').place(secondRook);
+    gameboard.at('g1').place(thirdRook);
+
+    const allValidMoves = gameboard.at('d1').getAllValidMoves();
+    const expected = [
+      'd2',
+      'd3',
+      'd4',
+      'd5',
+      'd6',
+      'd7',
+      'd8',
+      'b1',
+      'c1',
+      'e1',
+      'f1',
+      'g1',
+    ];
+    expect(allValidMoves).toEqual(expect.arrayContaining(expected));
+    expect(allValidMoves.length).toBe(expected.length);
+  });
+
+  test('getAllValidMoves works when obstruction is both behind and in front of piece on horizontal and vertical axis', () => {
+    const gameboard = Gameboard();
+    const rook = Rook();
+    const secondRook = Rook();
+    const thirdRook = Rook();
+    const fourthRook = Rook();
+    const fifthRook = Rook();
+
+    gameboard.at('b5').place(rook);
+    gameboard.at('d5').place(secondRook);
+    gameboard.at('g5').place(thirdRook);
+    gameboard.at('d3').place(fourthRook);
+    gameboard.at('d7').place(fifthRook);
+
+    const allValidMoves = gameboard.at('d5').getAllValidMoves();
+    const expected = ['d3', 'd4', 'd6', 'd7', 'b5', 'c5', 'e5', 'f5', 'g5'];
+    expect(allValidMoves).toEqual(expect.arrayContaining(expected));
+    expect(allValidMoves.length).toBe(expected.length);
   });
 });

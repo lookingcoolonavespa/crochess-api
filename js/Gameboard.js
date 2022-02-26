@@ -38,10 +38,7 @@ const Gameboard = () => {
       );
       if (obstructions.length === 0) return allPossible;
 
-      // split obstructions into x/y axis
-      // get all indexes of obstructions
-      // get closest indexes
-
+      // filter possible moves based on where obstructions are
       const [x, y] = square.split('');
       obstructions = obstructions
         .reduce(
@@ -83,9 +80,10 @@ const Gameboard = () => {
         const [xaxis] = s.split('');
         const indexOfSquare = board.indexOf(s);
         return xaxis === x
-          ? indexOfSquare > xObstructions[0] && indexOfSquare < xObstructions[1]
-          : indexOfSquare > yObstructions[0] &&
-              indexOfSquare < yObstructions[1];
+          ? indexOfSquare >= xObstructions[0] &&
+              indexOfSquare <= xObstructions[1]
+          : indexOfSquare >= yObstructions[0] &&
+              indexOfSquare <= yObstructions[1];
         2;
       });
     },
