@@ -36,7 +36,6 @@ const Gameboard = () => {
       let obstructions = allPossible.filter((s) =>
         allPieces.find((p) => p.square === s)
       );
-
       if (obstructions.length === 0) return allPossible;
 
       // split obstructions into x/y axis
@@ -67,26 +66,27 @@ const Gameboard = () => {
 
                 const [behind, front] = acc;
 
-                if (compare < starting && compare > behind) acc[0] = curr;
-                if (compare > starting && compare < front) acc[1] = curr;
+                if (compare < starting && curr > behind) acc[0] = curr;
+                if (compare > starting && curr < front) acc[1] = curr;
 
                 return acc;
               },
-              [square, 'h8']
+              ['a1', 'h8']
             )
             // transform to index of board
             .map((s) => board.indexOf(s))
         );
 
       return allPossible.filter((s) => {
-        console.log(obstructions);
+        const [xObstructions, yObstructions] = obstructions;
+
+        const [xaxis] = s.split('');
         const indexOfSquare = board.indexOf(s);
-        return (
-          (indexOfSquare > obstructions[0][0] &&
-            indexOfSquare < obstructions[0][1]) ||
-          (indexOfSquare > obstructions[1][0] &&
-            indexOfSquare < obstructions[1][1])
-        );
+        return xaxis === x
+          ? indexOfSquare > xObstructions[0] && indexOfSquare < xObstructions[1]
+          : indexOfSquare > yObstructions[0] &&
+              indexOfSquare < yObstructions[1];
+        2;
       });
     },
   });
