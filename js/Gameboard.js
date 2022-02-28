@@ -1,91 +1,98 @@
-const Gameboard = () => {
-  let allPieces = [];
+import { toXY } from './helpers';
 
+const Gameboard = () => {
   const board = createBoard();
+  const allSquares = Object.keys(board);
   function createBoard() {
     const cols = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
     const rows = [1, 2, 3, 4, 5, 6, 7, 8];
 
-    return cols.map((c) => rows.map((r) => c.concat(r))).flat();
+    return cols.reduce((acc, curr) => {
+      rows.forEach((r) => {
+        const square = curr.concat(r);
+        acc[square] = { piece: null };
+      });
+      return acc;
+    }, {});
   }
 
   const at = (square) => ({
     place: (piece) => {
-      if (board.indexOf(square) === -1) return 'square does not exist';
+      if (Object.keys(board).indexOf(square) === -1)
+        return 'square does not exist';
 
-      piece.to(square);
+      piece.to(square, true);
 
-      allPieces.push({
-        piece,
-        square,
-      });
+      board[square].piece = piece;
     },
     remove: () => {
-      allPieces.filter((p) => p.square === square);
+      board[square].piece = null;
     },
     get piece() {
-      return allPieces.find((p) => p.square === square)?.piece;
+      return board[square].piece;
     },
     getAllValidMoves: () => {
       const piece = at(square).piece;
       if (!piece) return;
 
-      const allPossible = board.filter(
-        (s) => s !== square && piece.isValidMove(s)
-      );
-      let obstructions = allPossible.filter((s) =>
-        allPieces.find((p) => p.square === s)
-      );
-      if (obstructions.length === 0) return allPossible;
-
-      // filter possible moves based on where obstructions are
-      const [x, y] = square.split('');
-      obstructions = obstructions
-        .reduce(
-          // split all obstructions by y/x axis
-          (acc, curr) => {
-            const [xaxis] = curr.split('');
-            if (xaxis === x) acc[0].push(curr);
-            else acc[1].push(curr);
-
-            return acc;
-          },
-          [[], []]
-        )
-        .map((axis, i) =>
-          // get closest obstructions on each axis
-          axis
-            .reduce(
-              (acc, curr) => {
-                const starting = i === 0 ? y : x;
-                const [xaxis, yaxis] = curr.split('');
-                const compare = i === 0 ? yaxis : xaxis;
-
-                const [behind, front] = acc;
-
-                if (compare < starting && curr > behind) acc[0] = curr;
-                if (compare > starting && curr < front) acc[1] = curr;
-
-                return acc;
-              },
-              ['a1', 'h8']
-            )
-            // transform to index of board
-            .map((s) => board.indexOf(s))
-        );
-
-      return allPossible.filter((s) => {
-        const [xObstructions, yObstructions] = obstructions;
-
-        const [xaxis] = s.split('');
-        const indexOfSquare = board.indexOf(s);
-        return xaxis === x
-          ? indexOfSquare >= xObstructions[0] &&
-              indexOfSquare <= xObstructions[1]
-          : indexOfSquare >= yObstructions[0] &&
-              indexOfSquare <= yObstructions[1];
-        2;
+      const allPossible = allSquares.filter((s) => {
+        if (piece.type === 'pawn') {
+          const captureSquares = piece.getCaptureSquares();
+          const capturesAvailable = captureSquares.filter(
+            (s) => board[s].piece
+          );
+          return s !== square && piece.isValidMove(s, capturesAvailable);
+        }
+        return s !== square && piece.isValidMove(s);
       });
+      return allPossible;
+
+      // // filter possible moves based on where obstructions are
+      // obstructions = obstructions
+      //   .reduce(
+      //     // split all obstructions by y/x axis
+      //     (acc, curr) => {
+      //       const [xaxis] = curr.split('');
+      //       if (xaxis === x) acc[0].push(curr);
+      //       else acc[1].push(curr);
+
+      //       return acc;
+      //     },
+      //     [[], []]
+      //   )
+      //   .map((axis, i) =>
+      //     // get closest obstructions on each axis
+      //     axis
+      //       .reduce(
+      //         (acc, curr) => {
+      //           const starting = i === 0 ? y : x;
+      //           const [xaxis, yaxis] = curr.split('');
+      //           const compare = i === 0 ? yaxis : xaxis;
+
+      //           const [behind, front] = acc;
+
+      //           if (compare < starting && curr > behind) acc[0] = curr;
+      //           if (compare > starting && curr < front) acc[1] = curr;
+
+      //           return acc;
+      //         },
+      //         ['a1', 'h8']
+      //       )
+      //       // transform to index of board
+      //       .map((s) => board.indexOf(s))
+      //   );
+
+      // return allPossible.filter((s) => {
+      //   const [xObstructions, yObstructions] = obstructions;
+
+      //   const [xaxis] = s.split('');
+      //   const indexOfSquare = board.indexOf(s);
+      //   return xaxis === x
+      //     ? indexOfSquare >= xObstructions[0] &&
+      //         indexOfSquare <= xObstructions[1]
+      //     : indexOfSquare >= yObstructions[0] &&
+      //         indexOfSquare <= yObstructions[1];
+      // });
     },
   });
 
@@ -96,16 +103,9 @@ const Gameboard = () => {
 
       if (piece.isValidMove(endSquare)) {
         // move piece
-        allPieces = allPieces.map((p) => {
-          if (p.square === startSquare) {
-            p.piece.to(endSquare);
-            return {
-              piece: p.piece,
-              square: endSquare,
-            };
-          }
-          return p;
-        });
+        board[startSquare].piece = null;
+        board[endSquare].piece = piece;
+        piece.to(endSquare);
       }
     },
   });

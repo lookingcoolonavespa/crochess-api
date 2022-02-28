@@ -1,3 +1,5 @@
+import { toXY } from '../helpers';
+
 const Piece = () => {
   let current;
 
@@ -8,14 +10,6 @@ const Piece = () => {
 
   function to(square) {
     current = square;
-  }
-
-  function toXY(square) {
-    const [x, y] = square.split('');
-    return {
-      x: ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'].indexOf(x.toLowerCase()),
-      y: Number(y),
-    };
   }
 
   return {
