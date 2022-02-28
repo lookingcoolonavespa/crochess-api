@@ -1,7 +1,7 @@
 import Piece from './Piece';
 import moves from '../moves.js';
 
-const Bishop = () => {
+const Bishop = (color) => {
   const piece = Piece();
 
   function isValidMove(target) {
@@ -9,6 +9,7 @@ const Bishop = () => {
   }
 
   return {
+    color,
     isValidMove,
     to: piece.to,
   };

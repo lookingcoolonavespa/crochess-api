@@ -1,7 +1,7 @@
 import Piece from './Piece';
 import moves from '../moves.js';
 
-const Queen = () => {
+const Queen = (color) => {
   const piece = Piece();
 
   function isValidMove(target) {
@@ -14,6 +14,7 @@ const Queen = () => {
   }
 
   return {
+    color,
     isValidMove,
     to: piece.to,
   };

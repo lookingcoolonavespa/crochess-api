@@ -337,4 +337,18 @@ describe('testing getAllValidMoves for Pawn (white)', () => {
     expect(allValidMoves).toEqual(expect.arrayContaining(expected));
     expect(allValidMoves.length).toBe(expected.length);
   });
+  test('cant capture own piece', () => {
+    const gameboard = Gameboard();
+    const piece = Pawn('white');
+    const ownPiece = Pawn('white');
+
+    gameboard.at('e2').place(piece);
+    gameboard.at('d3').place(ownPiece);
+
+    const allValidMoves = gameboard.at('e2').getAllValidMoves();
+    const expected = ['e4', 'e3'];
+
+    expect(allValidMoves).toEqual(expect.arrayContaining(expected));
+    expect(allValidMoves.length).toBe(expected.length);
+  });
 });

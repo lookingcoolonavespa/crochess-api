@@ -8,8 +8,9 @@ const Pawn = (color) => {
 
   function getCaptureSquares() {
     const { x, y } = toXY(piece.current);
-    const captureOne = { x: x + 1, y: y + 1 };
-    const captureTwo = { x: x - 1, y: y + 1 };
+    const newY = color === 'white' ? y + 1 : y - 1;
+    const captureOne = { x: x + 1, y: newY };
+    const captureTwo = { x: x - 1, y: newY };
 
     return [fromXY(captureOne), fromXY(captureTwo)];
   }
@@ -39,6 +40,7 @@ const Pawn = (color) => {
   }
 
   return {
+    color,
     isValidMove,
     getCaptureSquares,
     to: (square, initialPlacement) => {

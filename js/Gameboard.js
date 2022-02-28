@@ -39,7 +39,7 @@ const Gameboard = () => {
         if (piece.type === 'pawn') {
           const captureSquares = piece.getCaptureSquares();
           const capturesAvailable = captureSquares.filter(
-            (s) => board[s].piece
+            (s) => board[s].piece && board[s].piece.color !== piece.color
           );
           return s !== square && piece.isValidMove(s, capturesAvailable);
         }
