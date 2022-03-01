@@ -1,15 +1,12 @@
-import { toXY } from '../helpers';
-
-const Piece = () => {
+const Piece = (pieceType) => {
   let current;
 
   const domNode = document.createElement('div');
-  domNode.classList.add('chess-piece');
-
-  let domEl = () => domNode;
+  domNode.classList.add(`chess-piece ${pieceType}`);
 
   function to(square) {
     current = square;
+    domNode.style.gridArea = square;
   }
 
   return {
@@ -18,7 +15,9 @@ const Piece = () => {
     get current() {
       return current;
     },
-    toXY,
+    get domEl() {
+      return domNode;
+    },
   };
 };
 

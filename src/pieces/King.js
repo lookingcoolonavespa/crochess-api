@@ -2,7 +2,7 @@ import Piece from './Piece';
 import moves from '../moves.js';
 
 const King = (color) => {
-  const piece = Piece();
+  const piece = Piece('king');
 
   function isValidMove(target) {
     const currentSquare = piece.toXY(piece.current);
@@ -22,6 +22,7 @@ const King = (color) => {
     isValidMove,
     to: piece.to,
     type: 'king',
+    domEl: piece.domEl,
   };
 };
 

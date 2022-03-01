@@ -12,6 +12,8 @@ const Rook = (color) => {
     color,
     isValidMove,
     to: piece.to,
+    type: 'rook',
+    domEl: piece.domEl,
   };
 };
 

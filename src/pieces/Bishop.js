@@ -2,7 +2,7 @@ import Piece from './Piece';
 import moves from '../moves.js';
 
 const Bishop = (color) => {
-  const piece = Piece();
+  const piece = Piece('bishop');
 
   function isValidMove(target) {
     return moves.diagonal(piece.toXY(piece.current))(piece.toXY(target));
@@ -12,6 +12,8 @@ const Bishop = (color) => {
     color,
     isValidMove,
     to: piece.to,
+    type: 'bishop',
+    domEl: piece.domEl,
   };
 };
 

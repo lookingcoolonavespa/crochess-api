@@ -9,6 +9,7 @@
     'a3 b3 c3 d3 e3 f3 g3 h3'
     'a2 b2 c2 d2 e2 f2 g2 h2'
     'a1 b1 c1 d1 e1 f1 g1 h1';
+  width: fit-content;
 }
 
 .boardSquare {
@@ -17,6 +18,46 @@
   background-color: brown;
 }
 
-.boardSquare:nth-child(2n) {
+.grid-col:nth-child(odd) .boardSquare:nth-child(even) {
   background-color: beige;
+}
+.grid-col:nth-child(even) .boardSquare:nth-child(odd) {
+  background-color: beige;
+}
+
+.pawn.white::after {
+  content: '&#9817;';
+}
+.pawn.black::after {
+  content: '&#9823;';
+}
+.king.white::after {
+  content: '&#9812;';
+}
+.king.black:after {
+  content: '&#9818;';
+}
+.queen.white:after {
+  content: '&#9813;';
+}
+.queen.black:after {
+  content: '&#9819;';
+}
+.rook.white:after {
+  content: '&#9814;';
+}
+.rook.black:after {
+  content: '&#9820;';
+}
+.bishop.white:after {
+  content: '&#9815;';
+}
+.bishop.black:after {
+  content: '&#9821;';
+}
+.knight.white:after {
+  content: '&#9816;';
+}
+.knight.black:after {
+  content: '&#9822;';
 }

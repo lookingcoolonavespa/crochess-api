@@ -17,6 +17,8 @@ const Queen = (color) => {
     color,
     isValidMove,
     to: piece.to,
+    type: 'queen',
+    domEl: piece.domEl,
   };
 };
 

@@ -3,7 +3,7 @@ import moves from '../moves.js';
 import { toXY, fromXY } from '../helpers';
 
 const Pawn = (color) => {
-  const piece = Piece();
+  const piece = Piece('pawn');
   let firstMove = true;
 
   function getCaptureSquares() {
@@ -47,6 +47,7 @@ const Pawn = (color) => {
       if (!initialPlacement) firstMove = false;
       piece.to(square);
     },
+    domEl: piece.domEl,
     type: 'pawn',
   };
 };

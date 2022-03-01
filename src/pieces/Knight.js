@@ -19,6 +19,8 @@ const Knight = (color) => {
     color,
     isValidMove,
     to: piece.to,
+    type: 'knight',
+    domEl: piece.domEl,
   };
 };
 
