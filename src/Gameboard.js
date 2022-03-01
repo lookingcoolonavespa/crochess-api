@@ -1,5 +1,3 @@
-import { toXY } from './helpers';
-
 const Gameboard = () => {
   const board = createBoard();
   const allSquares = Object.keys(board);
