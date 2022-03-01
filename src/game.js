@@ -51,12 +51,12 @@ const game = (() => {
       const row = color === 'white' ? 1 : 8;
       const piecePosition = {
         a: Rook,
-        b: Bishop,
-        c: Knight,
+        b: Knight,
+        c: Bishop,
         d: Queen,
         e: King,
-        f: Knight,
-        g: Bishop,
+        f: Bishop,
+        g: Knight,
         h: Rook,
       };
 

@@ -18,9 +18,13 @@ const Gameboard = () => {
   function createDomBoard() {
     const domBoard = document.createElement('div');
     domBoard.setAttribute('class', 'gameboard');
-    allSquares.forEach((square) => {
+    allSquares.forEach((square, i) => {
+      const evenColumn = cols.indexOf(square.charAt(0)) % 2 === 0;
       const domSquare = document.createElement('div');
-      domSquare.setAttribute('class', 'boardSquare');
+      domSquare.setAttribute(
+        'class',
+        `boardSquare ${evenColumn ? 'col-even' : 'col-odd'}`
+      );
       domSquare.style.gridArea = square;
       domBoard.append(domSquare);
     });

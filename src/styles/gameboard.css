@@ -18,10 +18,10 @@
   background-color: brown;
 }
 
-.grid-col:nth-child(odd) .boardSquare:nth-child(even) {
+.col-even.boardSquare:nth-child(even) {
   background-color: beige;
 }
-.grid-col:nth-child(even) .boardSquare:nth-child(odd) {
+.col-odd.boardSquare:nth-child(odd) {
   background-color: beige;
 }
 
@@ -62,8 +62,8 @@
   content: '\265D';
 }
 .knight.white:after {
-  content: '\265E';
+  content: '\2658';
 }
 .knight.black:after {
-  content: '\265F';
+  content: '\265E';
 }
