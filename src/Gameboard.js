@@ -1,10 +1,12 @@
 const Gameboard = () => {
+  const cols = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
+  const rows = [1, 2, 3, 4, 5, 6, 7, 8];
+
   const board = createBoard();
   const allSquares = Object.keys(board);
-  function createBoard() {
-    const cols = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
-    const rows = [1, 2, 3, 4, 5, 6, 7, 8];
+  const domBoard = createDomBoard();
 
+  function createBoard() {
     return cols.reduce((acc, curr) => {
       rows.forEach((r) => {
         const square = curr.concat(r);
@@ -13,6 +15,18 @@ const Gameboard = () => {
       return acc;
     }, {});
   }
+  function createDomBoard() {
+    const domBoard = document.createElement('div');
+    domBoard.setAttribute('class', 'gameboard');
+    allSquares.forEach((square) => {
+      const domSquare = document.createElement('div');
+      domSquare.setAttribute('class', 'boardSquare');
+      domSquare.style.gridArea = square;
+      domBoard.append(domSquare);
+    });
+
+    return domBoard;
+  }
 
   const at = (square) => ({
     place: (piece) => {
@@ -20,7 +34,7 @@ const Gameboard = () => {
         return 'square does not exist';
 
       piece.to(square, true);
-
+      domBoard.append(piece.domEl);
       board[square].piece = piece;
     },
     remove: () => {
@@ -113,6 +127,9 @@ const Gameboard = () => {
     from,
     get board() {
       return board;
+    },
+    get domBoard() {
+      return domBoard;
     },
   };
 };

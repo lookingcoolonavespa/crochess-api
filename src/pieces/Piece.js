@@ -1,8 +1,8 @@
-const Piece = (pieceType) => {
+const Piece = (pieceType, color) => {
   let current;
 
   const domNode = document.createElement('div');
-  domNode.classList.add(`chess-piece ${pieceType}`);
+  domNode.classList.add('chess-piece', pieceType, color);
 
   function to(square) {
     current = square;
@@ -10,7 +10,6 @@ const Piece = (pieceType) => {
   }
 
   return {
-    domEl,
     to,
     get current() {
       return current;

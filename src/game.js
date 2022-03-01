@@ -1,10 +1,10 @@
-import Gameboard from './Gameboard';
-import Rook from './pieces/Rook';
-import Pawn from './pieces/Pawn';
-import Knight from './pieces/Knight';
-import Bishop from './pieces/Bishop';
-import Queen from './pieces/Queen';
-import King from './pieces/King';
+import Gameboard from './Gameboard.js';
+import Rook from './pieces/Rook.js';
+import Pawn from './pieces/Pawn.js';
+import Knight from './pieces/Knight.js';
+import Bishop from './pieces/Bishop.js';
+import Queen from './pieces/Queen.js';
+import King from './pieces/King.js';
 /*
 pieces need to:
 - have moveset
@@ -28,12 +28,15 @@ const game = (() => {
   let gameboard;
   let turn;
 
-  function init() {
+  function init(wrapper) {
     gameboard = Gameboard();
     placePawns('white');
     placePawns('black');
     placePieces('white');
     placePieces('black');
+    wrapper.textContent = '';
+    wrapper.append(gameboard.domBoard);
+    console.log(gameboard.domBoard);
 
     function placePawns(color) {
       const row = color === 'white' ? 2 : 7;

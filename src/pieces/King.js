@@ -1,8 +1,8 @@
-import Piece from './Piece';
+import Piece from './Piece.js';
 import moves from '../moves.js';
 
 const King = (color) => {
-  const piece = Piece('king');
+  const piece = Piece('king', color);
 
   function isValidMove(target) {
     const currentSquare = piece.toXY(piece.current);

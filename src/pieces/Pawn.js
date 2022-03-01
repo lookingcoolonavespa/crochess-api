@@ -1,9 +1,9 @@
-import Piece from './Piece';
+import Piece from './Piece.js';
 import moves from '../moves.js';
-import { toXY, fromXY } from '../helpers';
+import { toXY, fromXY } from '../helpers.js';
 
 const Pawn = (color) => {
-  const piece = Piece('pawn');
+  const piece = Piece('pawn', color);
   let firstMove = true;
 
   function getCaptureSquares() {

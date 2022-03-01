@@ -1,8 +1,8 @@
-import Piece from './Piece';
+import Piece from './Piece.js';
 import moves from '../moves.js';
 
 const Rook = (color) => {
-  const piece = Piece();
+  const piece = Piece('rook', color);
 
   function isValidMove(target) {
     return moves.vertAndLateral(piece.toXY(piece.current))(piece.toXY(target));

@@ -1,8 +1,8 @@
-import Piece from './Piece';
+import Piece from './Piece.js';
 import moves from '../moves.js';
 
 const Bishop = (color) => {
-  const piece = Piece('bishop');
+  const piece = Piece('bishop', color);
 
   function isValidMove(target) {
     return moves.diagonal(piece.toXY(piece.current))(piece.toXY(target));

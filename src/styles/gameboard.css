@@ -25,39 +25,45 @@
   background-color: beige;
 }
 
+.chess-piece {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 40px;
+}
 .pawn.white::after {
-  content: '&#9817;';
+  content: '\2659';
 }
 .pawn.black::after {
-  content: '&#9823;';
+  content: '\265F';
 }
 .king.white::after {
-  content: '&#9812;';
+  content: '\2654';
 }
 .king.black:after {
-  content: '&#9818;';
+  content: '\265A';
 }
 .queen.white:after {
-  content: '&#9813;';
+  content: '\2655';
 }
 .queen.black:after {
-  content: '&#9819;';
+  content: '\265B';
 }
 .rook.white:after {
-  content: '&#9814;';
+  content: '\2656';
 }
 .rook.black:after {
-  content: '&#9820;';
+  content: '\265C';
 }
 .bishop.white:after {
-  content: '&#9815;';
+  content: '\2657';
 }
 .bishop.black:after {
-  content: '&#9821;';
+  content: '\265D';
 }
 .knight.white:after {
-  content: '&#9816;';
+  content: '\265E';
 }
 .knight.black:after {
-  content: '&#9822;';
+  content: '\265F';
 }
