@@ -1,5 +1,5 @@
 import Piece from './Piece.js';
-import moves from '../moves.js';
+import moves from '../logic/moves.js';
 
 const Knight = (color) => {
   const piece = Piece('knight', color);

@@ -13,8 +13,4 @@ function fromXY(coord) {
   return col.concat(y);
 }
 
-function findVectors(square, compare) {
-  const { x: x1, y: y1 } = toXY(square);
-}
-
 export { toXY, fromXY };

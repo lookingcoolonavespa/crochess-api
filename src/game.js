@@ -36,7 +36,6 @@ const game = (() => {
     placePieces('black');
     wrapper.textContent = '';
     wrapper.append(gameboard.domBoard);
-    console.log(gameboard.domBoard);
 
     function placePawns(color) {
       const row = color === 'white' ? 2 : 7;
