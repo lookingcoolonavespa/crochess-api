@@ -1,8 +1,6 @@
 import {
-  splitIntoVectors,
   getAllPossibleMoves,
-  sortMovesByClosest,
-  removeMovesBehindPiece,
+  filterObstructionsFromMoves,
 } from './logic/moves.js';
 
 const Gameboard = () => {
@@ -59,27 +57,15 @@ const Gameboard = () => {
       if (!piece) return;
 
       const allPossible = getAllPossibleMoves(piece, allSquares);
-
       const obstructions = allPossible.filter((s) => board[s].piece);
-
       if (!obstructions.length) return allPossible;
 
-      let possibleMoves = [];
-      const allVectors = splitIntoVectors(allPossible, square);
-      for (const vector of allVectors) {
-        allVectors[vector] = sortMovesByClosest(allVectors[vector], square);
-        obstructions.forEach((s) => {
-          const enemyPiece = board[s].piece.color !== piece.color;
-          allVectors[vector] = removeMovesBehindPiece(
-            allVectors[vector],
-            s,
-            enemyPiece
-          );
-        });
-        possibleMoves.push(allVectors[vector]);
-      }
-
-      return possibleMoves.flat();
+      return filterObstructionsFromMoves(
+        square,
+        allPossible,
+        obstructions,
+        board
+      );
     },
   });
 

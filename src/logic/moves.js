@@ -32,13 +32,13 @@ function splitIntoVectors(arrayOfMoves, startSquare) {
     if (yDiff > 0) {
       switch (true) {
         case xDiff > 0: {
-          acc.upRightDiagonal = acc.upRightDiagonal || [];
-          acc.upRightDiagonal.push(curr);
+          acc.upRight = acc.upRight || [];
+          acc.upRight.push(curr);
           break;
         }
         case xDiff < 0: {
-          acc.upLeftDiagonal = acc.upLeftDiagonal || [];
-          acc.upLeftDiagonal.push(curr);
+          acc.upLeft = acc.upLeft || [];
+          acc.upLeft.push(curr);
           break;
         }
         case xDiff === 0: {
@@ -49,13 +49,13 @@ function splitIntoVectors(arrayOfMoves, startSquare) {
     } else {
       switch (true) {
         case xDiff > 0: {
-          acc.downRightDiagonal = acc.downRightDiagonal || [];
-          acc.downRightDiagonal.push(curr);
+          acc.downRight = acc.downRight || [];
+          acc.downRight.push(curr);
           break;
         }
         case xDiff < 0: {
-          acc.downLeftDiagonal = acc.downLeftDiagonal || [];
-          acc.downLeftDiagonal.push(curr);
+          acc.downLeft = acc.downLeft || [];
+          acc.downLeft.push(curr);
           break;
         }
         case xDiff === 0: {
@@ -103,15 +103,46 @@ function getAllPossibleMoves(piece, board) {
 function removeMovesBehindPiece(moves, pieceSquare, enemy) {
   const copy = [...moves];
   const indexOfObstruction = moves.indexOf(pieceSquare);
+
   if (indexOfObstruction === -1) return;
+
   const indexToSplice = enemy ? indexOfObstruction + 1 : indexOfObstruction;
   copy.splice(indexToSplice);
+
   return copy;
 }
 
-export {
-  splitIntoVectors,
-  sortMovesByClosest,
-  getAllPossibleMoves,
-  removeMovesBehindPiece,
-};
+function filterObstructionsFromMoves(
+  startingSquare,
+  allPossible,
+  obstructions,
+  board
+) {
+  let filteredMoves = [];
+
+  const allVectors = splitIntoVectors(allPossible, startingSquare);
+  const obstructionVectors = splitIntoVectors(obstructions, startingSquare);
+
+  for (const vector of allVectors) {
+    if (!obstructionVectors[vector]) {
+      filteredMoves.push(allVectors[vector]);
+      continue;
+    }
+
+    const sorted = sortMovesByClosest(allVectors[vector], startingSquare);
+    const closestObstruction = sortMovesByClosest(
+      obstructionVectors[vector],
+      startingSquare
+    )[0];
+
+    const enemy =
+      board[closestObstruction].piece.color !== board[startingSquare].color;
+
+    filteredMoves.push(
+      removeMovesBehindPiece(sorted, closestObstruction, enemy)
+    );
+  }
+
+  return filteredMoves.flat();
+}
+export { filterObstructionsFromMoves, getAllPossibleMoves };
