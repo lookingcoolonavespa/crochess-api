@@ -9,22 +9,22 @@ const Gameboard = () => {
   const rows = [1, 2, 3, 4, 5, 6, 7, 8];
 
   const board = createBoard();
-  const allSquares = Object.keys(board);
+  const allSquares = board.keys();
   const domBoard = createDomBoard();
 
   function createBoard() {
     return cols.reduce((acc, curr) => {
       rows.forEach((r) => {
         const square = curr.concat(r);
-        acc[square] = { piece: null };
+        acc.set(square, { piece: null });
       });
       return acc;
-    }, {});
+    }, new Map());
   }
   function createDomBoard() {
     const domBoard = document.createElement('div');
     domBoard.setAttribute('class', 'gameboard');
-    allSquares.forEach((square, i) => {
+    for (const square in allSquares) {
       const evenColumn = cols.indexOf(square.charAt(0)) % 2 === 0;
       const domSquare = document.createElement('div');
       domSquare.setAttribute(
@@ -33,32 +33,31 @@ const Gameboard = () => {
       );
       domSquare.style.gridArea = square;
       domBoard.append(domSquare);
-    });
+    }
 
     return domBoard;
   }
 
   const at = (square) => ({
     place: (piece) => {
-      if (Object.keys(board).indexOf(square) === -1)
-        return 'square does not exist';
+      if (!board.has(square)) return 'square does not exist';
 
       piece.to(square, true);
       domBoard.append(piece.domEl);
-      board[square].piece = piece;
+      board.set(square, { piece });
     },
     remove: () => {
-      board[square].piece = null;
+      board.set(square, { piece: null });
     },
     get piece() {
-      return board[square].piece;
+      return board.get(square).piece;
     },
     getAllValidMoves: () => {
       const piece = at(square).piece;
       if (!piece) return;
 
       const allPossible = getAllPossibleMoves(piece, board);
-      const obstructions = allPossible.filter((s) => board[s].piece);
+      const obstructions = allPossible.filter((s) => board.get(s).piece);
       if (!obstructions.length) return allPossible;
 
       const unblockedMoves =
@@ -78,8 +77,8 @@ const Gameboard = () => {
       const allValidMoves = at(startSquare).getAllValidMoves();
       if (allValidMoves.indexOf(endSquare) !== -1) {
         // move piece
-        board[startSquare].piece = null;
-        board[endSquare].piece = piece;
+        board.set(startSquare, { piece: null });
+        board.set(endSquare, { piece });
         piece.to(endSquare);
       }
     },

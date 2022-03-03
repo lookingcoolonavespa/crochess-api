@@ -6,7 +6,7 @@ import Pawn from '../pieces/Pawn';
 
 test('gameboard is correct', () => {
   const gameboard = Gameboard();
-  expect(Object.keys(gameboard.board).length).toBe(64);
+  expect(gameboard.board.size).toBe(64);
 });
 
 test('gameboard places pieces correctly', () => {

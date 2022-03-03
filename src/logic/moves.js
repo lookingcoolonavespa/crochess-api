@@ -52,11 +52,12 @@ const sortMovesClosestTo = (square) => (moves) => {
 };
 
 function getAllPossibleMoves(piece, board) {
-  return board.filter((s) => {
+  const allSquares = Array.from(board.keys());
+  return allSquares.filter((s) => {
     if (piece.type === 'pawn') {
       const captureSquares = piece.getCaptureSquares();
       const capturesAvailable = captureSquares.filter(
-        (s) => board[s].piece && board[s].piece.color !== piece.color
+        (s) => board.get(s).piece && board.get(s).piece.color !== piece.color
       );
       return piece.isValidMove(s, capturesAvailable);
     }
@@ -99,7 +100,7 @@ function removeBlockedMoves(startingSquare, allPossible, obstructions) {
 
 function removeMovesWithOwnPieces(moves, board, ownColor) {
   return moves.filter((s) => {
-    return !board[s].piece || board[s].piece.color !== ownColor;
+    return !board.get(s).piece || board.get(s).piece.color !== ownColor;
   });
 }
 
