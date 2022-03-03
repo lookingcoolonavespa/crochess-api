@@ -16,8 +16,8 @@ const Pawn = (color) => {
   }
 
   function isValidMove(target, capturesAvailable) {
-    const currentSquare = piece.toXY(piece.current);
-    const targetSquare = piece.toXY(target);
+    const currentSquare = toXY(piece.current);
+    const targetSquare = toXY(target);
 
     const onlyMovesInFront =
       color === 'white'
@@ -32,6 +32,7 @@ const Pawn = (color) => {
 
     if (target === 'd3') console.log(capturesAvailable.indexOf(target) !== -1);
     return (
+      target !== piece.current &&
       onlyMovesInFront &&
       (regularMoves ||
         (firstMove && firstMoves) ||

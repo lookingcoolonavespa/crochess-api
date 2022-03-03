@@ -3,7 +3,7 @@ import Rook from '../pieces/Rook';
 
 test('toXY works', () => {
   const piece = Piece();
-  expect(piece.toXY('a1')).toEqual({ x: 0, y: 1 });
+  expect(toXY('a1')).toEqual({ x: 0, y: 1 });
 });
 
 test('to works', () => {

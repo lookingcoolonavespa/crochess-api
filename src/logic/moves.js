@@ -1,3 +1,5 @@
+import { calcDistance } from './helpers';
+
 const moves = {
   vertAndLateral:
     ({ x: x1, y: y1 }) =>
@@ -23,69 +25,31 @@ export default moves;
 
 function splitIntoVectors(arrayOfMoves, startSquare) {
   return arrayOfMoves.reduce((acc, curr) => {
-    const { x: x1, y: y1 } = toXY(startSquare);
-    const { x: x2, y: y2 } = toXY(curr);
+    const { xDiff, yDiff } = calcDistance(startSquare)(curr);
 
-    const xDiff = x1 - x2;
-    const yDiff = y1 - y2;
+    let vector = '';
+    if (yDiff !== 0) vector = yDiff < 0 ? 'up' : 'down';
+    if (xDiff !== 0) vector += xDiff < 0 ? 'Right' : 'Left';
+    vector = vector.charAt(0).toLowerCase() + vector.slice(1);
 
-    if (yDiff > 0) {
-      switch (true) {
-        case xDiff > 0: {
-          acc.upRight = acc.upRight || [];
-          acc.upRight.push(curr);
-          break;
-        }
-        case xDiff < 0: {
-          acc.upLeft = acc.upLeft || [];
-          acc.upLeft.push(curr);
-          break;
-        }
-        case xDiff === 0: {
-          acc.up = acc.up || [];
-          acc.up.push(curr);
-        }
-      }
-    } else {
-      switch (true) {
-        case xDiff > 0: {
-          acc.downRight = acc.downRight || [];
-          acc.downRight.push(curr);
-          break;
-        }
-        case xDiff < 0: {
-          acc.downLeft = acc.downLeft || [];
-          acc.downLeft.push(curr);
-          break;
-        }
-        case xDiff === 0: {
-          acc.down = acc.down || [];
-          acc.down.push(curr);
-        }
-      }
-    }
+    acc[vector] = acc[vector] || [];
+    acc[vector].push(curr);
 
     return acc;
   }, {});
 }
 
-function sortMovesByClosest(moves, startSquare) {
+const sortMovesClosestTo = (square) => (moves) => {
   return [...moves].sort((a, b) => {
-    const { x, y } = toXY(startSquare);
-    const { x: x1, y: y1 } = toXY(a);
-    const { x: x2, y: y2 } = toXY(b);
-
-    const x1Diff = x - x1;
-    const y1Diff = y - y1;
+    const { xDiff: x1Diff, yDiff: y1Diff } = calcDistance(square)(a);
     const aDiff = Math.abs(x1Diff) + Math.abs(y1Diff);
 
-    const x2Diff = x - x2;
-    const y2Diff = y - y2;
+    const { xDiff: x2Diff, yDiff: y2Diff } = calcDistance(square)(b);
     const bDiff = Math.abs(x2Diff) + Math.abs(y2Diff);
 
     return aDiff - bDiff;
   });
-}
+};
 
 function getAllPossibleMoves(piece, board) {
   return board.filter((s) => {
@@ -94,55 +58,49 @@ function getAllPossibleMoves(piece, board) {
       const capturesAvailable = captureSquares.filter(
         (s) => board[s].piece && board[s].piece.color !== piece.color
       );
-      return s !== square && piece.isValidMove(s, capturesAvailable);
+      return piece.isValidMove(s, capturesAvailable);
     }
-    return s !== square && piece.isValidMove(s);
+    return piece.isValidMove(s);
   });
 }
 
-function removeMovesBehindPiece(moves, pieceSquare, enemy) {
+const removeMovesBehindSquare = (square) => (moves) => {
   const copy = [...moves];
-  const indexOfObstruction = moves.indexOf(pieceSquare);
+  const index = moves.indexOf(square);
 
-  if (indexOfObstruction === -1) return;
+  if (index === -1) return;
 
-  const indexToSplice = enemy ? indexOfObstruction + 1 : indexOfObstruction;
-  copy.splice(indexToSplice);
+  copy.splice(index + 1);
 
   return copy;
-}
+};
 
-function filterObstructionsFromMoves(
-  startingSquare,
-  allPossible,
-  obstructions,
-  board
-) {
+function removeBlockedMoves(startingSquare, allPossible, obstructions) {
   let filteredMoves = [];
 
   const allVectors = splitIntoVectors(allPossible, startingSquare);
   const obstructionVectors = splitIntoVectors(obstructions, startingSquare);
-
-  for (const vector of allVectors) {
+  for (const vector in allVectors) {
     if (!obstructionVectors[vector]) {
       filteredMoves.push(allVectors[vector]);
       continue;
     }
 
-    const sorted = sortMovesByClosest(allVectors[vector], startingSquare);
-    const closestObstruction = sortMovesByClosest(
-      obstructionVectors[vector],
-      startingSquare
+    const sorted = sortMovesClosestTo(startingSquare)(allVectors[vector]);
+    const closestObstruction = sortMovesClosestTo(startingSquare)(
+      obstructionVectors[vector]
     )[0];
 
-    const enemy =
-      board[closestObstruction].piece.color !== board[startingSquare].color;
-
-    filteredMoves.push(
-      removeMovesBehindPiece(sorted, closestObstruction, enemy)
-    );
+    filteredMoves.push(removeMovesBehindSquare(closestObstruction)(sorted));
   }
 
   return filteredMoves.flat();
 }
-export { filterObstructionsFromMoves, getAllPossibleMoves };
+
+function removeMovesWithOwnPieces(moves, board, ownColor) {
+  return moves.filter((s) => {
+    return !board[s].piece || board[s].piece.color !== ownColor;
+  });
+}
+
+export { removeBlockedMoves, getAllPossibleMoves, removeMovesWithOwnPieces };

@@ -1,15 +1,17 @@
 import Piece from './Piece.js';
 import moves from '../logic/moves.js';
+import { toXY } from '../logic/helpers.js';
 
 const Queen = (color) => {
   const piece = Piece('queen', color);
 
   function isValidMove(target) {
-    const currentSquare = piece.toXY(piece.current);
-    const targetSquare = piece.toXY(target);
+    const currentSquare = toXY(piece.current);
+    const targetSquare = toXY(target);
     return (
-      moves.diagonal(currentSquare)(targetSquare) ||
-      moves.vertAndLateral(currentSquare)(targetSquare)
+      target !== piece.current &&
+      (moves.diagonal(currentSquare)(targetSquare) ||
+        moves.vertAndLateral(currentSquare)(targetSquare))
     );
   }
 

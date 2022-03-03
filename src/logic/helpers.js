@@ -13,4 +13,16 @@ function fromXY(coord) {
   return col.concat(y);
 }
 
-export { toXY, fromXY };
+const calcDistance = (squareOne) => (squareTwo) => {
+  const { x: x1, y: y1 } = toXY(squareOne);
+  const { x: x2, y: y2 } = toXY(squareTwo);
+
+  const xDiff = x1 - x2;
+  const yDiff = y1 - y2;
+  return {
+    xDiff,
+    yDiff,
+  };
+};
+
+export { toXY, fromXY, calcDistance };

@@ -1,6 +1,7 @@
 import {
   getAllPossibleMoves,
-  filterObstructionsFromMoves,
+  removeBlockedMoves,
+  removeMovesWithOwnPieces,
 } from './logic/moves.js';
 
 const Gameboard = () => {
@@ -56,16 +57,16 @@ const Gameboard = () => {
       const piece = at(square).piece;
       if (!piece) return;
 
-      const allPossible = getAllPossibleMoves(piece, allSquares);
+      const allPossible = getAllPossibleMoves(piece, board);
       const obstructions = allPossible.filter((s) => board[s].piece);
       if (!obstructions.length) return allPossible;
 
-      return filterObstructionsFromMoves(
-        square,
-        allPossible,
-        obstructions,
-        board
-      );
+      const unblockedMoves =
+        piece.type === 'knight'
+          ? allPossible
+          : removeBlockedMoves(square, allPossible, obstructions);
+
+      return removeMovesWithOwnPieces(unblockedMoves, board, piece.color);
     },
   });
 
