@@ -1,10 +1,10 @@
-import Gameboard from './Gameboard.js';
-import Rook from './pieces/Rook.js';
-import Pawn from './pieces/Pawn.js';
-import Knight from './pieces/Knight.js';
-import Bishop from './pieces/Bishop.js';
-import Queen from './pieces/Queen.js';
-import King from './pieces/King.js';
+import Gameboard from './Gameboard';
+import Rook from './pieces/Rook';
+import Pawn from './pieces/Pawn';
+import Knight from './pieces/Knight';
+import Bishop from './pieces/Bishop';
+import Queen from './pieces/Queen';
+import King from './pieces/King';
 /*
 pieces need to:
 - have moveset

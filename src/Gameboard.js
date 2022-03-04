@@ -1,4 +1,4 @@
-import { getValidMoves, calcDiscoveredCheck } from './logic/moves.js';
+import { getValidMoves, calcDiscoveredCheck } from './logic/moves';
 
 const Gameboard = () => {
   const cols = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];

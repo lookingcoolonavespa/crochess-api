@@ -1,4 +1,4 @@
-import { calcDistance, toXY } from './helpers.js';
+import { calcDistance, toXY } from './helpers';
 
 const moves = {
   vertAndLateral:

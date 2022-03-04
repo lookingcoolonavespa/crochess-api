@@ -1,6 +1,6 @@
-import Piece from './Piece.js';
-import moves from '../logic/moves.js';
-import { toXY, fromXY } from '../logic/helpers.js';
+import Piece from './Piece';
+import moves from '../logic/moves';
+import { toXY, fromXY } from '../logic/helpers';
 
 const Pawn = (color) => {
   const piece = Piece('pawn', color);
