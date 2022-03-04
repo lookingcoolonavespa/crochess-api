@@ -3,6 +3,7 @@ import Bishop from '../pieces/Bishop';
 import Knight from '../pieces/Knight';
 import Rook from '../pieces/Rook';
 import Pawn from '../pieces/Pawn';
+import King from '../pieces/King';
 
 test('gameboard is correct', () => {
   const gameboard = Gameboard();
@@ -406,5 +407,153 @@ describe('testing getValidMoves for Pawn (white)', () => {
 
     expect(allValidMoves).toEqual(expect.arrayContaining(expected));
     expect(allValidMoves.length).toBe(expected.length);
+  });
+});
+
+describe('testing gameboard.after functions', () => {
+  describe('checkInCheck works', () => {
+    test('when piece hits king after it moves', () => {
+      const gameboard = Gameboard();
+      const king = King('white');
+      const oppRook = Rook('black');
+      const oppRookStartSquare = 'a8';
+      const oppRookEndSquare = 'e8';
+
+      gameboard.at('e1').place(king);
+      gameboard.at('a8').place(oppRook);
+
+      gameboard.from(oppRookStartSquare).to(oppRookEndSquare);
+
+      const inCheck = gameboard
+        .after(oppRookEndSquare)
+        .movedFrom(oppRookStartSquare)
+        .checkInCheck();
+
+      expect(inCheck).toBe(true);
+    });
+    test('no false positive', () => {
+      const gameboard = Gameboard();
+      const king = King('white');
+      const oppRook = Rook('black');
+      const oppRookStartSquare = 'a8';
+      const oppRookEndSquare = 'a8';
+
+      gameboard.at('e1').place(king);
+      gameboard.at('a8').place(oppRook);
+
+      gameboard.from(oppRookStartSquare).to(oppRookEndSquare);
+
+      const inCheck = gameboard
+        .after(oppRookEndSquare)
+        .movedFrom(oppRookStartSquare)
+        .checkInCheck();
+
+      expect(inCheck).toBe(false);
+    });
+    test('discovered check by rook vertically', () => {
+      const gameboard = Gameboard();
+      const king = King('white');
+      const oppRook = Rook('black');
+      const oppBishop = Bishop('black');
+      const oppBishopStartSquare = 'e7';
+      const oppBishopEndSquare = 'f8';
+
+      gameboard.at('e1').place(king);
+      gameboard.at('e8').place(oppRook);
+      gameboard.at(oppBishopStartSquare).place(oppBishop);
+
+      gameboard.from(oppBishopStartSquare).to(oppBishopEndSquare);
+
+      const inCheck = gameboard
+        .after(oppBishopEndSquare)
+        .movedFrom(oppBishopStartSquare)
+        .checkInCheck();
+
+      expect(inCheck).toBe(true);
+    });
+    test('no false positive on vertical axis', () => {
+      const gameboard = Gameboard();
+      const king = King('white');
+      const oppPawn = Pawn('black');
+      const oppBishop = Bishop('black');
+      const oppBishopStartSquare = 'e7';
+      const oppBishopEndSquare = 'f8';
+
+      gameboard.at('e1').place(king);
+      gameboard.at('e8').place(oppPawn);
+      gameboard.at(oppBishopStartSquare).place(oppBishop);
+
+      gameboard.from(oppBishopStartSquare).to(oppBishopEndSquare);
+
+      const inCheck = gameboard
+        .after(oppBishopEndSquare)
+        .movedFrom(oppBishopStartSquare)
+        .checkInCheck();
+
+      expect(inCheck).toBe(false);
+    });
+    test('discovered check by rook laterally', () => {
+      const gameboard = Gameboard();
+      const king = King('white');
+      const oppRook = Rook('black');
+      const oppBishop = Bishop('black');
+      const oppBishopStartSquare = 'b1';
+      const oppBishopEndSquare = 'c2';
+
+      gameboard.at('e1').place(king);
+      gameboard.at('a1').place(oppRook);
+      gameboard.at(oppBishopStartSquare).place(oppBishop);
+
+      gameboard.from(oppBishopStartSquare).to(oppBishopEndSquare);
+
+      const inCheck = gameboard
+        .after(oppBishopEndSquare)
+        .movedFrom(oppBishopStartSquare)
+        .checkInCheck();
+
+      expect(inCheck).toBe(true);
+    });
+    test('no false positive laterally', () => {
+      const gameboard = Gameboard();
+      const king = King('white');
+      const oppKnight = Knight('black');
+      const oppBishop = Bishop('black');
+      const oppBishopStartSquare = 'b1';
+      const oppBishopEndSquare = 'c2';
+
+      gameboard.at('e1').place(king);
+      gameboard.at('a1').place(oppKnight);
+      gameboard.at(oppBishopStartSquare).place(oppBishop);
+
+      gameboard.from(oppBishopStartSquare).to(oppBishopEndSquare);
+
+      const inCheck = gameboard
+        .after(oppBishopEndSquare)
+        .movedFrom(oppBishopStartSquare)
+        .checkInCheck();
+
+      expect(inCheck).toBe(false);
+    });
+    test('discovered check by bishop', () => {
+      const gameboard = Gameboard();
+      const king = King('white');
+      const oppRook = Rook('black');
+      const oppBishop = Bishop('black');
+      const oppRookStartSquare = 'b4';
+      const oppRookEndSquare = 'b8';
+
+      gameboard.at('e1').place(king);
+      gameboard.at('a5').place(oppBishop);
+      gameboard.at(oppRookStartSquare).place(oppRook);
+
+      gameboard.from(oppRookStartSquare).to(oppRookEndSquare);
+
+      const inCheck = gameboard
+        .after(oppRookEndSquare)
+        .movedFrom(oppRookStartSquare)
+        .checkInCheck();
+
+      expect(inCheck).toBe(true);
+    });
   });
 });

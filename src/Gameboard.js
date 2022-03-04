@@ -44,7 +44,11 @@ const Gameboard = () => {
 
   function getKingPosition(color) {
     for (let [square, value] of board.entries()) {
-      if (value.piece.type === 'king' && value.piece.color === color)
+      if (
+        value.piece &&
+        value.piece.type === 'king' &&
+        value.piece.color === color
+      )
         return square;
     }
   }
@@ -67,7 +71,7 @@ const Gameboard = () => {
       const piece = at(square).piece;
       if (!piece) return;
 
-      return getValidMoves(piece, board);
+      return getValidMoves(square, board);
     },
   });
 
@@ -88,17 +92,23 @@ const Gameboard = () => {
     },
   });
 
-  const after = (piece) => ({
-    moves: (from) => ({
+  const after = (endSquare) => ({
+    movedFrom: (startSquare) => ({
       checkInCheck: () => {
+        const piece = board.get(endSquare).piece;
         const oppColor = piece.color === 'white' ? 'black' : 'white';
-
         const kingPosition = getKingPosition(oppColor);
 
-        const pieceHitsKing = getValidMoves(piece, board);
+        const pieceHitsKing = getValidMoves(endSquare, board).includes(
+          kingPosition
+        );
         if (pieceHitsKing) return true;
 
-        const discoveredCheck = calcDiscoveredCheck(kingPosition, from, board);
+        const discoveredCheck = calcDiscoveredCheck(
+          kingPosition,
+          startSquare,
+          board
+        );
         return discoveredCheck;
       },
     }),

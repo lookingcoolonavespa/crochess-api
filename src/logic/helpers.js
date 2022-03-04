@@ -9,6 +9,7 @@ function toXY(square) {
 function fromXY(coord) {
   const { x, y } = coord;
   const col = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'][x];
+  if (!col) return;
 
   return col.concat(y);
 }

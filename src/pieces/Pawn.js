@@ -30,7 +30,6 @@ const Pawn = (color) => {
       moves.yByN(2)(currentSquare)(targetSquare) &&
       currentSquare.x === targetSquare.x;
 
-    if (target === 'd3') console.log(capturesAvailable.indexOf(target) !== -1);
     return (
       target !== piece.current &&
       onlyMovesInFront &&

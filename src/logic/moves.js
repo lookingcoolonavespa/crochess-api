@@ -104,7 +104,8 @@ function removeMovesWithOwnPieces(moves, board, ownColor) {
   });
 }
 
-function getValidMoves(piece, board) {
+function getValidMoves(square, board) {
+  const piece = board.get(square).piece;
   const allPossible = getPossibleMoves(piece, board);
   const obstructions = allPossible.filter((s) => board.get(s).piece);
   if (!obstructions.length) return allPossible;
@@ -126,7 +127,6 @@ const getMovesAlongVector = (squareOne, squareTwo, board) => {
   if (!liesOnSameLine) return false;
 
   const matchingVector = liesSameDiagonally ? 'diagonal' : 'vertAndLateral';
-
   const squaresAlongVector = board.filter(
     (s) =>
       s !== squareOne &&
@@ -142,19 +142,22 @@ function calcDiscoveredCheck(kingPosition, openSquare, board) {
   const squaresAlongVector = getMovesAlongVector(
     kingPosition,
     openSquare,
-    board
+    Array.from(board.keys())
   );
 
   if (!squaresAlongVector) return false;
 
   const kingColor = board.get(kingPosition).piece.color;
 
-  for (const move of squaresAlongVector) {
-    const piece = board.get(move).piece;
+  for (const square of squaresAlongVector) {
+    const piece = board.get(square).piece;
     if (!piece || piece.color === kingColor) continue;
-    const validMoves = getValidMoves(piece, board);
+    const validMoves = getValidMoves(square, board);
+    console.log(validMoves);
     if (validMoves.indexOf(kingPosition) !== -1) return true;
   }
+
+  return false;
 }
 
 export { getValidMoves, calcDiscoveredCheck };
