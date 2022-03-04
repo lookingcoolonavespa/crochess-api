@@ -49,13 +49,13 @@ describe('isValidMove works correctly for each piece', () => {
   });
 });
 
-describe('testing getAllValidMoves for Rook', () => {
+describe('testing getValidMoves for Rook', () => {
   test('no obstructions', () => {
     const gameboard = Gameboard();
     const rook = Rook();
     gameboard.at('a1').place(rook);
 
-    const allValidMoves = gameboard.at('a1').getAllValidMoves();
+    const allValidMoves = gameboard.at('a1').getValidMoves();
     const expected = [
       'a2',
       'a3',
@@ -84,7 +84,7 @@ describe('testing getAllValidMoves for Rook', () => {
     gameboard.at('a1').place(rook);
     gameboard.at('a3').place(secondRook);
 
-    const allValidMoves = gameboard.at('a1').getAllValidMoves();
+    const allValidMoves = gameboard.at('a1').getValidMoves();
     const expected = ['a2', 'b1', 'c1', 'd1', 'e1', 'f1', 'g1', 'h1'];
 
     expect(allValidMoves).toEqual(expect.arrayContaining(expected));
@@ -98,7 +98,7 @@ describe('testing getAllValidMoves for Rook', () => {
     gameboard.at('a3').place(rook);
     gameboard.at('a2').place(secondRook);
 
-    const allValidMoves = gameboard.at('a3').getAllValidMoves();
+    const allValidMoves = gameboard.at('a3').getValidMoves();
     const expected = [
       'a2',
       'a4',
@@ -129,7 +129,7 @@ describe('testing getAllValidMoves for Rook', () => {
     gameboard.at('a3').place(secondRook);
     gameboard.at('a7').place(thirdRook);
 
-    const allValidMoves = gameboard.at('a5').getAllValidMoves();
+    const allValidMoves = gameboard.at('a5').getValidMoves();
     const expected = [
       'a3',
       'a4',
@@ -154,7 +154,7 @@ describe('testing getAllValidMoves for Rook', () => {
     const secondRook = Rook('white');
     gameboard.at('a1').place(rook);
     gameboard.at('c1').place(secondRook);
-    const allValidMoves = gameboard.at('a1').getAllValidMoves();
+    const allValidMoves = gameboard.at('a1').getValidMoves();
     const expected = ['a2', 'a3', 'a4', 'a5', 'a6', 'a7', 'a8', 'b1', 'c1'];
 
     expect(allValidMoves).toEqual(expect.arrayContaining(expected));
@@ -167,7 +167,7 @@ describe('testing getAllValidMoves for Rook', () => {
     const secondRook = Rook('white');
     gameboard.at('b1').place(rook);
     gameboard.at('d1').place(secondRook);
-    const allValidMoves = gameboard.at('d1').getAllValidMoves();
+    const allValidMoves = gameboard.at('d1').getValidMoves();
 
     const expected = [
       'd2',
@@ -198,7 +198,7 @@ describe('testing getAllValidMoves for Rook', () => {
     gameboard.at('d1').place(secondRook);
     gameboard.at('g1').place(thirdRook);
 
-    const allValidMoves = gameboard.at('d1').getAllValidMoves();
+    const allValidMoves = gameboard.at('d1').getValidMoves();
     const expected = [
       'd2',
       'd3',
@@ -231,7 +231,7 @@ describe('testing getAllValidMoves for Rook', () => {
     gameboard.at('d3').place(fourthRook);
     gameboard.at('d7').place(fifthRook);
 
-    const allValidMoves = gameboard.at('d5').getAllValidMoves();
+    const allValidMoves = gameboard.at('d5').getValidMoves();
     const expected = ['d3', 'd4', 'd6', 'd7', 'b5', 'c5', 'e5', 'f5', 'g5'];
 
     expect(allValidMoves).toEqual(expect.arrayContaining(expected));
@@ -239,14 +239,14 @@ describe('testing getAllValidMoves for Rook', () => {
   });
 });
 
-describe('testing getAllValidMoves for Bishop', () => {
+describe('testing getValidMoves for Bishop', () => {
   test('no obstructions', () => {
     const gameboard = Gameboard();
     const bishop = Bishop();
 
     gameboard.at('d4').place(bishop);
 
-    const allValidMoves = gameboard.at('d4').getAllValidMoves();
+    const allValidMoves = gameboard.at('d4').getValidMoves();
     const expected = [
       'c3',
       'b2',
@@ -275,7 +275,7 @@ describe('testing getAllValidMoves for Bishop', () => {
     gameboard.at('d4').place(bishop);
     gameboard.at('f6').place(secondBishop);
 
-    const allValidMoves = gameboard.at('d4').getAllValidMoves();
+    const allValidMoves = gameboard.at('d4').getValidMoves();
     const expected = [
       'c3',
       'b2',
@@ -302,7 +302,7 @@ describe('testing getAllValidMoves for Bishop', () => {
     gameboard.at('d4').place(bishop);
     gameboard.at('b6').place(secondBishop);
 
-    const allValidMoves = gameboard.at('d4').getAllValidMoves();
+    const allValidMoves = gameboard.at('d4').getValidMoves();
     const expected = [
       'c3',
       'b2',
@@ -322,14 +322,14 @@ describe('testing getAllValidMoves for Bishop', () => {
   });
 });
 
-describe('testing getAllValidMoves for Knight', () => {
-  test('getAllValidMoves works', () => {
+describe('testing getValidMoves for Knight', () => {
+  test('getValidMoves works', () => {
     const gameboard = Gameboard();
     const knight = Knight();
 
     gameboard.at('d4').place(knight);
 
-    const allValidMoves = gameboard.at('d4').getAllValidMoves();
+    const allValidMoves = gameboard.at('d4').getValidMoves();
     const expected = ['c6', 'e6', 'c2', 'e2', 'b5', 'b3', 'f5', 'f3'];
 
     expect(allValidMoves).toEqual(expect.arrayContaining(expected));
@@ -358,7 +358,7 @@ describe('testing getAllValidMoves for Knight', () => {
     gameboard.at('f5').place(rook7);
     gameboard.at('f3').place(rook8);
 
-    const allValidMoves = gameboard.at('d4').getAllValidMoves();
+    const allValidMoves = gameboard.at('d4').getValidMoves();
     const expected = [];
 
     expect(allValidMoves).toEqual(expect.arrayContaining(expected));
@@ -366,14 +366,14 @@ describe('testing getAllValidMoves for Knight', () => {
   });
 });
 
-describe('testing getAllValidMoves for Pawn (white)', () => {
+describe('testing getValidMoves for Pawn (white)', () => {
   test('no obstructions', () => {
     const gameboard = Gameboard();
     const piece = Pawn('white');
 
     gameboard.at('e2').place(piece);
 
-    const allValidMoves = gameboard.at('e2').getAllValidMoves();
+    const allValidMoves = gameboard.at('e2').getValidMoves();
     const expected = ['e4', 'e3'];
 
     expect(allValidMoves).toEqual(expect.arrayContaining(expected));
@@ -387,7 +387,7 @@ describe('testing getAllValidMoves for Pawn (white)', () => {
     gameboard.at('e2').place(piece);
     gameboard.at('d3').place(pieceToBeCaptured);
 
-    const allValidMoves = gameboard.at('e2').getAllValidMoves();
+    const allValidMoves = gameboard.at('e2').getValidMoves();
     const expected = ['e4', 'e3', 'd3'];
 
     expect(allValidMoves).toEqual(expect.arrayContaining(expected));
@@ -401,7 +401,7 @@ describe('testing getAllValidMoves for Pawn (white)', () => {
     gameboard.at('e2').place(piece);
     gameboard.at('d3').place(ownPiece);
 
-    const allValidMoves = gameboard.at('e2').getAllValidMoves();
+    const allValidMoves = gameboard.at('e2').getValidMoves();
     const expected = ['e4', 'e3'];
 
     expect(allValidMoves).toEqual(expect.arrayContaining(expected));

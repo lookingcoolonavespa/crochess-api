@@ -1,8 +1,4 @@
-import {
-  getAllPossibleMoves,
-  removeBlockedMoves,
-  removeMovesWithOwnPieces,
-} from './logic/moves.js';
+import { getValidMoves, calcDiscoveredCheck } from './logic/moves.js';
 
 const Gameboard = () => {
   const cols = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
@@ -24,7 +20,7 @@ const Gameboard = () => {
   function createDomBoard() {
     const domBoard = document.createElement('div');
     domBoard.setAttribute('class', 'gameboard');
-    for (const square in allSquares) {
+    for (const square of allSquares) {
       const evenColumn = cols.indexOf(square.charAt(0)) % 2 === 0;
       const domSquare = document.createElement('div');
       domSquare.setAttribute(
@@ -36,6 +32,21 @@ const Gameboard = () => {
     }
 
     return domBoard;
+  }
+
+  function getSquaresOfPieces(color) {
+    let squares = [];
+    for (let [square, value] of board.entries()) {
+      if (value.piece && value.piece.color === color) squares.push(square);
+    }
+    return squares;
+  }
+
+  function getKingPosition(color) {
+    for (let [square, value] of board.entries()) {
+      if (value.piece.type === 'king' && value.piece.color === color)
+        return square;
+    }
   }
 
   const at = (square) => ({
@@ -52,20 +63,11 @@ const Gameboard = () => {
     get piece() {
       return board.get(square).piece;
     },
-    getAllValidMoves: () => {
+    getValidMoves: () => {
       const piece = at(square).piece;
       if (!piece) return;
 
-      const allPossible = getAllPossibleMoves(piece, board);
-      const obstructions = allPossible.filter((s) => board.get(s).piece);
-      if (!obstructions.length) return allPossible;
-
-      const unblockedMoves =
-        piece.type === 'knight'
-          ? allPossible
-          : removeBlockedMoves(square, allPossible, obstructions);
-
-      return removeMovesWithOwnPieces(unblockedMoves, board, piece.color);
+      return getValidMoves(piece, board);
     },
   });
 
@@ -74,19 +76,38 @@ const Gameboard = () => {
       const piece = at(startSquare).piece;
       if (!piece) return;
 
-      const allValidMoves = at(startSquare).getAllValidMoves();
-      if (allValidMoves.indexOf(endSquare) !== -1) {
+      const validMoves = at(startSquare).getValidMoves();
+      if (validMoves.indexOf(endSquare) !== -1) {
         // move piece
         board.set(startSquare, { piece: null });
         board.set(endSquare, { piece });
         piece.to(endSquare);
       }
+
+      return piece;
     },
+  });
+
+  const after = (piece) => ({
+    moves: (from) => ({
+      checkInCheck: () => {
+        const oppColor = piece.color === 'white' ? 'black' : 'white';
+
+        const kingPosition = getKingPosition(oppColor);
+
+        const pieceHitsKing = getValidMoves(piece, board);
+        if (pieceHitsKing) return true;
+
+        const discoveredCheck = calcDiscoveredCheck(kingPosition, from, board);
+        return discoveredCheck;
+      },
+    }),
   });
 
   return {
     at,
     from,
+    after,
     get board() {
       return board;
     },

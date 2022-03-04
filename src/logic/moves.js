@@ -1,4 +1,4 @@
-import { calcDistance } from './helpers';
+import { calcDistance, toXY } from './helpers.js';
 
 const moves = {
   vertAndLateral:
@@ -51,7 +51,7 @@ const sortMovesClosestTo = (square) => (moves) => {
   });
 };
 
-function getAllPossibleMoves(piece, board) {
+function getPossibleMoves(piece, board) {
   const allSquares = Array.from(board.keys());
   return allSquares.filter((s) => {
     if (piece.type === 'pawn') {
@@ -104,4 +104,57 @@ function removeMovesWithOwnPieces(moves, board, ownColor) {
   });
 }
 
-export { removeBlockedMoves, getAllPossibleMoves, removeMovesWithOwnPieces };
+function getValidMoves(piece, board) {
+  const allPossible = getPossibleMoves(piece, board);
+  const obstructions = allPossible.filter((s) => board.get(s).piece);
+  if (!obstructions.length) return allPossible;
+
+  const unblockedMoves =
+    piece.type === 'knight'
+      ? allPossible
+      : removeBlockedMoves(square, allPossible, obstructions);
+
+  return removeMovesWithOwnPieces(unblockedMoves, board, piece.color);
+}
+
+const getMovesAlongVector = (squareOne, squareTwo, board) => {
+  const liesSameVertOrLat = moves.vertAndLateral(toXY(squareOne))(
+    toXY(squareTwo)
+  );
+  const liesSameDiagonally = moves.diagonal(toXY(squareOne))(toXY(squareTwo));
+  const liesOnSameLine = liesSameVertOrLat || liesSameDiagonally;
+  if (!liesOnSameLine) return false;
+
+  const matchingVector = liesSameDiagonally ? 'diagonal' : 'vertAndLateral';
+
+  const squaresAlongVector = board.filter(
+    (s) =>
+      s !== squareOne &&
+      s !== squareTwo &&
+      moves[matchingVector](toXY(squareOne))(toXY(s)) &&
+      moves[matchingVector](toXY(squareTwo))(toXY(s))
+  );
+
+  return squaresAlongVector;
+};
+
+function calcDiscoveredCheck(kingPosition, openSquare, board) {
+  const squaresAlongVector = getMovesAlongVector(
+    kingPosition,
+    openSquare,
+    board
+  );
+
+  if (!squaresAlongVector) return false;
+
+  const kingColor = board.get(kingPosition).piece.color;
+
+  for (const move of squaresAlongVector) {
+    const piece = board.get(move).piece;
+    if (!piece || piece.color === kingColor) continue;
+    const validMoves = getValidMoves(piece, board);
+    if (validMoves.indexOf(kingPosition) !== -1) return true;
+  }
+}
+
+export { getValidMoves, calcDiscoveredCheck };
