@@ -1,5 +1,5 @@
 import { calcDistance, toXY } from './helpers.js';
-import { Coord, HalfCoord, Piece, Pawn } from '../types/interfaces';
+import { Coord, xCoord, yCoord, Piece, Pawn } from '../types/interfaces';
 import { Moves, Board, Square, Color } from '../types/types';
 
 const moves = {
@@ -13,20 +13,23 @@ const moves = {
       Math.abs(x2 - x1) === Math.abs(y2 - y1),
   xByN:
     (num: number) =>
-    ({ x: x1 }: HalfCoord) =>
-    ({ x: x2 }: HalfCoord) =>
+    ({ x: x1 }: xCoord) =>
+    ({ x: x2 }: xCoord) =>
       Math.abs(x1 - x2) === num,
   yByN:
     (num: number) =>
-    ({ y: y1 }: HalfCoord) =>
-    ({ y: y2 }: HalfCoord) =>
-      Math.abs(y1 - y2) === num,
+    ({ y: y1 }: yCoord) =>
+    ({ y: y2 }: yCoord) =>
+      Math.abs(y1 - y2) === num
 };
 
 export default moves;
 
 function splitIntoVectors(arrayOfMoves: Moves, startSquare: Square) {
-  return arrayOfMoves.reduce((acc, curr) => {
+  interface Vectors {
+    [key: string]: string[];
+  }
+  return arrayOfMoves.reduce((acc: Vectors, curr) => {
     const { xDiff, yDiff } = calcDistance(startSquare)(curr);
 
     let vector = '';
@@ -58,9 +61,13 @@ function getPossibleMoves(piece: Piece | Pawn, board: Board) {
   return allSquares.filter((s) => {
     if (piece.type === 'pawn') {
       const captureSquares = piece.getCaptureSquares();
-      const capturesAvailable = captureSquares.filter(
-        (s) => board.get(s).piece && board.get(s).piece.color !== piece.color
-      );
+
+      const capturesAvailable = captureSquares.filter((s) => {
+        if (typeof s === 'undefined') return false;
+        return (
+          board.get(s)?.piece && board.get(s)?.piece?.color !== piece.color
+        );
+      });
       return piece.isValidMove(s, capturesAvailable);
     }
     return piece.isValidMove(s);
@@ -71,7 +78,7 @@ const removeMovesBehindSquare = (square: Square) => (moves: Moves) => {
   const copy = [...moves];
   const index = moves.indexOf(square);
 
-  if (index === -1) return;
+  if (index === -1) return '';
 
   copy.splice(index + 1);
 
@@ -82,8 +89,8 @@ function removeBlockedMoves(
   startingSquare: Square,
   allPossible: Moves,
   obstructions: Moves
-) {
-  let filteredMoves = [];
+): string[] {
+  const filteredMoves = [];
 
   const allVectors = splitIntoVectors(allPossible, startingSquare);
   const obstructionVectors = splitIntoVectors(obstructions, startingSquare);
@@ -106,14 +113,13 @@ function removeBlockedMoves(
 
 function removeMovesWithOwnPieces(moves: Moves, board: Board, ownColor: Color) {
   return moves.filter((s) => {
-    return !board.get(s).piece || board.get(s).piece.color !== ownColor;
+    return !board.get(s)?.piece || board.get(s)?.piece?.color !== ownColor;
   });
 }
 
-function getValidMoves(square: Square, board: Board) {
-  const piece = board.get(square).piece;
+function getValidMoves(piece: Piece | Pawn, square: Square, board: Board) {
   const allPossible = getPossibleMoves(piece, board);
-  const obstructions = allPossible.filter((s) => board.get(s).piece);
+  const obstructions = allPossible.filter((s) => board.get(s)?.piece);
   if (!obstructions.length) return allPossible;
 
   const unblockedMoves =
@@ -161,13 +167,12 @@ function calcDiscoveredCheck(
 
   if (!squaresAlongVector) return false;
 
-  const kingColor = board.get(kingPosition).piece.color;
+  const kingColor = board.get(kingPosition)?.piece?.color;
 
   for (const square of squaresAlongVector) {
-    const piece = board.get(square).piece;
+    const piece = board.get(square)?.piece;
     if (!piece || piece.color === kingColor) continue;
-    const validMoves = getValidMoves(square, board);
-    console.log(validMoves);
+    const validMoves = getValidMoves(piece, square, board);
     if (validMoves.indexOf(kingPosition) !== -1) return true;
   }
 

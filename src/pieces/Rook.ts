@@ -6,6 +6,7 @@ import { Color, Square } from '../types/types';
 
 const Rook = (color: Color) => {
   const piece = Piece('rook', color);
+  const type = 'rook';
 
   function isValidMove(target: Square) {
     return (
@@ -18,8 +19,12 @@ const Rook = (color: Color) => {
     color,
     isValidMove,
     to: piece.to,
-    type: 'rook',
-    domEl: piece.domEl
+    get domEl() {
+      return piece.domEl;
+    },
+    get type() {
+      return type;
+    }
   };
 };
 

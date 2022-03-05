@@ -6,6 +6,7 @@ import { Color, Square } from '../types/types';
 
 const Bishop = (color: Color) => {
   const piece = Piece('bishop', color);
+  const type = 'bishop' as const;
 
   function isValidMove(target: Square) {
     return (
@@ -18,8 +19,12 @@ const Bishop = (color: Color) => {
     color,
     isValidMove,
     to: piece.to,
-    type: 'bishop',
-    domEl: piece.domEl
+    get domEl() {
+      return piece.domEl;
+    },
+    get type() {
+      return type;
+    }
   };
 };
 

@@ -6,9 +6,11 @@ import { Color, Square, Moves } from '../types/types';
 
 const Pawn = (color: Color) => {
   const piece = Piece('pawn', color);
+  const type = 'pawn' as const;
   let firstMove = true;
 
   function getCaptureSquares() {
+    if (!piece.current) return;
     const { x, y } = toXY(piece.current);
     const newY = color === 'white' ? y + 1 : y - 1;
     const captureOne = { x: x + 1, y: newY };
@@ -49,8 +51,12 @@ const Pawn = (color: Color) => {
       if (!initialPlacement) firstMove = false;
       piece.to(square);
     },
-    domEl: piece.domEl,
-    type: 'pawn'
+    get domEl() {
+      return piece.domEl;
+    },
+    get type() {
+      return type;
+    }
   };
 };
 

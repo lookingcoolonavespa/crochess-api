@@ -7,12 +7,17 @@ import Queen from '../pieces/Queen';
 import King from '../pieces/King';
 
 import { Color } from '../types/types';
+import {
+  Gameboard as GameboardInterface,
+  Piece,
+  Pawn as PawnInterface
+} from '../types/interfaces';
 
 const game = (() => {
-  let gameboard;
+  let gameboard: GameboardInterface;
   const turn = 'white';
 
-  function init(wrapper: HTMLElement) {
+  function init(wrapper: Element) {
     gameboard = Gameboard();
     placePawns('white');
     placePawns('black');
@@ -30,9 +35,12 @@ const game = (() => {
       });
     }
 
-    function placePieces(color) {
+    function placePieces(color: Color) {
       const row = color === 'white' ? 1 : 8;
-      const piecePosition = {
+      interface PiecePosition {
+        [key: string]: (color: Color) => Piece;
+      }
+      const piecePosition: PiecePosition = {
         a: Rook,
         b: Knight,
         c: Bishop,

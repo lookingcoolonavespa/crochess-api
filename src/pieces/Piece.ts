@@ -1,12 +1,12 @@
-import { Color, PieceType } from '../types/types';
+import { Color, PieceType, Square } from '../types/types';
 
 const Piece = (pieceType: PieceType, color: Color) => {
-  let current;
+  let current = '';
 
   const domNode = document.createElement('div');
   domNode.classList.add('chess-piece', pieceType, color);
 
-  function to(square) {
+  function to(square: Square) {
     current = square;
     domNode.style.gridArea = square;
   }

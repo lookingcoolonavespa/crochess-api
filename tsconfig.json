@@ -2,10 +2,12 @@
   "compilerOptions": {
     "outDir": "./build",
     "allowJs": true,
+    "module": "es6",
     "target": "es5",
     "downlevelIteration": true,
     "noImplicitAny": true,
-    "strictNullChecks": true
+    "strictNullChecks": true,
+    "sourceMap": true
   },
   "include": ["./src/**/*"]
 }

@@ -14,7 +14,7 @@ const Gameboard = () => {
   function createBoard() {
     return cols.reduce((acc, curr) => {
       rows.forEach((r) => {
-        const square = curr.concat(r);
+        const square = curr.concat(r.toString());
         acc.set(square, { piece: null });
       });
       return acc;
@@ -37,13 +37,13 @@ const Gameboard = () => {
     return domBoard;
   }
 
-  function getSquaresOfPieces(color: Color) {
-    const squares = [];
-    for (const [square, value] of board.entries()) {
-      if (value.piece && value.piece.color === color) squares.push(square);
-    }
-    return squares;
-  }
+  // function getSquaresOfPieces(color: Color) {
+  //   const squares = [];
+  //   for (const [square, value] of board.entries()) {
+  //     if (value.piece && value.piece.color === color) squares.push(square);
+  //   }
+  //   return squares;
+  // }
 
   function getKingPosition(color: Color) {
     for (const [square, value] of board.entries()) {
@@ -74,7 +74,7 @@ const Gameboard = () => {
       const piece = at(square).piece;
       if (!piece) return;
 
-      return getValidMoves(square, board);
+      return getValidMoves(piece, square, board);
     }
   });
 
@@ -84,7 +84,7 @@ const Gameboard = () => {
       if (!piece) return;
 
       const validMoves = at(startSquare).getValidMoves();
-      if (validMoves.indexOf(endSquare) !== -1) {
+      if (Array.isArray(validMoves) && validMoves.indexOf(endSquare) !== -1) {
         // move piece
         board.set(startSquare, { piece: null });
         board.set(endSquare, { piece });
@@ -102,7 +102,7 @@ const Gameboard = () => {
         const oppColor = piece.color === 'white' ? 'black' : 'white';
         const kingPosition = getKingPosition(oppColor);
 
-        const pieceHitsKing = getValidMoves(endSquare, board).includes(
+        const pieceHitsKing = getValidMoves(piece, endSquare, board).includes(
           kingPosition
         );
         if (pieceHitsKing) return true;

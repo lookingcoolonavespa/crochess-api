@@ -6,6 +6,7 @@ import { Color, Square } from '../types/types';
 
 const Knight = (color: Color) => {
   const piece = Piece('knight', color);
+  const type = 'knight' as const;
 
   function isValidMove(target: Square) {
     const currentSquare = toXY(piece.current);
@@ -23,8 +24,12 @@ const Knight = (color: Color) => {
     color,
     isValidMove,
     to: piece.to,
-    type: 'knight',
-    domEl: piece.domEl
+    get domEl() {
+      return piece.domEl;
+    },
+    get type() {
+      return type;
+    }
   };
 };
 
