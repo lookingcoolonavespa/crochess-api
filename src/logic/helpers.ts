@@ -1,0 +1,29 @@
+function toXY(square: string) {
+  const [x, y] = square.split('');
+  return {
+    x: ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'].indexOf(x.toLowerCase()),
+    y: Number(y),
+  };
+}
+
+function fromXY(coord: { x: string; y: number }) {
+  const { x, y } = coord;
+  const col = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'][x];
+  if (!col) return;
+
+  return col.concat(y);
+}
+
+const calcDistance = (squareOne: string) => (squareTwo: string) => {
+  const { x: x1, y: y1 } = toXY(squareOne);
+  const { x: x2, y: y2 } = toXY(squareTwo);
+
+  const xDiff = x1 - x2;
+  const yDiff = y1 - y2;
+  return {
+    xDiff,
+    yDiff,
+  };
+};
+
+export { toXY, fromXY, calcDistance };
