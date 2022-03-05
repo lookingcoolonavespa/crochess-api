@@ -1,17 +1,20 @@
-function toXY(square: string) {
+import { Coord } from '../types/interfaces';
+import { Square } from '../types/types';
+
+function toXY(square: Square) {
   const [x, y] = square.split('');
   return {
     x: ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'].indexOf(x.toLowerCase()),
-    y: Number(y),
+    y: Number(y)
   };
 }
 
-function fromXY(coord: { x: string; y: number }) {
+function fromXY(coord: Coord) {
   const { x, y } = coord;
   const col = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'][x];
   if (!col) return;
 
-  return col.concat(y);
+  return col.concat(y.toString());
 }
 
 const calcDistance = (squareOne: string) => (squareTwo: string) => {
@@ -22,7 +25,7 @@ const calcDistance = (squareOne: string) => (squareTwo: string) => {
   const yDiff = y1 - y2;
   return {
     xDiff,
-    yDiff,
+    yDiff
   };
 };
 

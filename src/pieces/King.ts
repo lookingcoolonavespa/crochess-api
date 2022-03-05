@@ -2,18 +2,20 @@ import Piece from './Piece';
 import moves from '../logic/moves';
 import { toXY } from '../logic/helpers';
 
-const King = (color) => {
+import { Color, Square } from '../types/types';
+
+const King = (color: Color) => {
   const piece = Piece('king', color);
 
-  function isValidMove(target) {
+  function isValidMove(target: Square) {
     const currentSquare = toXY(piece.current);
     const targetSquare = toXY(target);
 
-    const oneSquareOnYAxis = moves.yByN(1)(currentSquare.y)(targetSquare.y);
-    const oneSquareOnXAxis = moves.xByN(1)(currentSquare.x)(targetSquare.x);
+    const oneSquareOnYAxis = moves.yByN(1)(currentSquare)(targetSquare);
+    const oneSquareOnXAxis = moves.xByN(1)(currentSquare)(targetSquare);
     const oneSquareDiagonally =
-      moves.yByN(1)(currentSquare.y)(targetSquare.y) &&
-      moves.xByN(1)(currentSquare.x)(targetSquare.x);
+      moves.yByN(1)(currentSquare)(targetSquare) &&
+      moves.xByN(1)(currentSquare)(targetSquare);
 
     return (
       target !== piece.current &&
