@@ -1,29 +1,31 @@
 import { calcDistance, toXY } from './helpers.js';
+import { Coord, HalfCoord, Piece, Pawn } from '../types/interfaces';
+import { Moves, Board, Square, Color } from '../types/types';
 
 const moves = {
   vertAndLateral:
-    ({ x: x1, y: y1 }) =>
-    ({ x: x2, y: y2 }) =>
+    ({ x: x1, y: y1 }: Coord) =>
+    ({ x: x2, y: y2 }: Coord) =>
       x1 === x2 || y1 === y2,
   diagonal:
-    ({ x: x1, y: y1 }) =>
-    ({ x: x2, y: y2 }) =>
+    ({ x: x1, y: y1 }: Coord) =>
+    ({ x: x2, y: y2 }: Coord) =>
       Math.abs(x2 - x1) === Math.abs(y2 - y1),
   xByN:
-    (num) =>
-    ({ x: x1 }) =>
-    ({ x: x2 }) =>
+    (num: number) =>
+    ({ x: x1 }: HalfCoord) =>
+    ({ x: x2 }: HalfCoord) =>
       Math.abs(x1 - x2) === num,
   yByN:
-    (num) =>
-    ({ y: y1 }) =>
-    ({ y: y2 }) =>
+    (num: number) =>
+    ({ y: y1 }: HalfCoord) =>
+    ({ y: y2 }: HalfCoord) =>
       Math.abs(y1 - y2) === num,
 };
 
 export default moves;
 
-function splitIntoVectors(arrayOfMoves, startSquare) {
+function splitIntoVectors(arrayOfMoves: Moves, startSquare: Square) {
   return arrayOfMoves.reduce((acc, curr) => {
     const { xDiff, yDiff } = calcDistance(startSquare)(curr);
 
@@ -39,7 +41,7 @@ function splitIntoVectors(arrayOfMoves, startSquare) {
   }, {});
 }
 
-const sortMovesClosestTo = (square) => (moves) => {
+const sortMovesClosestTo = (square: Square) => (moves: Moves) => {
   return [...moves].sort((a, b) => {
     const { xDiff: x1Diff, yDiff: y1Diff } = calcDistance(square)(a);
     const aDiff = Math.abs(x1Diff) + Math.abs(y1Diff);
@@ -51,7 +53,7 @@ const sortMovesClosestTo = (square) => (moves) => {
   });
 };
 
-function getPossibleMoves(piece, board) {
+function getPossibleMoves(piece: Piece | Pawn, board: Board) {
   const allSquares = Array.from(board.keys());
   return allSquares.filter((s) => {
     if (piece.type === 'pawn') {
@@ -65,7 +67,7 @@ function getPossibleMoves(piece, board) {
   });
 }
 
-const removeMovesBehindSquare = (square) => (moves) => {
+const removeMovesBehindSquare = (square: Square) => (moves: Moves) => {
   const copy = [...moves];
   const index = moves.indexOf(square);
 
@@ -76,7 +78,11 @@ const removeMovesBehindSquare = (square) => (moves) => {
   return copy;
 };
 
-function removeBlockedMoves(startingSquare, allPossible, obstructions) {
+function removeBlockedMoves(
+  startingSquare: Square,
+  allPossible: Moves,
+  obstructions: Moves
+) {
   let filteredMoves = [];
 
   const allVectors = splitIntoVectors(allPossible, startingSquare);
@@ -98,13 +104,13 @@ function removeBlockedMoves(startingSquare, allPossible, obstructions) {
   return filteredMoves.flat();
 }
 
-function removeMovesWithOwnPieces(moves, board, ownColor) {
+function removeMovesWithOwnPieces(moves: Moves, board: Board, ownColor: Color) {
   return moves.filter((s) => {
     return !board.get(s).piece || board.get(s).piece.color !== ownColor;
   });
 }
 
-function getValidMoves(square, board) {
+function getValidMoves(square: Square, board: Board) {
   const piece = board.get(square).piece;
   const allPossible = getPossibleMoves(piece, board);
   const obstructions = allPossible.filter((s) => board.get(s).piece);
@@ -118,7 +124,11 @@ function getValidMoves(square, board) {
   return removeMovesWithOwnPieces(unblockedMoves, board, piece.color);
 }
 
-const getMovesAlongVector = (squareOne, squareTwo, board) => {
+const getMovesAlongVector = (
+  squareOne: Square,
+  squareTwo: Square,
+  allSquares: Moves
+) => {
   const liesSameVertOrLat = moves.vertAndLateral(toXY(squareOne))(
     toXY(squareTwo)
   );
@@ -127,7 +137,7 @@ const getMovesAlongVector = (squareOne, squareTwo, board) => {
   if (!liesOnSameLine) return false;
 
   const matchingVector = liesSameDiagonally ? 'diagonal' : 'vertAndLateral';
-  const squaresAlongVector = board.filter(
+  const squaresAlongVector = allSquares.filter(
     (s) =>
       s !== squareOne &&
       s !== squareTwo &&
@@ -138,7 +148,11 @@ const getMovesAlongVector = (squareOne, squareTwo, board) => {
   return squaresAlongVector;
 };
 
-function calcDiscoveredCheck(kingPosition, openSquare, board) {
+function calcDiscoveredCheck(
+  kingPosition: Square,
+  openSquare: Square,
+  board: Board
+) {
   const squaresAlongVector = getMovesAlongVector(
     kingPosition,
     openSquare,

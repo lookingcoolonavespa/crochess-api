@@ -48,7 +48,7 @@ const Pawn = (color) => {
       piece.to(square);
     },
     domEl: piece.domEl,
-    type: 'pawn',
+    type: 'pawn'
   };
 };
 
