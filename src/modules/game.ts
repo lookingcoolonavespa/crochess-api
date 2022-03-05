@@ -1,34 +1,18 @@
 import Gameboard from './Gameboard';
-import Rook from './pieces/Rook';
-import Pawn from './pieces/Pawn';
-import Knight from './pieces/Knight';
-import Bishop from './pieces/Bishop';
-import Queen from './pieces/Queen';
-import King from './pieces/King';
-/*
-pieces need to:
-- have moveset
-- need to keep track of whether pawn can advance two squares
+import Rook from '../pieces/Rook';
+import Pawn from '../pieces/Pawn';
+import Knight from '../pieces/Knight';
+import Bishop from '../pieces/Bishop';
+import Queen from '../pieces/Queen';
+import King from '../pieces/King';
 
-
-gameboard module needs to: 
-- keep track of where pieces are
-- calculate possible moves
-- need to keep track of en passant
-- castling
-
-game module needs to:
-- control turn
-- timer
-- announce checks 
-
-*/
+import { Color } from '../types/types';
 
 const game = (() => {
   let gameboard;
-  let turn;
+  const turn = 'white';
 
-  function init(wrapper) {
+  function init(wrapper: HTMLElement) {
     gameboard = Gameboard();
     placePawns('white');
     placePawns('black');
@@ -37,12 +21,12 @@ const game = (() => {
     wrapper.textContent = '';
     wrapper.append(gameboard.domBoard);
 
-    function placePawns(color) {
+    function placePawns(color: Color) {
       const row = color === 'white' ? 2 : 7;
       const cols = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
 
       cols.forEach((c) => {
-        gameboard.at(c.concat(row)).place(Pawn(color));
+        gameboard.at(c.concat(row.toString())).place(Pawn(color));
       });
     }
 
@@ -56,12 +40,14 @@ const game = (() => {
         e: King,
         f: Bishop,
         g: Knight,
-        h: Rook,
+        h: Rook
       };
 
       const cols = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
       cols.forEach((col) => {
-        gameboard.at(col.concat(row)).place(piecePosition[col](color));
+        gameboard
+          .at(col.concat(row.toString()))
+          .place(piecePosition[col](color));
       });
     }
   }
@@ -69,7 +55,7 @@ const game = (() => {
     get gameboard() {
       return gameboard;
     },
-    init,
+    init
   };
 })();
 

@@ -1,4 +1,6 @@
-import game from '../game';
+import game from '../modules/game';
+
+import { test, expect } from 'jest';
 
 test('init places pieces correctly', () => {
   game.init();

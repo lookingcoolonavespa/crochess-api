@@ -1,4 +1,7 @@
-import { getValidMoves, calcDiscoveredCheck } from './logic/moves';
+import { getValidMoves, calcDiscoveredCheck } from '../logic/moves';
+
+import { Color, Square } from '../types/types';
+import { Piece, Pawn } from '../types/interfaces';
 
 const Gameboard = () => {
   const cols = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
@@ -34,16 +37,16 @@ const Gameboard = () => {
     return domBoard;
   }
 
-  function getSquaresOfPieces(color) {
-    let squares = [];
-    for (let [square, value] of board.entries()) {
+  function getSquaresOfPieces(color: Color) {
+    const squares = [];
+    for (const [square, value] of board.entries()) {
       if (value.piece && value.piece.color === color) squares.push(square);
     }
     return squares;
   }
 
-  function getKingPosition(color) {
-    for (let [square, value] of board.entries()) {
+  function getKingPosition(color: Color) {
+    for (const [square, value] of board.entries()) {
       if (
         value.piece &&
         value.piece.type === 'king' &&
@@ -53,8 +56,8 @@ const Gameboard = () => {
     }
   }
 
-  const at = (square) => ({
-    place: (piece) => {
+  const at = (square: Square) => ({
+    place: (piece: Piece | Pawn) => {
       if (!board.has(square)) return 'square does not exist';
 
       piece.to(square, true);
@@ -72,11 +75,11 @@ const Gameboard = () => {
       if (!piece) return;
 
       return getValidMoves(square, board);
-    },
+    }
   });
 
-  const from = (startSquare) => ({
-    to: (endSquare) => {
+  const from = (startSquare: Square) => ({
+    to: (endSquare: Square) => {
       const piece = at(startSquare).piece;
       if (!piece) return;
 
@@ -89,11 +92,11 @@ const Gameboard = () => {
       }
 
       return piece;
-    },
+    }
   });
 
-  const after = (endSquare) => ({
-    movedFrom: (startSquare) => ({
+  const after = (endSquare: Square) => ({
+    movedFrom: (startSquare: Square) => ({
       checkInCheck: () => {
         const piece = board.get(endSquare).piece;
         const oppColor = piece.color === 'white' ? 'black' : 'white';
@@ -110,8 +113,8 @@ const Gameboard = () => {
           board
         );
         return discoveredCheck;
-      },
-    }),
+      }
+    })
   });
 
   return {
@@ -123,7 +126,7 @@ const Gameboard = () => {
     },
     get domBoard() {
       return domBoard;
-    },
+    }
   };
 };
 

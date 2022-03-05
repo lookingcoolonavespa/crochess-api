@@ -1,6 +1,6 @@
-import game from './game';
+import game from './modules/game';
 
-require('./styles/gameboard.css');
+import './styles/gameboard.css';
 
 const dom = (() => {
   const gameboardWrapper = document.querySelector('.gameboard-wrapper');

@@ -1,8 +1,9 @@
 import Piece from '../pieces/Piece';
-import Rook from '../pieces/Rook';
+import { toXY } from '../logic/helpers';
+
+import { test, expect } from 'jest';
 
 test('toXY works', () => {
-  const piece = Piece();
   expect(toXY('a1')).toEqual({ x: 0, y: 1 });
 });
 

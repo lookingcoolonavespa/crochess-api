@@ -1,9 +1,11 @@
-import Gameboard from '../Gameboard';
+import Gameboard from '../modules/Gameboard';
 import Bishop from '../pieces/Bishop';
 import Knight from '../pieces/Knight';
 import Rook from '../pieces/Rook';
 import Pawn from '../pieces/Pawn';
 import King from '../pieces/King';
+
+import { test, expect, describe } from 'jest';
 
 test('gameboard is correct', () => {
   const gameboard = Gameboard();
@@ -71,7 +73,7 @@ describe('testing getValidMoves for Rook', () => {
       'e1',
       'f1',
       'g1',
-      'h1',
+      'h1'
     ];
 
     expect(allValidMoves).toEqual(expect.arrayContaining(expected));
@@ -113,7 +115,7 @@ describe('testing getValidMoves for Rook', () => {
       'e3',
       'f3',
       'g3',
-      'h3',
+      'h3'
     ];
 
     expect(allValidMoves).toEqual(expect.arrayContaining(expected));
@@ -142,7 +144,7 @@ describe('testing getValidMoves for Rook', () => {
       'e5',
       'f5',
       'g5',
-      'h5',
+      'h5'
     ];
 
     expect(allValidMoves).toEqual(expect.arrayContaining(expected));
@@ -183,7 +185,7 @@ describe('testing getValidMoves for Rook', () => {
       'e1',
       'f1',
       'g1',
-      'h1',
+      'h1'
     ];
     expect(allValidMoves).toEqual(expect.arrayContaining(expected));
     expect(allValidMoves.length).toBe(expected.length);
@@ -212,7 +214,7 @@ describe('testing getValidMoves for Rook', () => {
       'c1',
       'e1',
       'f1',
-      'g1',
+      'g1'
     ];
     expect(allValidMoves).toEqual(expect.arrayContaining(expected));
     expect(allValidMoves.length).toBe(expected.length);
@@ -261,7 +263,7 @@ describe('testing getValidMoves for Bishop', () => {
       'g1',
       'c5',
       'b6',
-      'a7',
+      'a7'
     ];
 
     expect(allValidMoves).toEqual(expect.arrayContaining(expected));
@@ -288,7 +290,7 @@ describe('testing getValidMoves for Bishop', () => {
       'g1',
       'c5',
       'b6',
-      'a7',
+      'a7'
     ];
 
     expect(allValidMoves).toEqual(expect.arrayContaining(expected));
@@ -315,7 +317,7 @@ describe('testing getValidMoves for Bishop', () => {
       'e3',
       'f2',
       'g1',
-      'c5',
+      'c5'
     ];
 
     expect(allValidMoves).toEqual(expect.arrayContaining(expected));
@@ -355,7 +357,7 @@ describe('testing getValidMoves for Knight', () => {
     gameboard.at('e6').place(rook3);
     gameboard.at('e2').place(rook4);
     gameboard.at('b5').place(rook5);
-    gameboard.at('b3').place(rook5);
+    gameboard.at('b3').place(rook6);
     gameboard.at('f5').place(rook7);
     gameboard.at('f3').place(rook8);
 
