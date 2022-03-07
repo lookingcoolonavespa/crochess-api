@@ -16,7 +16,7 @@ export interface yCoord {
 export interface Piece {
   color: Color;
   isValidMove: (target: Square) => boolean;
-  to: (square: Square) => boolean;
+  to: (square: Square) => void;
   readonly domEl: HTMLDivElement;
   readonly type: 'king' | 'queen' | 'knight' | 'bishop' | 'rook';
 }
@@ -27,7 +27,7 @@ export interface Pawn {
   to: (square: Square, initialPlacement: boolean) => void;
   readonly domEl: HTMLDivElement;
   readonly type: 'pawn';
-  getCaptureSquares: () => (string | undefined)[];
+  getCaptureSquares: () => string[];
 }
 
 export interface SquareObj {
@@ -45,18 +45,15 @@ interface From {
   to: (endSquare: Square) => Piece | Pawn | undefined;
 }
 
-interface MovedFrom {
-  checkInCheck: () => boolean;
-}
-
-interface After {
-  movedFrom: (square: Square) => MovedFrom;
+interface Check {
+  inCheckAfterMove: (startSquare: Square, endSquare: Square) => boolean;
+  checkmate: (color: Color) => boolean;
 }
 
 export interface Gameboard {
   at: (square: Square) => At;
   from: (square: Square) => From;
-  after: (square: Square) => After;
+  check: Check;
   board: Board;
   domBoard: Element;
 }

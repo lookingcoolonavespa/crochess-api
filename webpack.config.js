@@ -14,11 +14,12 @@ module.exports = {
         test: /\.tsx?$/,
         use: 'ts-loader',
         exclude: /node_modules/
-      }
+      },
+      { test: /\.(ts)$/, exclude: /node_modules/, use: ['babel-loader'] }
     ]
   },
   resolve: {
-    extensions: ['.tsx', 'ts', 'js']
+    extensions: ['.tsx', '.ts', '.js']
   },
   output: {
     filename: 'main.js',

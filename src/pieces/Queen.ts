@@ -6,7 +6,7 @@ import { Color, Square } from '../types/types';
 
 const Queen = (color: Color) => {
   const piece = Piece('queen', color);
-  const type = 'queen';
+  const type = 'queen' as const;
 
   function isValidMove(target: Square) {
     const currentSquare = toXY(piece.current);

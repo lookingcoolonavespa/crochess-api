@@ -1,4 +1,4 @@
-import { calcDistance, toXY } from './helpers.js';
+import { calcDistance, toXY } from './helpers';
 import { Coord, xCoord, yCoord, Piece, Pawn } from '../types/interfaces';
 import { Moves, Board, Square, Color } from '../types/types';
 

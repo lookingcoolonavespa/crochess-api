@@ -10,7 +10,6 @@ const Pawn = (color: Color) => {
   let firstMove = true;
 
   function getCaptureSquares() {
-    if (!piece.current) return;
     const { x, y } = toXY(piece.current);
     const newY = color === 'white' ? y + 1 : y - 1;
     const captureOne = { x: x + 1, y: newY };

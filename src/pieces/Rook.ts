@@ -6,7 +6,7 @@ import { Color, Square } from '../types/types';
 
 const Rook = (color: Color) => {
   const piece = Piece('rook', color);
-  const type = 'rook';
+  const type = 'rook' as const;
 
   function isValidMove(target: Square) {
     return (

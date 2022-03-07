@@ -37,13 +37,13 @@ const Gameboard = () => {
     return domBoard;
   }
 
-  // function getSquaresOfPieces(color: Color) {
-  //   const squares = [];
-  //   for (const [square, value] of board.entries()) {
-  //     if (value.piece && value.piece.color === color) squares.push(square);
-  //   }
-  //   return squares;
-  // }
+  function getSquaresOfPieces(color: Color) {
+    const squares = [];
+    for (const [square, value] of board.entries()) {
+      if (value.piece && value.piece.color === color) squares.push(square);
+    }
+    return squares;
+  }
 
   function getKingPosition(color: Color) {
     for (const [square, value] of board.entries()) {
@@ -95,32 +95,43 @@ const Gameboard = () => {
     }
   });
 
-  const after = (endSquare: Square) => ({
-    movedFrom: (startSquare: Square) => ({
-      checkInCheck: () => {
-        const piece = board.get(endSquare).piece;
-        const oppColor = piece.color === 'white' ? 'black' : 'white';
-        const kingPosition = getKingPosition(oppColor);
+  const check = {
+    inCheckAfterMove: (startSquare: Square, endSquare: Square) => {
+      const piece = board.get(endSquare).piece;
+      const oppColor = piece.color === 'white' ? 'black' : 'white';
+      const kingPosition = getKingPosition(oppColor);
 
-        const pieceHitsKing = getValidMoves(piece, endSquare, board).includes(
-          kingPosition
-        );
-        if (pieceHitsKing) return true;
+      const pieceHitsKing = getValidMoves(piece, endSquare, board).includes(
+        kingPosition
+      );
+      if (pieceHitsKing) return true;
 
-        const discoveredCheck = calcDiscoveredCheck(
-          kingPosition,
-          startSquare,
-          board
-        );
-        return discoveredCheck;
-      }
-    })
-  });
+      const discoveredCheck = calcDiscoveredCheck(
+        kingPosition,
+        startSquare,
+        board
+      );
+      return discoveredCheck;
+    },
+    checkMate: (color: Color) => {
+      const kingPosition = getKingPosition(color);
+      const validMoves = at(kingPosition).getValidMoves();
+      if (!validMoves || !validMoves.length) return true;
+
+      const oppColor = color === 'white' ? 'black' : 'white';
+      const squaresOfOppPieces = getSquaresOfPieces(oppColor);
+      const movesOfOppPieces = squaresOfOppPieces
+        .map((s) => at(s).getValidMoves())
+        .flat();
+
+      return validMoves.every((s) => movesOfOppPieces.indexOf(s) !== -1);
+    }
+  };
 
   return {
     at,
     from,
-    after,
+    check,
     get board() {
       return board;
     },

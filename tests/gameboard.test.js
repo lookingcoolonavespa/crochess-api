@@ -1,11 +1,10 @@
-import Gameboard from '../modules/Gameboard';
-import Bishop from '../pieces/Bishop';
-import Knight from '../pieces/Knight';
-import Rook from '../pieces/Rook';
-import Pawn from '../pieces/Pawn';
-import King from '../pieces/King';
-
-import { test, expect, describe } from 'jest';
+/* eslint-disable no-undef */
+import Gameboard from '../src/modules/Gameboard';
+import Bishop from '../src/pieces/Bishop';
+import Knight from '../src/pieces/Knight';
+import Rook from '../src/pieces/Rook';
+import Pawn from '../src/pieces/Pawn';
+import King from '../src/pieces/King';
 
 test('gameboard is correct', () => {
   const gameboard = Gameboard();
@@ -412,8 +411,8 @@ describe('testing getValidMoves for Pawn (white)', () => {
   });
 });
 
-describe('testing gameboard.after functions', () => {
-  describe('checkInCheck works', () => {
+describe('testing gameboard.check functions', () => {
+  describe('inCheck works', () => {
     test('when piece hits king after it moves', () => {
       const gameboard = Gameboard();
       const king = King('white');
@@ -426,10 +425,10 @@ describe('testing gameboard.after functions', () => {
 
       gameboard.from(oppRookStartSquare).to(oppRookEndSquare);
 
-      const inCheck = gameboard
-        .after(oppRookEndSquare)
-        .movedFrom(oppRookStartSquare)
-        .checkInCheck();
+      const inCheck = gameboard.check.checkInCheck(
+        oppRookStartSquare,
+        oppRookEndSquare
+      );
 
       expect(inCheck).toBe(true);
     });
@@ -445,10 +444,10 @@ describe('testing gameboard.after functions', () => {
 
       gameboard.from(oppRookStartSquare).to(oppRookEndSquare);
 
-      const inCheck = gameboard
-        .after(oppRookEndSquare)
-        .movedFrom(oppRookStartSquare)
-        .checkInCheck();
+      const inCheck = gameboard.check.checkInCheck(
+        oppRookStartSquare,
+        oppRookEndSquare
+      );
 
       expect(inCheck).toBe(false);
     });
@@ -466,10 +465,10 @@ describe('testing gameboard.after functions', () => {
 
       gameboard.from(oppBishopStartSquare).to(oppBishopEndSquare);
 
-      const inCheck = gameboard
-        .after(oppBishopEndSquare)
-        .movedFrom(oppBishopStartSquare)
-        .checkInCheck();
+      const inCheck = gameboard.check.checkInCheck(
+        oppBishopStartSquare,
+        oppBishopEndSquare
+      );
 
       expect(inCheck).toBe(true);
     });
@@ -487,10 +486,10 @@ describe('testing gameboard.after functions', () => {
 
       gameboard.from(oppBishopStartSquare).to(oppBishopEndSquare);
 
-      const inCheck = gameboard
-        .after(oppBishopEndSquare)
-        .movedFrom(oppBishopStartSquare)
-        .checkInCheck();
+      const inCheck = gameboard.check.checkInCheck(
+        oppBishopStartSquare,
+        oppBishopEndSquare
+      );
 
       expect(inCheck).toBe(false);
     });
@@ -508,10 +507,10 @@ describe('testing gameboard.after functions', () => {
 
       gameboard.from(oppBishopStartSquare).to(oppBishopEndSquare);
 
-      const inCheck = gameboard
-        .after(oppBishopEndSquare)
-        .movedFrom(oppBishopStartSquare)
-        .checkInCheck();
+      const inCheck = gameboard.check.checkInCheck(
+        oppBishopStartSquare,
+        oppBishopEndSquare
+      );
 
       expect(inCheck).toBe(true);
     });
@@ -529,10 +528,10 @@ describe('testing gameboard.after functions', () => {
 
       gameboard.from(oppBishopStartSquare).to(oppBishopEndSquare);
 
-      const inCheck = gameboard
-        .after(oppBishopEndSquare)
-        .movedFrom(oppBishopStartSquare)
-        .checkInCheck();
+      const inCheck = gameboard.check.checkInCheck(
+        oppBishopStartSquare,
+        oppBishopEndSquare
+      );
 
       expect(inCheck).toBe(false);
     });
