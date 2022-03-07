@@ -425,7 +425,7 @@ describe('testing gameboard.check functions', () => {
 
       gameboard.from(oppRookStartSquare).to(oppRookEndSquare);
 
-      const inCheck = gameboard.check.checkInCheck(
+      const inCheck = gameboard.check.inCheckAfterMove(
         oppRookStartSquare,
         oppRookEndSquare
       );
@@ -444,7 +444,7 @@ describe('testing gameboard.check functions', () => {
 
       gameboard.from(oppRookStartSquare).to(oppRookEndSquare);
 
-      const inCheck = gameboard.check.checkInCheck(
+      const inCheck = gameboard.check.inCheckAfterMove(
         oppRookStartSquare,
         oppRookEndSquare
       );
@@ -465,7 +465,7 @@ describe('testing gameboard.check functions', () => {
 
       gameboard.from(oppBishopStartSquare).to(oppBishopEndSquare);
 
-      const inCheck = gameboard.check.checkInCheck(
+      const inCheck = gameboard.check.inCheckAfterMove(
         oppBishopStartSquare,
         oppBishopEndSquare
       );
@@ -486,7 +486,7 @@ describe('testing gameboard.check functions', () => {
 
       gameboard.from(oppBishopStartSquare).to(oppBishopEndSquare);
 
-      const inCheck = gameboard.check.checkInCheck(
+      const inCheck = gameboard.check.inCheckAfterMove(
         oppBishopStartSquare,
         oppBishopEndSquare
       );
@@ -507,7 +507,7 @@ describe('testing gameboard.check functions', () => {
 
       gameboard.from(oppBishopStartSquare).to(oppBishopEndSquare);
 
-      const inCheck = gameboard.check.checkInCheck(
+      const inCheck = gameboard.check.inCheckAfterMove(
         oppBishopStartSquare,
         oppBishopEndSquare
       );
@@ -528,7 +528,7 @@ describe('testing gameboard.check functions', () => {
 
       gameboard.from(oppBishopStartSquare).to(oppBishopEndSquare);
 
-      const inCheck = gameboard.check.checkInCheck(
+      const inCheck = gameboard.check.inCheckAfterMove(
         oppBishopStartSquare,
         oppBishopEndSquare
       );
@@ -549,10 +549,10 @@ describe('testing gameboard.check functions', () => {
 
       gameboard.from(oppRookStartSquare).to(oppRookEndSquare);
 
-      const inCheck = gameboard
-        .after(oppRookEndSquare)
-        .movedFrom(oppRookStartSquare)
-        .checkInCheck();
+      const inCheck = gameboard.check.inCheckAfterMove(
+        oppRookStartSquare,
+        oppRookEndSquare
+      );
 
       expect(inCheck).toBe(true);
     });
@@ -568,10 +568,10 @@ describe('testing gameboard.check functions', () => {
 
       gameboard.from(oppKnightStartSquare).to(oppKnightEndSquare);
 
-      const inCheck = gameboard
-        .after(oppKnightEndSquare)
-        .movedFrom(oppKnightStartSquare)
-        .checkInCheck();
+      const inCheck = gameboard.check.inCheckAfterMove(
+        oppKnightStartSquare,
+        oppKnightEndSquare
+      );
 
       expect(inCheck).toBe(true);
     });
