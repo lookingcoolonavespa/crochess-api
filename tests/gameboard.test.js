@@ -575,5 +575,54 @@ describe('testing gameboard.check functions', () => {
 
       expect(inCheck).toBe(true);
     });
+    test('check by knight, no false positive', () => {
+      const gameboard = Gameboard();
+      const king = King('white');
+      const oppKnight = Knight('black');
+      const oppKnightStartSquare = 'e5';
+      const oppKnightEndSquare = 'g4';
+
+      gameboard.at('e1').place(king);
+      gameboard.at(oppKnightStartSquare).place(oppKnight);
+
+      gameboard.from(oppKnightStartSquare).to(oppKnightEndSquare);
+
+      const inCheck = gameboard.check.inCheckAfterMove(
+        oppKnightStartSquare,
+        oppKnightEndSquare
+      );
+
+      expect(inCheck).toBe(false);
+    });
+  });
+
+  describe('checkmate works', () => {
+    test('back rank mate', () => {
+      const gameboard = Gameboard();
+      const king = King('white');
+      const oppRook = Rook('black');
+
+      gameboard.at('h1').place(king);
+      gameboard.at('h2').place(Pawn('white'));
+      gameboard.at('g2').place(Pawn('white'));
+      gameboard.at('f1').place(oppRook);
+
+      const checkmate = gameboard.check.checkMate('white');
+
+      expect(checkmate).toBe(true);
+    });
+    test('mate with protected pawn ', () => {
+      const gameboard = Gameboard();
+      const king = King('white');
+
+      gameboard.at('a1').place(king);
+      gameboard.at('b2').place(Pawn('black'));
+      gameboard.at('a3').place(Pawn('black'));
+      gameboard.at('c3').place(Knight('black'));
+
+      const checkmate = gameboard.check.checkMate('white');
+
+      expect(checkmate).toBe(true);
+    });
   });
 });
