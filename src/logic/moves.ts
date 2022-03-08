@@ -74,22 +74,24 @@ function getPossibleMoves(piece: Piece | Pawn, board: Board) {
   });
 }
 
-const removeMovesBehindSquare = (square: Square) => (moves: Moves) => {
-  const copy = [...moves];
-  const index = moves.indexOf(square);
+const removeMovesBehindSquare =
+  (square: Square) =>
+  (moves: Moves): Moves => {
+    const copy = [...moves];
+    const index = moves.indexOf(square);
 
-  if (index === -1) return '';
+    if (index === -1) return [];
 
-  copy.splice(index + 1);
+    copy.splice(index + 1);
 
-  return copy;
-};
+    return copy;
+  };
 
 function removeBlockedMoves(
   startingSquare: Square,
   possibleMoves: Moves,
   obstructions: Moves
-): string[] {
+): Moves {
   const filteredMoves = [];
 
   const allVectors = splitIntoVectors(possibleMoves, startingSquare);
@@ -115,7 +117,7 @@ function removeProtectedSquares(
   king: Piece,
   possibleMoves: Moves,
   board: Board
-) {
+): Moves {
   // a) for each piece inside king's move radius, check if it is opposite color
   // b) for each piece of opposite color inside the move radius, replace with King (need to do this to find if pawn protects a piece)
   // c) check board for any piece that has that square in it's moveset
@@ -148,7 +150,11 @@ function removeProtectedSquares(
   });
 }
 
-function removeMovesWithOwnPieces(moves: Moves, board: Board, ownColor: Color) {
+function removeMovesWithOwnPieces(
+  moves: Moves,
+  board: Board,
+  ownColor: Color
+): Moves {
   return moves.filter((s) => {
     return !board.get(s)?.piece || board.get(s)?.piece?.color !== ownColor;
   });
@@ -205,14 +211,14 @@ function calcDiscoveredCheck(
   kingPosition: Square,
   openSquare: Square,
   board: Board
-) {
+): string {
   const squaresAlongVector = getMovesAlongVector(
     kingPosition,
     openSquare,
     Array.from(board.keys())
   );
 
-  if (!squaresAlongVector) return false;
+  if (!squaresAlongVector) return '';
 
   const kingColor = board.get(kingPosition)?.piece?.color;
 
@@ -220,10 +226,35 @@ function calcDiscoveredCheck(
     const piece = board.get(square)?.piece;
     if (!piece || piece.color === kingColor) continue;
     const validMoves = getValidMoves(piece, square, board);
-    if (validMoves.indexOf(kingPosition) !== -1) return true;
+    if (validMoves.indexOf(kingPosition) !== -1) return square;
   }
 
-  return false;
+  return '';
 }
 
-export { getValidMoves, calcDiscoveredCheck };
+function calcBlockCheck(
+  kingPostion: Square,
+  checkPosition: Square,
+  board: Board
+) {
+  const movesAlongVector = getMovesAlongVector(
+    kingPostion,
+    checkPosition,
+    Array.from(board.keys())
+  );
+
+  // need to figure out ends of vector
+  // either the maxY or minY is the end or its the maxX or minX that is the end or both for diagonal
+}
+
+function getBeginningOfVector(vector: Moves) {
+  return vector.reduce((acc, curr) => {
+    const { x: x1, y: y1 } = toXY(acc);
+    const { x: x2, y: y2 } = toXY(curr);
+
+    if (x1 === x2) return y1 < y2 ? acc : curr;
+    return x1 < x2 ? acc : curr;
+  });
+}
+
+export { getValidMoves, calcDiscoveredCheck, calcBlockCheck };

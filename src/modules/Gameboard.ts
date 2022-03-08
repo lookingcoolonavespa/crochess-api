@@ -1,4 +1,8 @@
-import { getValidMoves, calcDiscoveredCheck } from '../logic/moves';
+import {
+  getValidMoves,
+  calcDiscoveredCheck,
+  calcBlockCheck
+} from '../logic/moves';
 
 import { Color, Square } from '../types/types';
 import { Piece, Pawn } from '../types/interfaces';
@@ -96,7 +100,9 @@ const Gameboard = () => {
   });
 
   const check = {
-    inCheckAfterMove: (startSquare: Square, endSquare: Square) => {
+    inCheckAfterMove: (startSquare: Square, endSquare: Square): string[] => {
+      const squaresOfPiecesGivingCheck = [];
+
       const piece = board.get(endSquare).piece;
       const oppColor = piece.color === 'white' ? 'black' : 'white';
       const kingPosition = getKingPosition(oppColor);
@@ -104,18 +110,22 @@ const Gameboard = () => {
       const pieceHitsKing = getValidMoves(piece, endSquare, board).includes(
         kingPosition
       );
-      if (pieceHitsKing) return true;
+      if (pieceHitsKing) squaresOfPiecesGivingCheck.push(endSquare);
 
       const discoveredCheck = calcDiscoveredCheck(
         kingPosition,
         startSquare,
         board
       );
-      return discoveredCheck;
+      if (discoveredCheck) squaresOfPiecesGivingCheck.push(discoveredCheck);
+
+      return squaresOfPiecesGivingCheck;
     },
-    checkMate: (color: Color) => {
+    checkMate: (color: Color, piecesGivingCheck: string[]) => {
       const kingPosition = getKingPosition(color);
       const validMoves = at(kingPosition).getValidMoves();
+      // check if check can be blocked
+      if (piecesGivingCheck.length === 1) calcBlockCheck();
       if (!validMoves || !validMoves.length) return true;
     }
   };
