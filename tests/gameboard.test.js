@@ -425,12 +425,12 @@ describe('testing gameboard.check functions', () => {
 
       gameboard.from(oppRookStartSquare).to(oppRookEndSquare);
 
-      const inCheck = gameboard.check.inCheckAfterMove(
+      const piecesGivingCheck = gameboard.check.inCheckAfterMove(
         oppRookStartSquare,
         oppRookEndSquare
       );
 
-      expect(inCheck).toBe(true);
+      expect(piecesGivingCheck).toEqual(['e8']);
     });
     test('no false positive', () => {
       const gameboard = Gameboard();
@@ -444,12 +444,12 @@ describe('testing gameboard.check functions', () => {
 
       gameboard.from(oppRookStartSquare).to(oppRookEndSquare);
 
-      const inCheck = gameboard.check.inCheckAfterMove(
+      const piecesGivingCheck = gameboard.check.inCheckAfterMove(
         oppRookStartSquare,
         oppRookEndSquare
       );
 
-      expect(inCheck).toBe(false);
+      expect(piecesGivingCheck).toEqual([]);
     });
     test('discovered check by rook vertically', () => {
       const gameboard = Gameboard();
@@ -465,12 +465,12 @@ describe('testing gameboard.check functions', () => {
 
       gameboard.from(oppBishopStartSquare).to(oppBishopEndSquare);
 
-      const inCheck = gameboard.check.inCheckAfterMove(
+      const piecesGivingCheck = gameboard.check.inCheckAfterMove(
         oppBishopStartSquare,
         oppBishopEndSquare
       );
 
-      expect(inCheck).toBe(true);
+      expect(piecesGivingCheck).toEqual(['e8']);
     });
     test('no false positive on vertical axis', () => {
       const gameboard = Gameboard();
@@ -486,12 +486,12 @@ describe('testing gameboard.check functions', () => {
 
       gameboard.from(oppBishopStartSquare).to(oppBishopEndSquare);
 
-      const inCheck = gameboard.check.inCheckAfterMove(
+      const piecesGivingCheck = gameboard.check.inCheckAfterMove(
         oppBishopStartSquare,
         oppBishopEndSquare
       );
 
-      expect(inCheck).toBe(false);
+      expect(piecesGivingCheck).toEqual([]);
     });
     test('discovered check by rook laterally', () => {
       const gameboard = Gameboard();
@@ -507,12 +507,12 @@ describe('testing gameboard.check functions', () => {
 
       gameboard.from(oppBishopStartSquare).to(oppBishopEndSquare);
 
-      const inCheck = gameboard.check.inCheckAfterMove(
+      const piecesGivingCheck = gameboard.check.inCheckAfterMove(
         oppBishopStartSquare,
         oppBishopEndSquare
       );
 
-      expect(inCheck).toBe(true);
+      expect(piecesGivingCheck).toEqual(['a1']);
     });
     test('no false positive laterally', () => {
       const gameboard = Gameboard();
@@ -528,12 +528,12 @@ describe('testing gameboard.check functions', () => {
 
       gameboard.from(oppBishopStartSquare).to(oppBishopEndSquare);
 
-      const inCheck = gameboard.check.inCheckAfterMove(
+      const piecesGivingCheck = gameboard.check.inCheckAfterMove(
         oppBishopStartSquare,
         oppBishopEndSquare
       );
 
-      expect(inCheck).toBe(false);
+      expect(piecesGivingCheck).toEqual([]);
     });
     test('discovered check by bishop', () => {
       const gameboard = Gameboard();
@@ -549,12 +549,12 @@ describe('testing gameboard.check functions', () => {
 
       gameboard.from(oppRookStartSquare).to(oppRookEndSquare);
 
-      const inCheck = gameboard.check.inCheckAfterMove(
+      const piecesGivingCheck = gameboard.check.inCheckAfterMove(
         oppRookStartSquare,
         oppRookEndSquare
       );
 
-      expect(inCheck).toBe(true);
+      expect(piecesGivingCheck).toEqual(['a5']);
     });
     test('check by knight', () => {
       const gameboard = Gameboard();
@@ -568,12 +568,12 @@ describe('testing gameboard.check functions', () => {
 
       gameboard.from(oppKnightStartSquare).to(oppKnightEndSquare);
 
-      const inCheck = gameboard.check.inCheckAfterMove(
+      const piecesGivingCheck = gameboard.check.inCheckAfterMove(
         oppKnightStartSquare,
         oppKnightEndSquare
       );
 
-      expect(inCheck).toBe(true);
+      expect(piecesGivingCheck).toEqual(['f3']);
     });
     test('check by knight, no false positive', () => {
       const gameboard = Gameboard();
@@ -587,12 +587,12 @@ describe('testing gameboard.check functions', () => {
 
       gameboard.from(oppKnightStartSquare).to(oppKnightEndSquare);
 
-      const inCheck = gameboard.check.inCheckAfterMove(
+      const piecesGivingCheck = gameboard.check.inCheckAfterMove(
         oppKnightStartSquare,
         oppKnightEndSquare
       );
 
-      expect(inCheck).toBe(false);
+      expect(piecesGivingCheck).toEqual([]);
     });
   });
 

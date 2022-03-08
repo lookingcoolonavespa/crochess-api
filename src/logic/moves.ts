@@ -134,19 +134,20 @@ function removeProtectedSquares(
   });
 
   // c)
-  const enemyPiecesSquaresNotInMoveRadius: string[] = [];
+  let allEnemyMoves: string[] = [];
   for (const [square, { piece }] of boardCopy.entries()) {
     if (enemyPiecesSquares.includes(square)) continue;
-    if (piece?.color !== king.color)
-      enemyPiecesSquaresNotInMoveRadius.push(square);
+    if (!piece) continue;
+    if (piece?.color === king.color) continue;
+
+    allEnemyMoves = [
+      ...allEnemyMoves,
+      ...getValidMoves(piece, square, boardCopy)
+    ];
   }
   return possibleMoves.filter((s) => {
     // get squares such that no enemy pieces can capture there
-    return !enemyPiecesSquaresNotInMoveRadius.some((pieceSquare: Square) => {
-      const piece = boardCopy.get(pieceSquare)?.piece;
-      if (!piece) return false;
-      return getValidMoves(piece, pieceSquare, boardCopy).includes(s);
-    });
+    return !allEnemyMoves.includes(s);
   });
 }
 

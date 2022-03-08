@@ -125,7 +125,7 @@ const Gameboard = () => {
       const kingPosition = getKingPosition(color);
       const validMoves = at(kingPosition).getValidMoves();
       // check if check can be blocked
-      if (piecesGivingCheck.length === 1) calcBlockCheck();
+      // if (piecesGivingCheck.length === 1) calcBlockCheck();
       if (!validMoves || !validMoves.length) return true;
     }
   };
