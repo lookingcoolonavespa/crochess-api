@@ -1,5 +1,12 @@
 import { calcDistance, toXY } from './helpers';
-import { Coord, xCoord, yCoord, Piece, Pawn } from '../types/interfaces';
+import {
+  Coord,
+  xCoord,
+  yCoord,
+  Piece,
+  Pawn,
+  SquareObj
+} from '../types/interfaces';
 import { Moves, Board, Square, Color } from '../types/types';
 
 const moves = {
@@ -44,17 +51,19 @@ function splitIntoVectors(arrayOfMoves: Moves, startSquare: Square) {
   }, {});
 }
 
-const sortMovesClosestTo = (square: Square) => (moves: Moves) => {
-  return [...moves].sort((a, b) => {
-    const { xDiff: x1Diff, yDiff: y1Diff } = calcDistance(square)(a);
-    const aDiff = Math.abs(x1Diff) + Math.abs(y1Diff);
+const sortMovesClosestTo =
+  (square: Square) =>
+  (moves: Moves): Moves => {
+    return [...moves].sort((a, b) => {
+      const { xDiff: x1Diff, yDiff: y1Diff } = calcDistance(square)(a);
+      const aDiff = Math.abs(x1Diff) + Math.abs(y1Diff);
 
-    const { xDiff: x2Diff, yDiff: y2Diff } = calcDistance(square)(b);
-    const bDiff = Math.abs(x2Diff) + Math.abs(y2Diff);
+      const { xDiff: x2Diff, yDiff: y2Diff } = calcDistance(square)(b);
+      const bDiff = Math.abs(x2Diff) + Math.abs(y2Diff);
 
-    return aDiff - bDiff;
-  });
-};
+      return aDiff - bDiff;
+    });
+  };
 
 function getPossibleMoves(piece: Piece | Pawn, board: Board) {
   const allSquares = Array.from(board.keys());
@@ -188,13 +197,13 @@ const getMovesAlongVector = (
   squareOne: Square,
   squareTwo: Square,
   allSquares: Moves
-) => {
+): Moves => {
   const liesSameVertOrLat = moves.vertAndLateral(toXY(squareOne))(
     toXY(squareTwo)
   );
   const liesSameDiagonally = moves.diagonal(toXY(squareOne))(toXY(squareTwo));
   const liesOnSameLine = liesSameVertOrLat || liesSameDiagonally;
-  if (!liesOnSameLine) return false;
+  if (!liesOnSameLine) return [];
 
   const matchingVector = liesSameDiagonally ? 'diagonal' : 'vertAndLateral';
   const squaresAlongVector = allSquares.filter(
@@ -219,7 +228,7 @@ function calcDiscoveredCheck(
     Array.from(board.keys())
   );
 
-  if (!squaresAlongVector) return '';
+  if (!squaresAlongVector.length) return '';
 
   const kingColor = board.get(kingPosition)?.piece?.color;
 
@@ -234,18 +243,72 @@ function calcDiscoveredCheck(
 }
 
 function calcBlockCheck(
-  kingPostion: Square,
+  kingPosition: Square,
   checkPosition: Square,
   board: Board
 ) {
-  const movesAlongVector = getMovesAlongVector(
-    kingPostion,
+  const squareObj: SquareObj | undefined = board.get(kingPosition);
+  if (!squareObj) return;
+  const king: Piece | Pawn | null = squareObj.piece;
+  if (!king) return;
+  // if (board.get(kingPosition)?.piece.type !== 'king') return;
+  const kingColor = king.color;
+
+  const squaresBetweenKingAndPiece = getSquaresBetweenKingAndCheck(
+    kingPosition,
     checkPosition,
     Array.from(board.keys())
   );
+}
 
-  // need to figure out ends of vector
-  // either the maxY or minY is the end or its the maxX or minX that is the end or both for diagonal
+function getMovesForAllPieces(color: Color, board: Board) {
+  for (const [square, { piece }] of board.entries()) {
+    if (!piece) continue;
+    if (piece.color !== color) continue;
+
+    const pieceMoves = getValidMoves(piece, square, board);
+  }
+}
+
+function getSquaresBetweenKingAndCheck(
+  kingPosition: Square,
+  checkPosition: Square,
+  allSquares: Moves
+) {
+  const squaresAlongVector = getMovesAlongVector(
+    kingPosition,
+    checkPosition,
+    allSquares
+  );
+  const squaresBetweenKingAndPiece = removeMovesBehindTwoSquares(
+    kingPosition,
+    checkPosition,
+    squaresAlongVector
+  );
+  return squaresBetweenKingAndPiece;
+}
+
+function removeMovesBehindTwoSquares(
+  squareOne: Square,
+  squareTwo: Square,
+  moves: Moves
+): Moves {
+  const sorted = sortMovesClosestTo(getBeginningOfVector(moves))(moves);
+  let furthestSquare;
+  let closestSquare;
+
+  if (sorted.indexOf(squareOne) > sorted.indexOf(squareTwo)) {
+    furthestSquare = squareOne;
+    closestSquare = squareTwo;
+  } else {
+    furthestSquare = squareTwo;
+    closestSquare = squareOne;
+  }
+  const removedOneEnd =
+    removeMovesBehindSquare(furthestSquare)(sorted).reverse();
+  const removedBothEnds = removeMovesBehindSquare(closestSquare)(removedOneEnd);
+
+  return removedBothEnds;
 }
 
 function getBeginningOfVector(vector: Moves) {
@@ -253,8 +316,8 @@ function getBeginningOfVector(vector: Moves) {
     const { x: x1, y: y1 } = toXY(acc);
     const { x: x2, y: y2 } = toXY(curr);
 
-    if (x1 === x2) return y1 < y2 ? acc : curr;
-    return x1 < x2 ? acc : curr;
+    const accIsBeginning = x1 === x2 ? y1 < y2 : x1 < x2;
+    return accIsBeginning ? acc : curr;
   });
 }
 
