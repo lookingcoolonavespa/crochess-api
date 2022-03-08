@@ -12,7 +12,7 @@ function toXY(square: Square) {
 function fromXY(coord: Coord) {
   const { x, y } = coord;
   const col = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'][x];
-
+  if (!col) return '';
   return col.concat(y.toString());
 }
 

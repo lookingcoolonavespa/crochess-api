@@ -12,15 +12,19 @@ const King = (color: Color) => {
     const currentSquare = toXY(piece.current);
     const targetSquare = toXY(target);
 
-    const oneSquareOnYAxis = moves.yByN(1)(currentSquare)(targetSquare);
-    const oneSquareOnXAxis = moves.xByN(1)(currentSquare)(targetSquare);
+    const oneSquareUpDown =
+      moves.yByN(1)(currentSquare)(targetSquare) &&
+      moves.xByN(0)(currentSquare)(targetSquare);
+    const oneSquareLeftRight =
+      moves.xByN(1)(currentSquare)(targetSquare) &&
+      moves.yByN(0)(currentSquare)(targetSquare);
     const oneSquareDiagonally =
       moves.yByN(1)(currentSquare)(targetSquare) &&
       moves.xByN(1)(currentSquare)(targetSquare);
 
     return (
       target !== piece.current &&
-      (oneSquareDiagonally || oneSquareOnXAxis || oneSquareOnYAxis)
+      (oneSquareDiagonally || oneSquareUpDown || oneSquareLeftRight)
     );
   }
 

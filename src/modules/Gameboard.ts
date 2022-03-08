@@ -117,14 +117,6 @@ const Gameboard = () => {
       const kingPosition = getKingPosition(color);
       const validMoves = at(kingPosition).getValidMoves();
       if (!validMoves || !validMoves.length) return true;
-
-      const oppColor = color === 'white' ? 'black' : 'white';
-      const squaresOfOppPieces = getSquaresOfPieces(oppColor);
-      const movesOfOppPieces = squaresOfOppPieces
-        .map((s) => at(s).getValidMoves())
-        .flat();
-
-      return validMoves.every((s) => movesOfOppPieces.indexOf(s) !== -1);
     }
   };
 

@@ -87,12 +87,12 @@ const removeMovesBehindSquare = (square: Square) => (moves: Moves) => {
 
 function removeBlockedMoves(
   startingSquare: Square,
-  allPossible: Moves,
+  possibleMoves: Moves,
   obstructions: Moves
 ): string[] {
   const filteredMoves = [];
 
-  const allVectors = splitIntoVectors(allPossible, startingSquare);
+  const allVectors = splitIntoVectors(possibleMoves, startingSquare);
   const obstructionVectors = splitIntoVectors(obstructions, startingSquare);
   for (const vector in allVectors) {
     if (!obstructionVectors[vector]) {
@@ -111,6 +111,43 @@ function removeBlockedMoves(
   return filteredMoves.flat();
 }
 
+function removeProtectedSquares(
+  king: Piece,
+  possibleMoves: Moves,
+  board: Board
+) {
+  // a) for each piece inside king's move radius, check if it is opposite color
+  // b) for each piece of opposite color inside the move radius, replace with King (need to do this to find if pawn protects a piece)
+  // c) check board for any piece that has that square in it's moveset
+
+  // a)
+  const enemyPiecesSquares = possibleMoves.filter(
+    (s) => board.get(s)?.piece?.color !== king.color
+  );
+
+  // b)
+  const boardCopy = new Map(board);
+  enemyPiecesSquares.forEach((s) => {
+    boardCopy.set(s, { piece: king });
+  });
+
+  // c)
+  const enemyPiecesSquaresNotInMoveRadius: string[] = [];
+  for (const [square, { piece }] of boardCopy.entries()) {
+    if (enemyPiecesSquares.includes(square)) continue;
+    if (piece?.color !== king.color)
+      enemyPiecesSquaresNotInMoveRadius.push(square);
+  }
+  return possibleMoves.filter((s) => {
+    // get squares such that no enemy pieces can capture there
+    return !enemyPiecesSquaresNotInMoveRadius.some((pieceSquare: Square) => {
+      const piece = boardCopy.get(pieceSquare)?.piece;
+      if (!piece) return false;
+      return getValidMoves(piece, pieceSquare, boardCopy).includes(s);
+    });
+  });
+}
+
 function removeMovesWithOwnPieces(moves: Moves, board: Board, ownColor: Color) {
   return moves.filter((s) => {
     return !board.get(s)?.piece || board.get(s)?.piece?.color !== ownColor;
@@ -118,14 +155,24 @@ function removeMovesWithOwnPieces(moves: Moves, board: Board, ownColor: Color) {
 }
 
 function getValidMoves(piece: Piece | Pawn, square: Square, board: Board) {
-  const allPossible = getPossibleMoves(piece, board);
-  const obstructions = allPossible.filter((s) => board.get(s)?.piece);
-  if (!obstructions.length) return allPossible;
+  const possibleMoves = getPossibleMoves(piece, board);
+  const obstructions = possibleMoves.filter((s) => board.get(s)?.piece);
+  if (!obstructions.length) return possibleMoves;
 
-  const unblockedMoves =
-    piece.type === 'knight'
-      ? allPossible
-      : removeBlockedMoves(square, allPossible, obstructions);
+  let unblockedMoves: Moves = [];
+  switch (piece.type) {
+    case 'knight': {
+      unblockedMoves = possibleMoves;
+      break;
+    }
+    case 'king': {
+      unblockedMoves = removeProtectedSquares(piece, possibleMoves, board);
+      break;
+    }
+    default: {
+      unblockedMoves = removeBlockedMoves(square, possibleMoves, obstructions);
+    }
+  }
 
   return removeMovesWithOwnPieces(unblockedMoves, board, piece.color);
 }
