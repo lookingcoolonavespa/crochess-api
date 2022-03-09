@@ -32,6 +32,8 @@ const moves = {
 
 export default moves;
 
+/* dealing with move vectors */
+
 function splitIntoVectors(arrayOfMoves: Moves, startSquare: Square) {
   interface Vectors {
     [key: string]: string[];
@@ -51,6 +53,42 @@ function splitIntoVectors(arrayOfMoves: Moves, startSquare: Square) {
   }, {});
 }
 
+function getBeginningOfVector(vector: Moves) {
+  return vector.reduce((acc, curr) => {
+    const { x: x1, y: y1 } = toXY(acc);
+    const { x: x2, y: y2 } = toXY(curr);
+
+    const accIsBeginning = x1 === x2 ? y1 < y2 : x1 < x2;
+    return accIsBeginning ? acc : curr;
+  });
+}
+
+const getMovesAlongVector = (
+  squareOne: Square,
+  squareTwo: Square,
+  allSquares: Moves
+): Moves => {
+  const liesSameVertOrLat = moves.vertAndLateral(toXY(squareOne))(
+    toXY(squareTwo)
+  );
+  const liesSameDiagonally = moves.diagonal(toXY(squareOne))(toXY(squareTwo));
+  const liesOnSameLine = liesSameVertOrLat || liesSameDiagonally;
+  if (!liesOnSameLine) return [];
+
+  const matchingVector = liesSameDiagonally ? 'diagonal' : 'vertAndLateral';
+  const squaresAlongVector = allSquares.filter(
+    (s) =>
+      s !== squareOne &&
+      s !== squareTwo &&
+      moves[matchingVector](toXY(squareOne))(toXY(s)) &&
+      moves[matchingVector](toXY(squareTwo))(toXY(s))
+  );
+
+  return squaresAlongVector;
+};
+
+/* sort moves */
+
 const sortMovesClosestTo =
   (square: Square) =>
   (moves: Moves): Moves => {
@@ -64,6 +102,8 @@ const sortMovesClosestTo =
       return aDiff - bDiff;
     });
   };
+
+/* get moves */
 
 function getPossibleMoves(piece: Piece | Pawn, board: Board) {
   const allSquares = Array.from(board.keys());
@@ -82,6 +122,84 @@ function getPossibleMoves(piece: Piece | Pawn, board: Board) {
     return piece.isValidMove(s);
   });
 }
+
+function getValidMoves(piece: Piece | Pawn, square: Square, board: Board) {
+  const possibleMoves = getPossibleMoves(piece, board);
+  const obstructions = possibleMoves.filter((s) => board.get(s)?.piece);
+  if (!obstructions.length) return possibleMoves;
+
+  let unblockedMoves: Moves = [];
+  switch (piece.type) {
+    case 'knight': {
+      unblockedMoves = possibleMoves;
+      break;
+    }
+    case 'king': {
+      unblockedMoves = removeProtectedSquares(piece, possibleMoves, board);
+      break;
+    }
+    default: {
+      unblockedMoves = removeBlockedMoves(square, possibleMoves, obstructions);
+    }
+  }
+
+  return removeMovesWithOwnPieces(unblockedMoves, board, piece.color);
+}
+
+function getMovesForAllPieces(color: Color, board: Board): Moves {
+  const allMoves = [];
+  for (const [square, { piece }] of board.entries()) {
+    if (!piece) continue;
+    if (piece.color !== color) continue;
+
+    allMoves.push(getValidMoves(piece, square, board));
+  }
+
+  return allMoves.flat();
+}
+
+function getSquaresBetweenKingAndCheck(
+  kingPosition: Square,
+  checkPosition: Square,
+  allSquares: Moves
+) {
+  const squaresAlongVector = getMovesAlongVector(
+    kingPosition,
+    checkPosition,
+    allSquares
+  );
+  const squaresBetweenKingAndPiece = removeMovesBehindTwoSquares(
+    kingPosition,
+    checkPosition,
+    squaresAlongVector
+  );
+  return squaresBetweenKingAndPiece;
+}
+
+function removeMovesBehindTwoSquares(
+  squareOne: Square,
+  squareTwo: Square,
+  moves: Moves
+): Moves {
+  const sorted = sortMovesClosestTo(getBeginningOfVector(moves))(moves);
+  let furthestSquare;
+  let closestSquare;
+
+  if (sorted.indexOf(squareOne) > sorted.indexOf(squareTwo)) {
+    furthestSquare = squareOne;
+    closestSquare = squareTwo;
+  } else {
+    furthestSquare = squareTwo;
+    closestSquare = squareOne;
+  }
+  const removedOneEnd =
+    removeMovesBehindSquare(furthestSquare)(sorted).reverse();
+  const removedBothEnds = removeMovesBehindSquare(closestSquare)(removedOneEnd);
+
+  return removedBothEnds;
+}
+
+/* filter moves */
 
 const removeMovesBehindSquare =
   (square: Square) =>
@@ -132,8 +250,9 @@ function removeProtectedSquares(
   // c) check board for any piece that has that square in it's moveset
 
   // a)
+  const oppColor = king.color === 'white' ? 'black' : 'white';
   const enemyPiecesSquares = possibleMoves.filter(
-    (s) => board.get(s)?.piece?.color !== king.color
+    (s) => board.get(s)?.piece?.color === oppColor
   );
 
   // b)
@@ -143,17 +262,7 @@ function removeProtectedSquares(
   });
 
   // c)
-  let allEnemyMoves: string[] = [];
-  for (const [square, { piece }] of boardCopy.entries()) {
-    if (enemyPiecesSquares.includes(square)) continue;
-    if (!piece) continue;
-    if (piece?.color === king.color) continue;
-
-    allEnemyMoves = [
-      ...allEnemyMoves,
-      ...getValidMoves(piece, square, boardCopy)
-    ];
-  }
+  const allEnemyMoves = getMovesForAllPieces(oppColor, board);
   return possibleMoves.filter((s) => {
     // get squares such that no enemy pieces can capture there
     return !allEnemyMoves.includes(s);
@@ -170,52 +279,7 @@ function removeMovesWithOwnPieces(
   });
 }
 
-function getValidMoves(piece: Piece | Pawn, square: Square, board: Board) {
-  const possibleMoves = getPossibleMoves(piece, board);
-  const obstructions = possibleMoves.filter((s) => board.get(s)?.piece);
-  if (!obstructions.length) return possibleMoves;
-
-  let unblockedMoves: Moves = [];
-  switch (piece.type) {
-    case 'knight': {
-      unblockedMoves = possibleMoves;
-      break;
-    }
-    case 'king': {
-      unblockedMoves = removeProtectedSquares(piece, possibleMoves, board);
-      break;
-    }
-    default: {
-      unblockedMoves = removeBlockedMoves(square, possibleMoves, obstructions);
-    }
-  }
-
-  return removeMovesWithOwnPieces(unblockedMoves, board, piece.color);
-}
-
-const getMovesAlongVector = (
-  squareOne: Square,
-  squareTwo: Square,
-  allSquares: Moves
-): Moves => {
-  const liesSameVertOrLat = moves.vertAndLateral(toXY(squareOne))(
-    toXY(squareTwo)
-  );
-  const liesSameDiagonally = moves.diagonal(toXY(squareOne))(toXY(squareTwo));
-  const liesOnSameLine = liesSameVertOrLat || liesSameDiagonally;
-  if (!liesOnSameLine) return [];
-
-  const matchingVector = liesSameDiagonally ? 'diagonal' : 'vertAndLateral';
-  const squaresAlongVector = allSquares.filter(
-    (s) =>
-      s !== squareOne &&
-      s !== squareTwo &&
-      moves[matchingVector](toXY(squareOne))(toXY(s)) &&
-      moves[matchingVector](toXY(squareTwo))(toXY(s))
-  );
-
-  return squaresAlongVector;
-};
+/* stuff only concerning check/checkmate */
 
 function calcDiscoveredCheck(
   kingPosition: Square,
@@ -227,22 +291,20 @@ function calcDiscoveredCheck(
     openSquare,
     Array.from(board.keys())
   );
-
   if (!squaresAlongVector.length) return '';
 
   const kingColor = board.get(kingPosition)?.piece?.color;
-
   for (const square of squaresAlongVector) {
     const piece = board.get(square)?.piece;
     if (!piece || piece.color === kingColor) continue;
     const validMoves = getValidMoves(piece, square, board);
-    if (validMoves.indexOf(kingPosition) !== -1) return square;
+    if (validMoves.includes(kingPosition)) return square;
   }
 
   return '';
 }
 
-function calcBlockCheck(
+function calcBlockOrCaptureCheck(
   kingPosition: Square,
   checkPosition: Square,
   board: Board
@@ -259,66 +321,12 @@ function calcBlockCheck(
     checkPosition,
     Array.from(board.keys())
   );
-}
 
-function getMovesForAllPieces(color: Color, board: Board) {
-  for (const [square, { piece }] of board.entries()) {
-    if (!piece) continue;
-    if (piece.color !== color) continue;
+  const ownPieceMoves = getMovesForAllPieces(kingColor, board);
 
-    const pieceMoves = getValidMoves(piece, square, board);
-  }
-}
-
-function getSquaresBetweenKingAndCheck(
-  kingPosition: Square,
-  checkPosition: Square,
-  allSquares: Moves
-) {
-  const squaresAlongVector = getMovesAlongVector(
-    kingPosition,
-    checkPosition,
-    allSquares
+  return ownPieceMoves.some((move) =>
+    squaresBetweenKingAndPiece.includes(move)
   );
-  const squaresBetweenKingAndPiece = removeMovesBehindTwoSquares(
-    kingPosition,
-    checkPosition,
-    squaresAlongVector
-  );
-  return squaresBetweenKingAndPiece;
 }
 
-function removeMovesBehindTwoSquares(
-  squareOne: Square,
-  squareTwo: Square,
-  moves: Moves
-): Moves {
-  const sorted = sortMovesClosestTo(getBeginningOfVector(moves))(moves);
-  let furthestSquare;
-  let closestSquare;
-
-  if (sorted.indexOf(squareOne) > sorted.indexOf(squareTwo)) {
-    furthestSquare = squareOne;
-    closestSquare = squareTwo;
-  } else {
-    furthestSquare = squareTwo;
-    closestSquare = squareOne;
-  }
-  const removedOneEnd =
-    removeMovesBehindSquare(furthestSquare)(sorted).reverse();
-  const removedBothEnds = removeMovesBehindSquare(closestSquare)(removedOneEnd);
-
-  return removedBothEnds;
-}
-
-function getBeginningOfVector(vector: Moves) {
-  return vector.reduce((acc, curr) => {
-    const { x: x1, y: y1 } = toXY(acc);
-    const { x: x2, y: y2 } = toXY(curr);
-
-    const accIsBeginning = x1 === x2 ? y1 < y2 : x1 < x2;
-    return accIsBeginning ? acc : curr;
-  });
-}
-
-export { getValidMoves, calcDiscoveredCheck, calcBlockCheck };
+export { getValidMoves, calcDiscoveredCheck, calcBlockOrCaptureCheck };

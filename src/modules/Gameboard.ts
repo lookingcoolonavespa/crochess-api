@@ -1,7 +1,7 @@
 import {
   getValidMoves,
   calcDiscoveredCheck,
-  calcBlockCheck
+  calcBlockOrCaptureCheck
 } from '../logic/moves';
 
 import { Color, Square } from '../types/types';
@@ -121,11 +121,14 @@ const Gameboard = () => {
 
       return squaresOfPiecesGivingCheck;
     },
-    checkMate: (color: Color, piecesGivingCheck: string[]) => {
+    checkMate: (color: Color, squaresGivingCheck: string[]) => {
       const kingPosition = getKingPosition(color);
       const validMoves = at(kingPosition).getValidMoves();
       // check if check can be blocked
-      // if (piecesGivingCheck.length === 1) calcBlockCheck();
+      if (squaresGivingCheck.length === 1) {
+        if (calcBlockOrCaptureCheck(kingPosition, squaresGivingCheck[0], board))
+          return false;
+      }
       if (!validMoves || !validMoves.length) return true;
     }
   };
