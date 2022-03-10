@@ -1,7 +1,7 @@
 import {
   getValidMoves,
-  calcDiscoveredCheck,
-  calcBlockOrCaptureCheck
+  isDiscoveredCheck,
+  canBlockOrCaptureCheck
 } from '../logic/moves';
 
 import { Color, Square } from '../types/types';
@@ -39,14 +39,6 @@ const Gameboard = () => {
     }
 
     return domBoard;
-  }
-
-  function getSquaresOfPieces(color: Color) {
-    const squares = [];
-    for (const [square, value] of board.entries()) {
-      if (value.piece && value.piece.color === color) squares.push(square);
-    }
-    return squares;
   }
 
   function getKingPosition(color: Color) {
@@ -88,7 +80,7 @@ const Gameboard = () => {
       if (!piece) return;
 
       const validMoves = at(startSquare).getValidMoves();
-      if (Array.isArray(validMoves) && validMoves.indexOf(endSquare) !== -1) {
+      if (Array.isArray(validMoves) && validMoves.includes(endSquare)) {
         // move piece
         board.set(startSquare, { piece: null });
         board.set(endSquare, { piece });
@@ -100,7 +92,7 @@ const Gameboard = () => {
   });
 
   const check = {
-    inCheckAfterMove: (startSquare: Square, endSquare: Square): string[] => {
+    inCheckAfterMove: (movedFrom: Square, endSquare: Square): string[] => {
       const squaresOfPiecesGivingCheck = [];
 
       const piece = board.get(endSquare).piece;
@@ -112,11 +104,7 @@ const Gameboard = () => {
       );
       if (pieceHitsKing) squaresOfPiecesGivingCheck.push(endSquare);
 
-      const discoveredCheck = calcDiscoveredCheck(
-        kingPosition,
-        startSquare,
-        board
-      );
+      const discoveredCheck = isDiscoveredCheck(kingPosition, movedFrom, board);
       if (discoveredCheck) squaresOfPiecesGivingCheck.push(discoveredCheck);
 
       return squaresOfPiecesGivingCheck;
@@ -126,7 +114,7 @@ const Gameboard = () => {
       const validMoves = at(kingPosition).getValidMoves();
       // check if check can be blocked
       if (squaresGivingCheck.length === 1) {
-        if (calcBlockOrCaptureCheck(kingPosition, squaresGivingCheck[0], board))
+        if (canBlockOrCaptureCheck(kingPosition, squaresGivingCheck[0], board))
           return false;
       }
       if (!validMoves || !validMoves.length) return true;

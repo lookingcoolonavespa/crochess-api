@@ -78,8 +78,6 @@ const getMovesAlongVector = (
   const matchingVector = liesSameDiagonally ? 'diagonal' : 'vertAndLateral';
   const squaresAlongVector = allSquares.filter(
     (s) =>
-      s !== squareOne &&
-      s !== squareTwo &&
       moves[matchingVector](toXY(squareOne))(toXY(s)) &&
       moves[matchingVector](toXY(squareTwo))(toXY(s))
   );
@@ -111,12 +109,10 @@ function getPossibleMoves(piece: Piece | Pawn, board: Board) {
     if (piece.type === 'pawn') {
       const captureSquares = piece.getCaptureSquares();
 
-      const capturesAvailable = captureSquares.filter((s) => {
-        if (typeof s === 'undefined') return false;
-        return (
-          board.get(s)?.piece && board.get(s)?.piece?.color !== piece.color
-        );
-      });
+      const capturesAvailable = captureSquares.filter(
+        (s) => board.get(s)?.piece?.color !== piece.color
+      );
+      console.log(capturesAvailable);
       return piece.isValidMove(s, capturesAvailable);
     }
     return piece.isValidMove(s);
@@ -192,9 +188,10 @@ function removeMovesBehindTwoSquares(
     furthestSquare = squareTwo;
     closestSquare = squareOne;
   }
-  const removedOneEnd =
-    removeMovesBehindSquare(furthestSquare)(sorted).reverse();
-  const removedBothEnds = removeMovesBehindSquare(closestSquare)(removedOneEnd);
+  const removedOneEnd = removeMovesBehindSquare(furthestSquare)(sorted);
+  const removedBothEnds = removeMovesBehindSquare(closestSquare)(
+    removedOneEnd.reverse()
+  );
 
   return removedBothEnds;
 }
@@ -274,29 +271,34 @@ function removeMovesWithOwnPieces(
   board: Board,
   ownColor: Color
 ): Moves {
-  return moves.filter((s) => {
-    return !board.get(s)?.piece || board.get(s)?.piece?.color !== ownColor;
-  });
+  return moves.filter(
+    (s) => !board.get(s)?.piece || board.get(s)?.piece?.color !== ownColor
+  );
 }
 
 /* stuff only concerning check/checkmate */
 
-function calcDiscoveredCheck(
+function isDiscoveredCheck(
   kingPosition: Square,
   openSquare: Square,
   board: Board
 ): string {
-  const squaresAlongVector = getMovesAlongVector(
+  let squaresAlongVector = getMovesAlongVector(
     kingPosition,
     openSquare,
     Array.from(board.keys())
   );
+  squaresAlongVector = squaresAlongVector.filter(
+    (s) => s !== kingPosition && s !== openSquare
+  );
   if (!squaresAlongVector.length) return '';
 
   const kingColor = board.get(kingPosition)?.piece?.color;
+
   for (const square of squaresAlongVector) {
     const piece = board.get(square)?.piece;
     if (!piece || piece.color === kingColor) continue;
+
     const validMoves = getValidMoves(piece, square, board);
     if (validMoves.includes(kingPosition)) return square;
   }
@@ -304,7 +306,7 @@ function calcDiscoveredCheck(
   return '';
 }
 
-function calcBlockOrCaptureCheck(
+function canBlockOrCaptureCheck(
   kingPosition: Square,
   checkPosition: Square,
   board: Board
@@ -313,7 +315,7 @@ function calcBlockOrCaptureCheck(
   if (!squareObj) return;
   const king: Piece | Pawn | null = squareObj.piece;
   if (!king) return;
-  // if (board.get(kingPosition)?.piece.type !== 'king') return;
+
   const kingColor = king.color;
 
   const squaresBetweenKingAndPiece = getSquaresBetweenKingAndCheck(
@@ -323,10 +325,9 @@ function calcBlockOrCaptureCheck(
   );
 
   const ownPieceMoves = getMovesForAllPieces(kingColor, board);
-
   return ownPieceMoves.some((move) =>
     squaresBetweenKingAndPiece.includes(move)
   );
 }
 
-export { getValidMoves, calcDiscoveredCheck, calcBlockOrCaptureCheck };
+export { getValidMoves, isDiscoveredCheck, canBlockOrCaptureCheck };
