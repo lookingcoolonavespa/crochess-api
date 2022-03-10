@@ -46,8 +46,8 @@ interface From {
 }
 
 interface Check {
-  inCheckAfterMove: (startSquare: Square, endSquare: Square) => boolean;
-  checkmate: (color: Color) => boolean;
+  inCheckAfterMove: (startSquare: Square, endSquare: Square) => Moves;
+  checkmate: (color: Color, squaresGivingCheck: string[]) => boolean;
 }
 
 export interface Gameboard {

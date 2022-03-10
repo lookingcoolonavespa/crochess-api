@@ -143,7 +143,7 @@ function getValidMoves(piece: Piece | Pawn, square: Square, board: Board) {
 }
 
 function getMovesForAllPieces(color: Color, board: Board): Moves {
-  const allMoves = [];
+  const allMoves: Moves[] = [];
   for (const [square, { piece }] of board.entries()) {
     if (!piece) continue;
     if (piece.color !== color) continue;
@@ -216,7 +216,7 @@ function removeBlockedMoves(
   possibleMoves: Moves,
   obstructions: Moves
 ): Moves {
-  const filteredMoves = [];
+  const filteredMoves: Moves[] = [];
 
   const allVectors = splitIntoVectors(possibleMoves, startingSquare);
   const obstructionVectors = splitIntoVectors(obstructions, startingSquare);

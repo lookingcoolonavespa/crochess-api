@@ -93,7 +93,7 @@ const Gameboard = () => {
 
   const check = {
     inCheckAfterMove: (movedFrom: Square, endSquare: Square): string[] => {
-      const squaresOfPiecesGivingCheck = [];
+      const squaresOfPiecesGivingCheck: string[] = [];
 
       const piece = board.get(endSquare).piece;
       const oppColor = piece.color === 'white' ? 'black' : 'white';
@@ -109,7 +109,7 @@ const Gameboard = () => {
 
       return squaresOfPiecesGivingCheck;
     },
-    checkMate: (color: Color, squaresGivingCheck: string[]) => {
+    checkmate: (color: Color, squaresGivingCheck: string[]): boolean => {
       const kingPosition = getKingPosition(color);
       const validMoves = at(kingPosition).getValidMoves();
       // check if check can be blocked
@@ -118,6 +118,7 @@ const Gameboard = () => {
           return false;
       }
       if (!validMoves || !validMoves.length) return true;
+      return false;
     }
   };
 
