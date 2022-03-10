@@ -105,18 +105,20 @@ const sortMovesClosestTo =
 
 function getPossibleMoves(piece: Piece | Pawn, board: Board) {
   const allSquares = Array.from(board.keys());
-  return allSquares.filter((s) => {
-    if (piece.type === 'pawn') {
+
+  switch (piece.type) {
+    case 'pawn': {
       const captureSquares = piece.getCaptureSquares();
 
       const capturesAvailable = captureSquares.filter(
         (s) => board.get(s)?.piece?.color !== piece.color
       );
-      console.log(capturesAvailable);
-      return piece.isValidMove(s, capturesAvailable);
+      return allSquares.filter((s) => piece.isValidMove(s, capturesAvailable));
     }
-    return piece.isValidMove(s);
-  });
+    default: {
+      return allSquares.filter((s) => piece.isValidMove(s));
+    }
+  }
 }
 
 function getValidMoves(piece: Piece | Pawn, square: Square, board: Board) {
@@ -259,7 +261,7 @@ function removeProtectedSquares(
   });
 
   // c)
-  const allEnemyMoves = getMovesForAllPieces(oppColor, board);
+  const allEnemyMoves = getMovesForAllPieces(oppColor, boardCopy);
   return possibleMoves.filter((s) => {
     // get squares such that no enemy pieces can capture there
     return !allEnemyMoves.includes(s);

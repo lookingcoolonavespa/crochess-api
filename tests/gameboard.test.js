@@ -607,7 +607,8 @@ describe('testing gameboard.check functions', () => {
       gameboard.at('g2').place(Pawn('white'));
       gameboard.at('f1').place(oppRook);
 
-      const checkmate = gameboard.check.checkMate('white');
+      const squaresGivingCheck = gameboard.check.inCheckAfterMove('f1', 'f1');
+      const checkmate = gameboard.check.checkmate('white', squaresGivingCheck);
 
       expect(checkmate).toBe(true);
     });
@@ -621,7 +622,7 @@ describe('testing gameboard.check functions', () => {
       gameboard.at('c3').place(Knight('black'));
 
       const squaresGivingCheck = gameboard.check.inCheckAfterMove('b2', 'b2');
-      const checkmate = gameboard.check.checkMate('white', squaresGivingCheck);
+      const checkmate = gameboard.check.checkmate('white', squaresGivingCheck);
 
       expect(checkmate).toBe(true);
     });
@@ -638,7 +639,7 @@ describe('testing gameboard.check functions', () => {
       gameboard.at('b8').place(blockRook);
 
       const squaresGivingCheck = gameboard.check.inCheckAfterMove('a1', 'a1');
-      const checkmate = gameboard.check.checkMate('white', squaresGivingCheck);
+      const checkmate = gameboard.check.checkmate('white', squaresGivingCheck);
 
       expect(checkmate).toBe(false);
     });

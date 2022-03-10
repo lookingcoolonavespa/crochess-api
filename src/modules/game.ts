@@ -13,6 +13,19 @@ const game = (() => {
   let gameboard: GameboardInterface;
   const turn = 'white';
 
+  (function stuffIWantToTest() {
+    const gameboard = Gameboard();
+    const king = King('white');
+
+    gameboard.at('a1').place(king);
+    gameboard.at('b2').place(Pawn('black'));
+    gameboard.at('a3').place(Pawn('black'));
+    gameboard.at('c3').place(Knight('black'));
+
+    const squaresGivingCheck = gameboard.check.inCheckAfterMove('b2', 'b2');
+    const checkmate = gameboard.check.checkmate('white', squaresGivingCheck);
+  })();
+
   function init(wrapper: Element | null) {
     if (!wrapper) return;
     gameboard = Gameboard();
