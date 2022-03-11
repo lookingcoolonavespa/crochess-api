@@ -20,7 +20,7 @@ const Pawn = (color: Color) => {
     return [fromXY(captureOne), fromXY(captureTwo)];
   }
 
-  function isValidMove(target: Square, capturesAvailable: Moves) {
+  function isValidMove(target: Square) {
     const currentSquare = toXY(piece.current);
     const targetSquare = toXY(target);
 
@@ -38,9 +38,7 @@ const Pawn = (color: Color) => {
     return (
       target !== piece.current &&
       onlyMovesInFront &&
-      (regularMoves ||
-        (firstMove && firstMoves) ||
-        capturesAvailable.indexOf(target) !== -1)
+      (regularMoves || (firstMove && firstMoves))
     );
   }
 

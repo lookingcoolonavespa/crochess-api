@@ -23,7 +23,7 @@ export interface Piece {
 
 export interface Pawn {
   color: Color;
-  isValidMove: (target: string, capturesAvailable: Moves) => boolean;
+  isValidMove: (target: string) => boolean;
   to: (square: Square, initialPlacement: boolean) => void;
   readonly domEl: HTMLDivElement;
   readonly type: 'pawn';
@@ -32,6 +32,7 @@ export interface Pawn {
 
 export interface SquareObj {
   piece: Piece | Pawn | null;
+  enPassant?: boolean;
 }
 
 interface At {

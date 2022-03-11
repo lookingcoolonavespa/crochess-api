@@ -15,15 +15,14 @@ const game = (() => {
 
   (function stuffIWantToTest() {
     const gameboard = Gameboard();
-    const king = King('white');
+    const piece = Pawn('white');
+    const pieceToBeCaptured = Pawn('black');
 
-    gameboard.at('a1').place(king);
-    gameboard.at('b2').place(Pawn('black'));
-    gameboard.at('a3').place(Pawn('black'));
-    gameboard.at('c3').place(Knight('black'));
+    gameboard.at('e2').place(piece);
+    gameboard.at('d3').place(pieceToBeCaptured);
 
-    const squaresGivingCheck = gameboard.check.inCheckAfterMove('b2', 'b2');
-    const checkmate = gameboard.check.checkmate('white', squaresGivingCheck);
+    const allValidMoves = gameboard.at('e2').getValidMoves();
+    const expected = ['e4', 'e3', 'd3'];
   })();
 
   function init(wrapper: Element | null) {
