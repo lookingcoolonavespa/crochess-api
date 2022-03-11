@@ -43,7 +43,7 @@ interface At {
 }
 
 interface From {
-  to: (endSquare: Square) => Piece | Pawn | undefined;
+  to: (endSquare: Square) => void;
 }
 
 interface Check {

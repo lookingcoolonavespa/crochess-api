@@ -1,7 +1,8 @@
 import {
   getValidMoves,
   isDiscoveredCheck,
-  canBlockOrCaptureCheck
+  canBlockOrCaptureCheck,
+  isEnPassant
 } from '../logic/moves';
 
 import { Color, Square } from '../types/types';
@@ -68,7 +69,6 @@ const Gameboard = () => {
     },
     getValidMoves: () => {
       const piece = at(square).piece;
-      if (!piece) return;
 
       return getValidMoves(piece, square, board);
     }
@@ -80,14 +80,16 @@ const Gameboard = () => {
       if (!piece) return;
 
       const validMoves = at(startSquare).getValidMoves();
-      if (Array.isArray(validMoves) && validMoves.includes(endSquare)) {
+      if (validMoves.includes(endSquare)) {
         // move piece
         board.set(startSquare, { piece: null });
+        if (piece.type === 'pawn') {
+          if (isEnPassant(startSquare, endSquare))
+            board.set(startSquare, { piece: null, enPassant: true });
+        }
         board.set(endSquare, { piece });
         piece.to(endSquare);
       }
-
-      return piece;
     }
   });
 

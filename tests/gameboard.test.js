@@ -437,6 +437,22 @@ describe('testing getValidMoves for Pawn (white)', () => {
     expect(allValidMoves).toEqual(expect.arrayContaining(expected));
     expect(allValidMoves.length).toBe(expected.length);
   });
+  test('en passant', () => {
+    const gameboard = Gameboard();
+    const piece = Pawn('black');
+    const pieceToBeCaptured = Pawn('white');
+
+    gameboard.at('e2').place(pieceToBeCaptured);
+    gameboard.at('d4').place(piece);
+    gameboard.from('d4').to('d3');
+    gameboard.from('e2').to('e4');
+
+    const allValidMoves = gameboard.at('d3').getValidMoves();
+    const expected = ['d2', 'e2'];
+
+    expect(allValidMoves).toEqual(expect.arrayContaining(expected));
+    expect(allValidMoves.length).toBe(expected.length);
+  });
 });
 
 describe('testing gameboard.check functions', () => {

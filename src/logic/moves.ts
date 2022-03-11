@@ -112,7 +112,11 @@ function getPossibleMoves(piece: Piece | Pawn, board: Board) {
 function getValidMoves(piece: Piece | Pawn, square: Square, board: Board) {
   const possibleMoves = getPossibleMoves(piece, board);
   const obstructions = possibleMoves.filter((s) => board.get(s)?.piece);
-  if (!obstructions.length && piece.type !== 'pawn') return possibleMoves;
+  if (!obstructions.length) {
+    if (piece.type === 'pawn')
+      return [...getPawnCaptures(piece, board), ...possibleMoves];
+    return possibleMoves;
+  }
 
   let unobstructedMoves: Moves = [];
   switch (piece.type) {
@@ -294,7 +298,7 @@ function removeMovesWithPieces(
   });
 }
 
-/* stuff only concerning check/checkmate */
+/* check if move is check, checkmate, enpassant */
 
 function isDiscoveredCheck(
   kingPosition: Square,
@@ -348,4 +352,16 @@ function canBlockOrCaptureCheck(
   );
 }
 
-export { getValidMoves, isDiscoveredCheck, canBlockOrCaptureCheck };
+function isEnPassant(start: Square, end: Square) {
+  const { y: y1 } = toXY(start);
+  const { y: y2 } = toXY(end);
+
+  return Math.abs(y1 - y2) === 2;
+}
+
+export {
+  getValidMoves,
+  isDiscoveredCheck,
+  canBlockOrCaptureCheck,
+  isEnPassant
+};
