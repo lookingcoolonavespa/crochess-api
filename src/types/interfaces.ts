@@ -19,12 +19,14 @@ export interface Piece {
   to: (square: Square) => void;
   readonly domEl: HTMLDivElement;
   readonly type: 'king' | 'queen' | 'knight' | 'bishop' | 'rook';
+  readonly current: Square;
 }
 
 export interface Pawn {
   color: Color;
   isValidMove: (target: string) => boolean;
-  to: (square: Square, initialPlacement: boolean) => void;
+  to: (square: Square, initialPlacement?: boolean) => void;
+  readonly current: Square;
   readonly domEl: HTMLDivElement;
   readonly type: 'pawn';
   getCaptureSquares: () => string[];

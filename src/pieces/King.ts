@@ -32,7 +32,9 @@ const King = (color: Color) => {
     color,
     isValidMove,
     to: piece.to,
-    current: piece.current,
+    get current() {
+      return piece.current;
+    },
     get domEl() {
       return piece.domEl;
     },

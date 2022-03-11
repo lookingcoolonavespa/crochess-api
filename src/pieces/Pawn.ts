@@ -46,10 +46,12 @@ const Pawn = (color: Color) => {
     color,
     isValidMove,
     getCaptureSquares,
-    current: piece.current,
-    to: (square: Square, initialPlacement: boolean) => {
+    to: (square: Square, initialPlacement = false) => {
       if (!initialPlacement) firstMove = false;
       piece.to(square);
+    },
+    get current() {
+      return piece.current;
     },
     get domEl() {
       return piece.domEl;

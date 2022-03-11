@@ -13,18 +13,6 @@ const game = (() => {
   let gameboard: GameboardInterface;
   const turn = 'white';
 
-  (function stuffIWantToTest() {
-    const gameboard = Gameboard();
-    const piece = Pawn('white');
-    const pieceToBeCaptured = Pawn('black');
-
-    gameboard.at('e2').place(piece);
-    gameboard.at('d3').place(pieceToBeCaptured);
-
-    const allValidMoves = gameboard.at('e2').getValidMoves();
-    const expected = ['e4', 'e3', 'd3'];
-  })();
-
   function init(wrapper: Element | null) {
     if (!wrapper) return;
     gameboard = Gameboard();

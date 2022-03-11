@@ -2,13 +2,23 @@ import {
   getValidMoves,
   isDiscoveredCheck,
   canBlockOrCaptureCheck,
-  isEnPassant
+  shouldToggleEnPassant
 } from '../logic/moves';
 
 import { Color, Square } from '../types/types';
 import { Piece, Pawn } from '../types/interfaces';
 
 const Gameboard = () => {
+  /* state */
+  interface enPassantDetails {
+    square: Square;
+    piece: Pawn | null;
+  }
+  let enPassantDetails: enPassantDetails = {
+    square: '',
+    piece: null
+  };
+  /* end of state */
   const cols = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
   const rows = [1, 2, 3, 4, 5, 6, 7, 8];
 
@@ -76,20 +86,37 @@ const Gameboard = () => {
 
   const from = (startSquare: Square) => ({
     to: (endSquare: Square) => {
-      const piece = at(startSquare).piece;
+      const piece: Piece | Pawn = at(startSquare).piece;
       if (!piece) return;
 
       const validMoves = at(startSquare).getValidMoves();
-      if (validMoves.includes(endSquare)) {
-        // move piece
-        board.set(startSquare, { piece: null });
-        if (piece.type === 'pawn') {
-          if (isEnPassant(startSquare, endSquare))
-            board.set(startSquare, { piece: null, enPassant: true });
+      if (!validMoves.includes(endSquare)) return;
+
+      // capture by en passant
+      if (endSquare === enPassantDetails.square && enPassantDetails.piece) {
+        if (
+          piece.type === 'pawn' &&
+          piece.color !== enPassantDetails.piece.color
+        ) {
+          at(enPassantDetails.piece.current).remove();
         }
-        board.set(endSquare, { piece });
-        piece.to(endSquare);
+      } else {
+        enPassantDetails = { square: '', piece: null };
       }
+
+      // move piece
+      board.set(startSquare, { piece: null });
+      if (piece.type === 'pawn') {
+        if (shouldToggleEnPassant(startSquare, endSquare)) {
+          enPassantDetails = {
+            piece,
+            square: startSquare
+          };
+          board.set(startSquare, { piece: null, enPassant: true });
+        }
+      }
+      board.set(endSquare, { piece });
+      piece.to(endSquare);
     }
   });
 
@@ -106,7 +133,12 @@ const Gameboard = () => {
       );
       if (pieceHitsKing) squaresOfPiecesGivingCheck.push(endSquare);
 
-      const discoveredCheck = isDiscoveredCheck(kingPosition, movedFrom, board);
+      const discoveredCheck = isDiscoveredCheck(
+        kingPosition,
+        oppColor,
+        movedFrom,
+        board
+      );
       if (discoveredCheck) squaresOfPiecesGivingCheck.push(discoveredCheck);
 
       return squaresOfPiecesGivingCheck;

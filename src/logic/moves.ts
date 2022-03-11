@@ -1,12 +1,5 @@
 import { calcDistance, toXY } from './helpers';
-import {
-  Coord,
-  xCoord,
-  yCoord,
-  Piece,
-  Pawn,
-  SquareObj
-} from '../types/interfaces';
+import { Coord, xCoord, yCoord, Piece, Pawn } from '../types/interfaces';
 import { Moves, Board, Square, Color } from '../types/types';
 
 const moves = {
@@ -266,9 +259,14 @@ function removeProtectedSquares(
 
   // a)
   const oppColor = king.color === 'white' ? 'black' : 'white';
-  const enemyPiecesSquares = possibleMoves.filter(
-    (s) => board.get(s)?.piece?.color === oppColor
-  );
+  const enemyPiecesSquares = possibleMoves.filter((s) => {
+    const squareVal = board.get(s);
+    if (!squareVal) return false;
+    const piece = squareVal.piece;
+    if (!piece) return false;
+
+    return piece.color === oppColor;
+  });
 
   // b)
   const boardCopy = new Map(board);
@@ -298,10 +296,11 @@ function removeMovesWithPieces(
   });
 }
 
-/* check if move is check, checkmate, enpassant */
+/* gameboard checks */
 
 function isDiscoveredCheck(
   kingPosition: Square,
+  kingColor: Color,
   openSquare: Square,
   board: Board
 ): string {
@@ -314,8 +313,6 @@ function isDiscoveredCheck(
     (s) => s !== kingPosition && s !== openSquare
   );
   if (!squaresAlongVector.length) return '';
-
-  const kingColor = board.get(kingPosition)?.piece?.color;
 
   for (const square of squaresAlongVector) {
     const piece = board.get(square)?.piece;
@@ -333,9 +330,9 @@ function canBlockOrCaptureCheck(
   checkPosition: Square,
   board: Board
 ) {
-  const squareObj: SquareObj | undefined = board.get(kingPosition);
-  if (!squareObj) return;
-  const king: Piece | Pawn | null = squareObj.piece;
+  const squareVal = board.get(kingPosition);
+  if (!squareVal) return;
+  const king = squareVal.piece;
   if (!king) return;
 
   const kingColor = king.color;
@@ -352,7 +349,7 @@ function canBlockOrCaptureCheck(
   );
 }
 
-function isEnPassant(start: Square, end: Square) {
+function shouldToggleEnPassant(start: Square, end: Square) {
   const { y: y1 } = toXY(start);
   const { y: y2 } = toXY(end);
 
@@ -363,5 +360,5 @@ export {
   getValidMoves,
   isDiscoveredCheck,
   canBlockOrCaptureCheck,
-  isEnPassant
+  shouldToggleEnPassant
 };
