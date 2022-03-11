@@ -443,15 +443,31 @@ describe('testing getValidMoves for Pawn (white)', () => {
     const pieceToBeCaptured = Pawn('white');
 
     gameboard.at('e2').place(pieceToBeCaptured);
-    gameboard.at('d4').place(piece);
-    gameboard.from('d4').to('d3');
+    gameboard.at('d5').place(piece);
+    gameboard.from('d5').to('d4');
     gameboard.from('e2').to('e4');
 
-    const allValidMoves = gameboard.at('d3').getValidMoves();
-    const expected = ['d2', 'e2'];
+    const allValidMoves = gameboard.at('d4').getValidMoves();
+    const expected = ['d3', 'e3'];
 
     expect(allValidMoves).toEqual(expect.arrayContaining(expected));
     expect(allValidMoves.length).toBe(expected.length);
+  });
+});
+
+describe('testing gameboard.from.to', () => {
+  test('capture by en passant works', () => {
+    const gameboard = Gameboard();
+    const piece = Pawn('black');
+    const pieceToBeCaptured = Pawn('white');
+
+    gameboard.at('e2').place(pieceToBeCaptured);
+    gameboard.at('d5').place(piece);
+    gameboard.from('d5').to('d4');
+    gameboard.from('e2').to('e4');
+    gameboard.from('d4').to('e3');
+
+    expect(gameboard.at('e4').piece).toBe(null);
   });
 });
 
