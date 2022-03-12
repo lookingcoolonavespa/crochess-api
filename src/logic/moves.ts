@@ -160,8 +160,12 @@ function getPawnCaptures(pawn: Pawn, board: Board) {
     if (!squareVal) return false;
 
     const piece = squareVal.piece;
+    const enPassant = squareVal.enPassant;
 
-    return (piece && piece.color !== pawn.color) || squareVal.enPassant;
+    return (
+      (piece && piece.color !== pawn.color) ||
+      (enPassant && enPassant !== pawn.color)
+    );
   });
 }
 

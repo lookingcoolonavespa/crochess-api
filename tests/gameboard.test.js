@@ -453,6 +453,21 @@ describe('testing getValidMoves for Pawn (white)', () => {
     expect(allValidMoves).toEqual(expect.arrayContaining(expected));
     expect(allValidMoves.length).toBe(expected.length);
   });
+  test('en passant doesnt work for own pawns', () => {
+    const gameboard = Gameboard();
+    const piece = Pawn('black');
+    const otherPawn = Pawn('black');
+
+    gameboard.at('e7').place(piece);
+    gameboard.at('d7').place(otherPawn);
+    gameboard.from('e7').to('e5');
+
+    const allValidMoves = gameboard.at('d7').getValidMoves();
+    const expected = ['d6', 'd5'];
+
+    expect(allValidMoves).toEqual(expect.arrayContaining(expected));
+    expect(allValidMoves.length).toBe(expected.length);
+  });
 });
 
 describe('testing gameboard.from.to', () => {

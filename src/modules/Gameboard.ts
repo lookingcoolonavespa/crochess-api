@@ -4,6 +4,7 @@ import {
   canBlockOrCaptureCheck,
   shouldToggleEnPassant
 } from '../logic/moves';
+import { toXY, fromXY } from '../logic/helpers';
 
 import { Color, Square } from '../types/types';
 import { Piece, Pawn } from '../types/interfaces';
@@ -52,6 +53,12 @@ const Gameboard = () => {
     return domBoard;
   }
 
+  function getEnPassantSquare(current: Square, color: Color) {
+    const { x, y } = toXY(current);
+    const newY = color === 'white' ? y - 1 : y + 1;
+    return fromXY({ x, y: newY });
+  }
+
   function getKingPosition(color: Color) {
     for (const [square, value] of board.entries()) {
       if (
@@ -94,10 +101,7 @@ const Gameboard = () => {
 
       // capture by en passant
       if (endSquare === enPassantDetails.square && enPassantDetails.piece) {
-        if (
-          piece.type === 'pawn' &&
-          piece.color !== enPassantDetails.piece.color
-        ) {
+        if (piece.type === 'pawn') {
           at(enPassantDetails.piece.current).remove();
         }
       } else {
@@ -108,11 +112,12 @@ const Gameboard = () => {
       board.set(startSquare, { piece: null });
       if (piece.type === 'pawn') {
         if (shouldToggleEnPassant(startSquare, endSquare)) {
+          const enPassantSquare = getEnPassantSquare(endSquare, piece.color);
           enPassantDetails = {
             piece,
-            square: startSquare
+            square: enPassantSquare
           };
-          board.set(startSquare, { piece: null, enPassant: true });
+          board.set(enPassantSquare, { piece: null, enPassant: piece.color });
         }
       }
       board.set(endSquare, { piece });

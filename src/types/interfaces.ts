@@ -34,7 +34,7 @@ export interface Pawn {
 
 export interface SquareObj {
   piece: Piece | Pawn | null;
-  enPassant?: boolean;
+  enPassant?: Color;
 }
 
 interface At {
