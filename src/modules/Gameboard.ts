@@ -153,7 +153,13 @@ const Gameboard = () => {
       const validMoves = at(kingPosition).getValidMoves();
       // check if check can be blocked
       if (squaresGivingCheck.length === 1) {
-        if (canBlockOrCaptureCheck(kingPosition, squaresGivingCheck[0], board))
+        if (
+          canBlockOrCaptureCheck(
+            at(kingPosition).piece,
+            at(squaresGivingCheck[0]).piece,
+            board
+          )
+        )
           return false;
       }
       if (!validMoves || !validMoves.length) return true;

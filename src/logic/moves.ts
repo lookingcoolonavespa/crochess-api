@@ -47,6 +47,7 @@ function splitIntoVectors(arrayOfMoves: Moves, startSquare: Square) {
 }
 
 function getBeginningOfVector(vector: Moves) {
+  if (vector.length === 0) return '';
   return vector.reduce((acc, curr) => {
     const { x: x1, y: y1 } = toXY(acc);
     const { x: x2, y: y2 } = toXY(curr);
@@ -192,9 +193,9 @@ function getSquaresBetweenKingAndCheck(
 function removeMovesBehindTwoSquares(
   squareOne: Square,
   squareTwo: Square,
-  moves: Moves
+  vector: Moves
 ): Moves {
-  const sorted = sortMovesClosestTo(getBeginningOfVector(moves))(moves);
+  const sorted = sortMovesClosestTo(getBeginningOfVector(vector))(vector);
   let furthestSquare;
   let closestSquare;
 
@@ -231,6 +232,11 @@ function removeObstructedMoves(
   possibleMoves: Moves,
   obstructions: Moves
 ): Moves {
+  // a) split possible moves into vectors (up,down,left,right, and/or diagonals)
+  // b) see which obstructions belong to which vector
+  // c) find the closest obstruction
+  // d) remove all the moves behind that obstruction
+
   const filteredMoves: Moves[] = [];
 
   const allVectors = splitIntoVectors(possibleMoves, startingSquare);
@@ -330,27 +336,27 @@ function isDiscoveredCheck(
 }
 
 function canBlockOrCaptureCheck(
-  kingPosition: Square,
-  checkPosition: Square,
+  king: Piece,
+  pieceGivingCheck: Piece | Pawn,
   board: Board
 ) {
-  const squareVal = board.get(kingPosition);
-  if (!squareVal) return;
-  const king = squareVal.piece;
-  if (!king) return;
+  let squaresToCheckFor: Square | Moves;
+  switch (pieceGivingCheck.type) {
+    case 'knight': {
+      squaresToCheckFor = pieceGivingCheck.current;
+      break;
+    }
+    default: {
+      squaresToCheckFor = getSquaresBetweenKingAndCheck(
+        king.current,
+        pieceGivingCheck.current,
+        Array.from(board.keys())
+      );
+    }
+  }
 
-  const kingColor = king.color;
-
-  const squaresBetweenKingAndPiece = getSquaresBetweenKingAndCheck(
-    kingPosition,
-    checkPosition,
-    Array.from(board.keys())
-  );
-
-  const ownPieceMoves = getMovesForAllPieces(kingColor, board);
-  return ownPieceMoves.some((move) =>
-    squaresBetweenKingAndPiece.includes(move)
-  );
+  const ownPieceMoves = getMovesForAllPieces(king.color, board);
+  return ownPieceMoves.some((move) => squaresToCheckFor.includes(move));
 }
 
 function shouldToggleEnPassant(start: Square, end: Square) {

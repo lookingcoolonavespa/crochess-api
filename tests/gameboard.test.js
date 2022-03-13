@@ -718,5 +718,21 @@ describe('testing gameboard.check functions', () => {
 
       expect(checkmate).toBe(false);
     });
+    test('cant block knight check', () => {
+      const gameboard = Gameboard();
+      const king = King('white');
+      const oppKnight = Knight('black');
+
+      gameboard.at('h1').place(king);
+      gameboard.at('h2').place(Bishop('white'));
+      gameboard.at('g2').place(Bishop('white'));
+      gameboard.at('g1').place(Rook('white'));
+      gameboard.at('f2').place(oppKnight);
+
+      const squaresGivingCheck = gameboard.check.inCheckAfterMove('f2', 'f2');
+      const checkmate = gameboard.check.checkmate('white', squaresGivingCheck);
+
+      expect(checkmate).toBe(true);
+    });
   });
 });
