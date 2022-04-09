@@ -3,8 +3,8 @@ import {
   isDiscoveredCheck,
   canBlockOrCaptureCheck,
   shouldToggleEnPassant
-} from '../logic/moves';
-import { toXY, fromXY } from '../logic/helpers';
+} from '../utils/moves';
+import { toXY, fromXY } from '../utils/helpers';
 
 import { Color, Square } from '../types/types';
 import { Piece, Pawn } from '../types/interfaces';

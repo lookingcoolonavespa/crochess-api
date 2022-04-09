@@ -3,24 +3,26 @@ import { Coord, xCoord, yCoord, Piece, Pawn } from '../types/interfaces';
 import { Moves, Board, Square, Color } from '../types/types';
 
 const moves = {
-  vertAndLateral:
-    ({ x: x1, y: y1 }: Coord) =>
-    ({ x: x2, y: y2 }: Coord) =>
-      x1 === x2 || y1 === y2,
-  diagonal:
-    ({ x: x1, y: y1 }: Coord) =>
-    ({ x: x2, y: y2 }: Coord) =>
-      Math.abs(x2 - x1) === Math.abs(y2 - y1),
-  xByN:
-    (num: number) =>
-    ({ x: x1 }: xCoord) =>
-    ({ x: x2 }: xCoord) =>
-      Math.abs(x1 - x2) === num,
-  yByN:
-    (num: number) =>
-    ({ y: y1 }: yCoord) =>
-    ({ y: y2 }: yCoord) =>
-      Math.abs(y1 - y2) === num
+  vertAndLateral: (from: Square) => (to: Square) => {
+    const [x1, y1] = from.split('');
+    const [x2, y2] = to.split('');
+    return x1 === x2 || y1 === y2;
+  },
+  diagonal: (from: Square) => (to: Square) => {
+    const { x: x1, y: y1 } = toXY(from);
+    const { x: x2, y: y2 } = toXY(to);
+    return Math.abs(x2 - x1) === Math.abs(y2 - y1);
+  },
+  xByN: (num: number) => (from: Square) => (to: Square) => {
+    const { x: x1 } = toXY(from);
+    const { x: x2 } = toXY(to);
+    return Math.abs(x1 - x2) === num;
+  },
+  yByN: (num: number) => (from: Square) => (to: Square) => {
+    const { y: y1 } = toXY(from);
+    const { y: y2 } = toXY(to);
+    return Math.abs(y1 - y2) === num;
+  }
 };
 
 export default moves;
@@ -62,18 +64,15 @@ const getMovesAlongVector = (
   squareTwo: Square,
   allSquares: Moves
 ): Moves => {
-  const liesSameVertOrLat = moves.vertAndLateral(toXY(squareOne))(
-    toXY(squareTwo)
-  );
-  const liesSameDiagonally = moves.diagonal(toXY(squareOne))(toXY(squareTwo));
+  const liesSameVertOrLat = moves.vertAndLateral(squareOne)(squareTwo);
+  const liesSameDiagonally = moves.diagonal(squareOne)(squareTwo);
   const liesOnSameLine = liesSameVertOrLat || liesSameDiagonally;
   if (!liesOnSameLine) return [];
 
   const matchingVector = liesSameDiagonally ? 'diagonal' : 'vertAndLateral';
   const squaresAlongVector = allSquares.filter(
     (s) =>
-      moves[matchingVector](toXY(squareOne))(toXY(s)) &&
-      moves[matchingVector](toXY(squareTwo))(toXY(s))
+      moves[matchingVector](squareOne)(s) && moves[matchingVector](squareTwo)(s)
   );
 
   return squaresAlongVector;

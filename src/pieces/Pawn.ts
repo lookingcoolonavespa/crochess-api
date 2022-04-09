@@ -1,6 +1,6 @@
 import Piece from './Piece';
-import moves from '../logic/moves';
-import { toXY, fromXY } from '../logic/helpers';
+import moves from '../utils/moves';
+import { toXY, fromXY } from '../utils/helpers';
 
 import { Color, Square, Moves } from '../types/types';
 

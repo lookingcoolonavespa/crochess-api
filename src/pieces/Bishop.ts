@@ -1,29 +1,19 @@
-import Piece from './Piece';
-import moves from '../logic/moves';
-import { toXY } from '../logic/helpers';
+import moves from '../utils/moves';
+import { toXY } from '../utils/helpers';
 
 import { Color, Square } from '../types/types';
 
 const Bishop = (color: Color) => {
-  const piece = Piece('bishop', color);
   const type = 'bishop' as const;
 
-  function isValidMove(target: Square) {
-    return (
-      target !== piece.current &&
-      moves.diagonal(toXY(piece.current))(toXY(target))
-    );
+  function isValidMove(target: Square, current: Square) {
+    return target !== current && moves.diagonal(toXY(current))(toXY(target));
   }
 
   return {
-    color,
     isValidMove,
-    to: piece.to,
-    get current() {
-      return piece.current;
-    },
-    get domEl() {
-      return piece.domEl;
+    get color() {
+      return color;
     },
     get type() {
       return type;

@@ -16,12 +16,6 @@ const game = (() => {
   function init(wrapper: Element | null) {
     if (!wrapper) return;
     gameboard = Gameboard();
-    placePawns('white');
-    placePawns('black');
-    placePieces('white');
-    placePieces('black');
-    wrapper.textContent = '';
-    wrapper.append(gameboard.domBoard);
 
     function placePawns(color: Color) {
       const row = color === 'white' ? 2 : 7;
@@ -56,6 +50,12 @@ const game = (() => {
           .place(piecePosition[col](color));
       });
     }
+    placePawns('white');
+    placePawns('black');
+    placePieces('white');
+    placePieces('black');
+    wrapper.textContent = '';
+    wrapper.append(gameboard.domBoard);
   }
   return {
     get gameboard() {

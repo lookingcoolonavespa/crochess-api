@@ -21,7 +21,6 @@ module.exports = {
     '@typescript-eslint/no-unused-vars': 1,
     // to enforce using type for object type definitions, can be type or interface
     '@typescript-eslint/consistent-type-definitions': ['error', 'interface'],
-    'no-use-before-define': 'off',
-    '@typescript-eslint/no-use-before-define': ['error']
+    'no-use-before-define': 'off'
   }
 };
