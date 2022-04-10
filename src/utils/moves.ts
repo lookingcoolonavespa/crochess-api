@@ -1,5 +1,10 @@
 import { calcDistance, toXY } from './helpers';
-import { PieceInterface, SquareObj, PieceObj } from '../types/interfaces';
+import {
+  PieceInterface,
+  SquareObj,
+  PieceObj,
+  EnPassantObj
+} from '../types/interfaces';
 import { Moves, Board, Square, Color } from '../types/types';
 import Piece from '../pieces/Piece';
 
@@ -180,11 +185,11 @@ function getPawnCaptures(pawnSquare: Square, board: Board) {
     if (!squareVal) return false;
 
     const piece = squareVal.piece;
-    const enPassant = squareVal.enPassant;
+    const enPassant: EnPassantObj | undefined = squareVal.enPassant;
 
     return (
       (piece && piece.color !== pawn.color) ||
-      (enPassant && enPassant !== pawn.color)
+      (enPassant && enPassant.color !== pawn.color)
     );
   });
 }

@@ -7,7 +7,7 @@ import {
 import { toXY, fromXY } from '../utils/helpers';
 
 import { Color, Square, Board } from '../types/types';
-import { PieceInterface, PieceObj } from '../types/interfaces';
+import { PieceObj } from '../types/interfaces';
 
 const Gameboard = (board: Board) => {
   /* end of state */
@@ -28,6 +28,12 @@ const Gameboard = (board: Board) => {
     const { x, y } = toXY(current);
     const newY = color === 'white' ? y - 1 : y + 1;
     return fromXY({ x, y: newY });
+  }
+
+  function removeEnPassant() {
+    for (const squareObj of board.values()) {
+      if (squareObj.enPassant) return (squareObj.enPassant = undefined);
+    }
   }
 
   function getKingPosition(color: Color) {
@@ -65,24 +71,27 @@ const Gameboard = (board: Board) => {
       if (!legalMoves.includes(s2)) return;
 
       // capture by en passant
-      if (s2 === enPassantDetails.square && enPassantDetails.piece) {
+      const enPassant = board.get(s2)?.enPassant;
+      if (enPassant) {
         if (piece.type === 'pawn') {
-          at(enPassantDetails.piece.current).remove();
+          at(enPassant.current).remove();
         }
-      } else {
-        enPassantDetails = { square: '', piece: null };
       }
+      // need to remove after every move
+      removeEnPassant();
 
       // move piece
       board.set(s1, { piece: null });
       if (piece.type === 'pawn') {
         if (shouldToggleEnPassant(s1, s2)) {
           const enPassantSquare = getEnPassantSquare(s2, piece.color);
-          enPassantDetails = {
-            piece,
-            square: enPassantSquare
-          };
-          board.set(enPassantSquare, { piece: null, enPassant: piece.color });
+          board.set(enPassantSquare, {
+            piece: null,
+            enPassant: {
+              current: s2,
+              color: piece.color
+            }
+          });
         }
       }
       board.set(s2, { piece });

@@ -25,9 +25,14 @@ export interface PieceObj {
   color: Color;
 }
 
+export interface EnPassantObj {
+  color: Color;
+  current: Square;
+}
+
 export interface SquareObj {
   piece: PieceObj | null;
-  enPassant?: Color;
+  enPassant?: EnPassantObj;
 }
 
 interface At {
