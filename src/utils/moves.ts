@@ -1,6 +1,7 @@
 import { calcDistance, toXY } from './helpers';
-import { Coord, xCoord, yCoord, Piece, Pawn } from '../types/interfaces';
+import { PieceInterface, SquareObj, PieceObj } from '../types/interfaces';
 import { Moves, Board, Square, Color } from '../types/types';
+import Piece from '../pieces/Piece';
 
 const moves = {
   vertAndLateral: (from: Square) => (to: Square) => {
@@ -29,16 +30,18 @@ export default moves;
 
 /* dealing with move vectors */
 
-function splitIntoVectors(arrayOfMoves: Moves, startSquare: Square) {
+function splitIntoVectors(arrayOfMoves: Moves, start: Square) {
   interface Vectors {
     [key: string]: string[];
   }
-  return arrayOfMoves.reduce((acc: Vectors, curr) => {
-    const { xDiff, yDiff } = calcDistance(startSquare)(curr);
+  return arrayOfMoves.reduce((acc: Vectors, curr: Square) => {
+    const { xDiff, yDiff } = calcDistance(start)(curr);
 
     let vector = '';
     if (yDiff !== 0) vector = yDiff < 0 ? 'up' : 'down';
     if (xDiff !== 0) vector += xDiff < 0 ? 'Right' : 'Left';
+
+    // normalize vector name
     vector = vector.charAt(0).toLowerCase() + vector.slice(1);
 
     acc[vector] = acc[vector] || [];
@@ -50,6 +53,7 @@ function splitIntoVectors(arrayOfMoves: Moves, startSquare: Square) {
 
 function getBeginningOfVector(vector: Moves) {
   if (vector.length === 0) return '';
+
   return vector.reduce((acc, curr) => {
     const { x: x1, y: y1 } = toXY(acc);
     const { x: x2, y: y2 } = toXY(curr);
@@ -60,21 +64,21 @@ function getBeginningOfVector(vector: Moves) {
 }
 
 const getMovesAlongVector = (
-  squareOne: Square,
-  squareTwo: Square,
+  s1: Square,
+  s2: Square,
   allSquares: Moves
 ): Moves => {
-  const liesSameVertOrLat = moves.vertAndLateral(squareOne)(squareTwo);
-  const liesSameDiagonally = moves.diagonal(squareOne)(squareTwo);
+  const liesSameVertOrLat = moves.vertAndLateral(s1)(s2);
+  const liesSameDiagonally = moves.diagonal(s1)(s2);
+
   const liesOnSameLine = liesSameVertOrLat || liesSameDiagonally;
   if (!liesOnSameLine) return [];
 
   const matchingVector = liesSameDiagonally ? 'diagonal' : 'vertAndLateral';
-  const squaresAlongVector = allSquares.filter(
-    (s) =>
-      moves[matchingVector](squareOne)(s) && moves[matchingVector](squareTwo)(s)
-  );
 
+  const squaresAlongVector = allSquares.filter(
+    (s) => moves[matchingVector](s1)(s) && moves[matchingVector](s2)(s)
+  );
   return squaresAlongVector;
 };
 
@@ -96,65 +100,81 @@ const sortMovesClosestTo =
 
 /* get moves */
 
-function getPossibleMoves(piece: Piece | Pawn, board: Board) {
+function getPossibleMoves(origin: Square, board: Board) {
+  // get all moves that can happen if no other pieces were on the board
   const allSquares = Array.from(board.keys());
 
-  return allSquares.filter((s) => piece.isValidMove(s));
+  const square = board.get(origin) as SquareObj;
+
+  const { type, color } = square.piece as PieceObj;
+  const piece = Piece(color, type);
+
+  return allSquares.filter((s) => piece.hasMove(origin, s));
 }
 
-function getValidMoves(piece: Piece | Pawn, square: Square, board: Board) {
-  const possibleMoves = getPossibleMoves(piece, board);
+function getLegalMoves(origin: Square, board: Board) {
+  // get moves of piece that is on origin
+
+  const square = board.get(origin) as SquareObj;
+
+  const { type, color } = square.piece as PieceObj;
+  const piece = Piece(color, type);
+
+  let possibleMoves = getPossibleMoves(origin, board);
+
   const obstructions = possibleMoves.filter((s) => board.get(s)?.piece);
   if (!obstructions.length) {
-    if (piece.type === 'pawn')
-      return [...getPawnCaptures(piece, board), ...possibleMoves];
+    if (type === 'pawn')
+      return [...getPawnCaptures(origin, board), ...possibleMoves];
     return possibleMoves;
   }
 
-  let unobstructedMoves: Moves = [];
-  switch (piece.type) {
+  possibleMoves = removeMovesWithPieces(possibleMoves, board, piece.color); // filter out squares with own pieces
+  let legalMoves: Moves = [];
+  switch (type) {
     case 'knight': {
-      unobstructedMoves = possibleMoves;
+      legalMoves = possibleMoves;
       break;
     }
     case 'pawn': {
-      const capturesAvailable = getPawnCaptures(piece, board);
+      const capturesAvailable = getPawnCaptures(origin, board);
       const unobstructedMoves = removeMovesWithPieces(
-        removeObstructedMoves(square, possibleMoves, obstructions),
+        removeObstructedMoves(origin, possibleMoves, obstructions),
         board
       );
-      return [...capturesAvailable, ...unobstructedMoves];
+      legalMoves = [...capturesAvailable, ...unobstructedMoves];
+      break;
     }
     case 'king': {
-      unobstructedMoves = removeProtectedSquares(piece, possibleMoves, board);
+      legalMoves = removeProtectedSquares(piece, possibleMoves, board);
       break;
     }
     default: {
-      unobstructedMoves = removeObstructedMoves(
-        square,
-        possibleMoves,
-        obstructions
-      );
+      legalMoves = removeObstructedMoves(origin, possibleMoves, obstructions);
     }
   }
 
-  return removeMovesWithPieces(unobstructedMoves, board, piece.color);
+  return legalMoves;
 }
 
-function getMovesForAllPieces(color: Color, board: Board): Moves {
+function getAllMovesForColor(color: Color, board: Board): Moves {
   const allMoves: Moves[] = [];
   for (const [square, { piece }] of board.entries()) {
     if (!piece) continue;
     if (piece.color !== color) continue;
 
-    allMoves.push(getValidMoves(piece, square, board));
+    allMoves.push(getLegalMoves(square, board));
   }
 
   return allMoves.flat();
 }
 
-function getPawnCaptures(pawn: Pawn, board: Board) {
-  const captureMoves = pawn.getCaptureSquares();
+function getPawnCaptures(pawnSquare: Square, board: Board) {
+  const { color } = board.get(pawnSquare)?.piece as PieceObj;
+  const pawn = Piece(color, 'pawn');
+
+  const captureMoves = pawn.getPawnCaptures(pawnSquare);
+  if (!captureMoves) return [];
   return captureMoves.filter((s) => {
     const squareVal = board.get(s);
     if (!squareVal) return false;
@@ -170,18 +190,14 @@ function getPawnCaptures(pawn: Pawn, board: Board) {
 }
 
 function getSquaresBetweenKingAndCheck(
-  kingPosition: Square,
-  checkPosition: Square,
+  kingPos: Square,
+  checkPos: Square,
   allSquares: Moves
 ) {
-  const squaresAlongVector = getMovesAlongVector(
-    kingPosition,
-    checkPosition,
-    allSquares
-  );
+  const squaresAlongVector = getMovesAlongVector(kingPos, checkPos, allSquares);
   const squaresBetweenKingAndPiece = removeMovesBehindTwoSquares(
-    kingPosition,
-    checkPosition,
+    kingPos,
+    checkPos,
     squaresAlongVector
   );
   return squaresBetweenKingAndPiece;
@@ -190,20 +206,20 @@ function getSquaresBetweenKingAndCheck(
 /* filter moves */
 
 function removeMovesBehindTwoSquares(
-  squareOne: Square,
-  squareTwo: Square,
+  s1: Square,
+  s2: Square,
   vector: Moves
 ): Moves {
   const sorted = sortMovesClosestTo(getBeginningOfVector(vector))(vector);
   let furthestSquare;
   let closestSquare;
 
-  if (sorted.indexOf(squareOne) > sorted.indexOf(squareTwo)) {
-    furthestSquare = squareOne;
-    closestSquare = squareTwo;
+  if (sorted.indexOf(s1) > sorted.indexOf(s2)) {
+    furthestSquare = s1;
+    closestSquare = s2;
   } else {
-    furthestSquare = squareTwo;
-    closestSquare = squareOne;
+    furthestSquare = s2;
+    closestSquare = s1;
   }
   const removedOneEnd = removeMovesBehindSquare(furthestSquare)(sorted);
   const removedBothEnds = removeMovesBehindSquare(closestSquare)(
@@ -258,13 +274,13 @@ function removeObstructedMoves(
 }
 
 function removeProtectedSquares(
-  king: Piece,
+  king: PieceInterface,
   possibleMoves: Moves,
   board: Board
 ): Moves {
   // a) for each piece inside king's move radius, check if it is opposite color
   // b) for each piece of opposite color inside the move radius, replace with King (need to do this to find if pawn protects a piece)
-  // c) check board for any piece that has that square in it's moveset
+  // c) check board for any piece that has that square in it's move set
 
   // a)
   const oppColor = king.color === 'white' ? 'black' : 'white';
@@ -284,7 +300,7 @@ function removeProtectedSquares(
   });
 
   // c)
-  const allEnemyMoves = getMovesForAllPieces(oppColor, boardCopy);
+  const allEnemyMoves = getAllMovesForColor(oppColor, boardCopy);
   return possibleMoves.filter((s) => {
     // get squares such that no enemy pieces can capture there
     return !allEnemyMoves.includes(s);
@@ -308,18 +324,19 @@ function removeMovesWithPieces(
 /* gameboard checks */
 
 function isDiscoveredCheck(
-  kingPosition: Square,
+  kingPos: Square,
   kingColor: Color,
-  openSquare: Square,
+  vacated: Square,
   board: Board
 ): string {
+  // openSquare is a square just vacated
   let squaresAlongVector = getMovesAlongVector(
-    kingPosition,
-    openSquare,
+    kingPos,
+    vacated,
     Array.from(board.keys())
   );
   squaresAlongVector = squaresAlongVector.filter(
-    (s) => s !== kingPosition && s !== openSquare
+    (s) => s !== kingPos && s !== vacated
   );
   if (!squaresAlongVector.length) return '';
 
@@ -327,35 +344,38 @@ function isDiscoveredCheck(
     const piece = board.get(square)?.piece;
     if (!piece || piece.color === kingColor) continue;
 
-    const validMoves = getValidMoves(piece, square, board);
-    if (validMoves.includes(kingPosition)) return square;
+    const legalMoves = getLegalMoves(square, board);
+    if (legalMoves.includes(kingPos)) return square;
   }
 
   return '';
 }
 
 function canBlockOrCaptureCheck(
-  king: Piece,
-  pieceGivingCheck: Piece | Pawn,
+  kingPos: Square,
+  squareGivingCheck: Square,
   board: Board
 ) {
-  let squaresToCheckFor: Square | Moves;
-  switch (pieceGivingCheck.type) {
+  const king = board.get(kingPos)?.piece as PieceObj;
+  const piece = board.get(squareGivingCheck)?.piece as PieceObj;
+
+  let blockOrCaptureSquares: Square | Moves;
+  switch (piece.type) {
     case 'knight': {
-      squaresToCheckFor = pieceGivingCheck.current;
+      blockOrCaptureSquares = squareGivingCheck;
       break;
     }
     default: {
-      squaresToCheckFor = getSquaresBetweenKingAndCheck(
-        king.current,
-        pieceGivingCheck.current,
+      blockOrCaptureSquares = getSquaresBetweenKingAndCheck(
+        kingPos,
+        squareGivingCheck,
         Array.from(board.keys())
       );
     }
   }
 
-  const ownPieceMoves = getMovesForAllPieces(king.color, board);
-  return ownPieceMoves.some((move) => squaresToCheckFor.includes(move));
+  const ownPieceMoves = getAllMovesForColor(king.color, board);
+  return ownPieceMoves.some((move) => blockOrCaptureSquares.includes(move));
 }
 
 function shouldToggleEnPassant(start: Square, end: Square) {
@@ -366,7 +386,7 @@ function shouldToggleEnPassant(start: Square, end: Square) {
 }
 
 export {
-  getValidMoves,
+  getLegalMoves,
   isDiscoveredCheck,
   canBlockOrCaptureCheck,
   shouldToggleEnPassant

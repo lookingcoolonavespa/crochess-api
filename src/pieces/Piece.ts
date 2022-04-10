@@ -1,10 +1,10 @@
 import moves from '../utils/moves';
-import { toXY } from '../utils/helpers';
+import { toXY, fromXY } from '../utils/helpers';
 
 import { Color, Square, PieceType } from '../types/types';
 
 const Piece = (color: Color, type: PieceType) => {
-  function isInMoveset(from: Square, to: Square) {
+  function hasMove(from: Square, to: Square) {
     switch (type) {
       case 'king': {
         const oneSquareVert =
@@ -57,7 +57,29 @@ const Piece = (color: Color, type: PieceType) => {
     }
   }
 
-  return { isInMoveset };
+  function getPawnCaptures(origin: Square) {
+    if (type !== 'pawn') return;
+
+    const { x, y } = toXY(origin);
+
+    const newY = color === 'white' ? y + 1 : y - 1;
+
+    const captureOne = { x: x + 1, y: newY };
+    const captureTwo = { x: x - 1, y: newY };
+
+    return [fromXY(captureOne), fromXY(captureTwo)];
+  }
+
+  return {
+    hasMove,
+    getPawnCaptures,
+    get type() {
+      return type;
+    },
+    get color() {
+      return color;
+    }
+  };
 };
 
 export default Piece;

@@ -1,4 +1,4 @@
-import { Color, Square, Board, Moves } from './types';
+import { Color, Square, Board, Moves, PieceType } from './types';
 
 export interface Coord {
   x: number;
@@ -13,34 +13,27 @@ export interface yCoord {
   y: number;
 }
 
-export interface Piece {
-  color: Color;
-  isValidMove: (target: Square) => boolean;
-  to: (square: Square) => void;
-  readonly domEl: HTMLDivElement;
-  readonly type: 'king' | 'queen' | 'knight' | 'bishop' | 'rook';
-  readonly current: Square;
+export interface PieceInterface {
+  hasMove: (from: Square, to: Square) => boolean;
+  getPawnCaptures: (origin: Square) => Square[] | undefined;
+  readonly color: Color;
+  readonly type: 'king' | 'queen' | 'knight' | 'bishop' | 'rook' | 'pawn';
 }
 
-export interface Pawn {
+export interface PieceObj {
+  type: PieceType;
   color: Color;
-  isValidMove: (target: string) => boolean;
-  to: (square: Square, initialPlacement?: boolean) => void;
-  readonly current: Square;
-  readonly domEl: HTMLDivElement;
-  readonly type: 'pawn';
-  getCaptureSquares: () => string[];
 }
 
 export interface SquareObj {
-  piece: Piece | Pawn | null;
+  piece: PieceObj | null;
   enPassant?: Color;
 }
 
 interface At {
-  place: (piece: Piece | Pawn) => void;
+  place: (piece: PieceInterface) => void;
   remove: () => void;
-  piece: () => Piece | Pawn | null;
+  piece: () => PieceInterface | null;
   getValidMoves: () => undefined | string[];
 }
 

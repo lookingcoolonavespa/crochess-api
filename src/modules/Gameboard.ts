@@ -1,56 +1,27 @@
 import {
-  getValidMoves,
+  getLegalMoves,
   isDiscoveredCheck,
   canBlockOrCaptureCheck,
   shouldToggleEnPassant
 } from '../utils/moves';
 import { toXY, fromXY } from '../utils/helpers';
 
-import { Color, Square } from '../types/types';
-import { Piece, Pawn } from '../types/interfaces';
+import { Color, Square, Board } from '../types/types';
+import { PieceInterface, PieceObj } from '../types/interfaces';
 
-const Gameboard = () => {
-  /* state */
-  interface enPassantDetails {
-    square: Square;
-    piece: Pawn | null;
-  }
-  let enPassantDetails: enPassantDetails = {
-    square: '',
-    piece: null
-  };
+const Gameboard = (board: Board) => {
   /* end of state */
   const cols = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
   const rows = [1, 2, 3, 4, 5, 6, 7, 8];
 
-  const board = createBoard();
-  const allSquares = board.keys();
-  const domBoard = createDomBoard();
-
   function createBoard() {
-    return cols.reduce((acc, curr) => {
-      rows.forEach((r) => {
-        const square = curr.concat(r.toString());
+    return cols.reduce((acc, col) => {
+      rows.forEach((row) => {
+        const square = col.concat(row.toString());
         acc.set(square, { piece: null });
       });
       return acc;
     }, new Map());
-  }
-  function createDomBoard() {
-    const domBoard = document.createElement('div');
-    domBoard.setAttribute('class', 'gameboard');
-    for (const square of allSquares) {
-      const evenColumn = cols.indexOf(square.charAt(0)) % 2 === 0;
-      const domSquare = document.createElement('div');
-      domSquare.setAttribute(
-        'class',
-        `boardSquare ${evenColumn ? 'col-even' : 'col-odd'}`
-      );
-      domSquare.style.gridArea = square;
-      domBoard.append(domSquare);
-    }
-
-    return domBoard;
   }
 
   function getEnPassantSquare(current: Square, color: Color) {
@@ -71,36 +42,30 @@ const Gameboard = () => {
   }
 
   const at = (square: Square) => ({
-    place: (piece: Piece | Pawn) => {
-      if (!board.has(square)) return 'square does not exist';
-
-      piece.to(square, true);
-      domBoard.append(piece.domEl);
+    place: (piece: PieceObj) => {
       board.set(square, { piece });
     },
     remove: () => {
       board.set(square, { piece: null });
     },
     get piece() {
-      return board.get(square).piece;
+      return board.get(square)?.piece;
     },
-    getValidMoves: () => {
-      const piece = at(square).piece;
-
-      return getValidMoves(piece, square, board);
+    getLegalMoves: () => {
+      return getLegalMoves(square, board);
     }
   });
 
-  const from = (startSquare: Square) => ({
-    to: (endSquare: Square) => {
-      const piece: Piece | Pawn = at(startSquare).piece;
+  const from = (s1: Square) => ({
+    to: (s2: Square) => {
+      const piece = at(s1).piece;
       if (!piece) return;
 
-      const validMoves = at(startSquare).getValidMoves();
-      if (!validMoves.includes(endSquare)) return;
+      const legalMoves = at(s1).getLegalMoves();
+      if (!legalMoves.includes(s2)) return;
 
       // capture by en passant
-      if (endSquare === enPassantDetails.square && enPassantDetails.piece) {
+      if (s2 === enPassantDetails.square && enPassantDetails.piece) {
         if (piece.type === 'pawn') {
           at(enPassantDetails.piece.current).remove();
         }
@@ -109,10 +74,10 @@ const Gameboard = () => {
       }
 
       // move piece
-      board.set(startSquare, { piece: null });
+      board.set(s1, { piece: null });
       if (piece.type === 'pawn') {
-        if (shouldToggleEnPassant(startSquare, endSquare)) {
-          const enPassantSquare = getEnPassantSquare(endSquare, piece.color);
+        if (shouldToggleEnPassant(s1, s2)) {
+          const enPassantSquare = getEnPassantSquare(s2, piece.color);
           enPassantDetails = {
             piece,
             square: enPassantSquare
@@ -120,63 +85,49 @@ const Gameboard = () => {
           board.set(enPassantSquare, { piece: null, enPassant: piece.color });
         }
       }
-      board.set(endSquare, { piece });
-      piece.to(endSquare);
+      board.set(s2, { piece });
     }
   });
 
   const check = {
-    inCheckAfterMove: (movedFrom: Square, endSquare: Square): string[] => {
-      const squaresOfPiecesGivingCheck: string[] = [];
+    inCheckAfterMove: (from: Square, end: Square): string[] => {
+      const squaresGivingCheck: string[] = [];
 
-      const piece = board.get(endSquare).piece;
+      const piece = board.get(end)?.piece as PieceObj;
       const oppColor = piece.color === 'white' ? 'black' : 'white';
-      const kingPosition = getKingPosition(oppColor);
+      const kingPosition = getKingPosition(oppColor) as Square;
 
-      const pieceHitsKing = getValidMoves(piece, endSquare, board).includes(
-        kingPosition
-      );
-      if (pieceHitsKing) squaresOfPiecesGivingCheck.push(endSquare);
+      const pieceHitsKing = getLegalMoves(end, board).includes(kingPosition);
+      if (pieceHitsKing) squaresGivingCheck.push(end);
 
       const discoveredCheck = isDiscoveredCheck(
         kingPosition,
         oppColor,
-        movedFrom,
+        from,
         board
       );
-      if (discoveredCheck) squaresOfPiecesGivingCheck.push(discoveredCheck);
+      if (discoveredCheck) squaresGivingCheck.push(discoveredCheck);
 
-      return squaresOfPiecesGivingCheck;
+      return squaresGivingCheck;
     },
     checkmate: (color: Color, squaresGivingCheck: string[]): boolean => {
-      const kingPosition = getKingPosition(color);
-      const validMoves = at(kingPosition).getValidMoves();
+      const kingPos = getKingPosition(color) as Square;
+      const legalMoves = at(kingPos).getLegalMoves();
       // check if check can be blocked
       if (squaresGivingCheck.length === 1) {
-        if (
-          canBlockOrCaptureCheck(
-            at(kingPosition).piece,
-            at(squaresGivingCheck[0]).piece,
-            board
-          )
-        )
+        if (canBlockOrCaptureCheck(kingPos, squaresGivingCheck[0], board))
           return false;
       }
-      if (!validMoves || !validMoves.length) return true;
+      if (!legalMoves || !legalMoves.length) return true;
       return false;
     }
   };
 
   return {
+    createBoard,
     at,
     from,
-    check,
-    get board() {
-      return board;
-    },
-    get domBoard() {
-      return domBoard;
-    }
+    check
   };
 };
 

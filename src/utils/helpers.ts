@@ -1,7 +1,7 @@
 import { Coord } from '../types/interfaces';
 import { Square } from '../types/types';
 
-function toXY(square: Square) {
+function toXY(square: Square): Coord {
   const [x, y] = square.split('');
   return {
     x: ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'].indexOf(x.toLowerCase()),
@@ -9,7 +9,7 @@ function toXY(square: Square) {
   };
 }
 
-function fromXY(coord: Coord) {
+function fromXY(coord: Coord): Square {
   const { x, y } = coord;
   const col = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'][x];
   if (!col) return '';
