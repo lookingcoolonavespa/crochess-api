@@ -6,7 +6,7 @@ import {
   EnPassantObj
 } from '../types/interfaces';
 import { Moves, Board, Square, Color } from '../types/types';
-import Piece from '../pieces/Piece';
+import Piece from '../Piece';
 
 const moves = {
   vertAndLateral: (from: Square) => (to: Square) => {
@@ -383,16 +383,4 @@ function canBlockOrCaptureCheck(
   return ownPieceMoves.some((move) => blockOrCaptureSquares.includes(move));
 }
 
-function shouldToggleEnPassant(start: Square, end: Square) {
-  const { y: y1 } = toXY(start);
-  const { y: y2 } = toXY(end);
-
-  return Math.abs(y1 - y2) === 2;
-}
-
-export {
-  getLegalMoves,
-  isDiscoveredCheck,
-  canBlockOrCaptureCheck,
-  shouldToggleEnPassant
-};
+export { getLegalMoves, isDiscoveredCheck, canBlockOrCaptureCheck };

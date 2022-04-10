@@ -1,10 +1,5 @@
 /* eslint-disable no-undef */
-import Gameboard from '../src/modules/Gameboard';
-import Bishop from '../src/pieces/Bishop';
-import Knight from '../src/pieces/Knight';
-import Rook from '../src/pieces/Rook';
-import Pawn from '../src/pieces/Pawn';
-import King from '../src/pieces/King';
+import Gameboard from '../src/Gameboard';
 
 test('gameboard is correct', () => {
   const gameboard = Gameboard();

@@ -1,7 +1,7 @@
-import moves from '../utils/moves';
-import { toXY, fromXY } from '../utils/helpers';
+import moves from './utils/moves';
+import { toXY, fromXY } from './utils/helpers';
 
-import { Color, Square, PieceType } from '../types/types';
+import { Color, Square, PieceType } from './types/types';
 
 const Piece = (color: Color, type: PieceType) => {
   function hasMove(from: Square, to: Square) {
