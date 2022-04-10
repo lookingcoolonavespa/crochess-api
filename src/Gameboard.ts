@@ -52,12 +52,18 @@ const Gameboard = (board: Board) => {
 
   const at = (square: Square) => ({
     place: (piece: PieceObj) => {
+      if (!board.get(square)) return 'square does not exist';
+
       board.set(square, { piece });
     },
     remove: () => {
+      if (!board.get(square)) return 'square does not exist';
+
       board.set(square, { piece: null });
     },
     setEnPassant: (color: Color, current: Square) => {
+      if (!board.get(square)) return 'square does not exist';
+
       board.set(square, {
         piece: null,
         enPassant: {
