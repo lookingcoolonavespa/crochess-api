@@ -9,11 +9,12 @@ import { Color, Square, Board } from './types/types';
 import { PieceObj } from './types/interfaces';
 
 const Gameboard = (board: Board) => {
-  /* end of state */
-  const cols = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
-  const rows = [1, 2, 3, 4, 5, 6, 7, 8];
+  board = board || createBoard();
 
   function createBoard() {
+    const cols = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
+    const rows = [1, 2, 3, 4, 5, 6, 7, 8];
+
     return cols.reduce((acc, col) => {
       rows.forEach((row) => {
         const square = col.concat(row.toString());
@@ -23,32 +24,31 @@ const Gameboard = (board: Board) => {
     }, new Map());
   }
 
-  const enPassant = {
-    checkToggle: (from: Square, to: Square) => {
-      const { y: y1 } = toXY(from);
-      const { y: y2 } = toXY(to);
-
-      return Math.abs(y1 - y2) === 2;
-    },
-    getSquare: (current: Square, color: Color) => {
+  const enPassant = (() => {
+    function getSquare(current: Square, color: Color): Square {
       const { x, y } = toXY(current);
       const newY = color === 'white' ? y - 1 : y + 1;
       return fromXY({ x, y: newY });
-    },
-    toggle: (square: Square, color: Color) => {
-      const enPassantSquare = enPassant.getSquare(square, color);
-      at(enPassantSquare).setEnPassant(color, square);
-    },
-    checkCapture: (square: Square) => {
-      const enPassant = board.get(square)?.enPassant;
-      return !!enPassant;
-    },
-    remove: () => {
-      for (const squareObj of board.values()) {
-        if (squareObj.enPassant) return (squareObj.enPassant = undefined);
-      }
     }
-  };
+
+    return {
+      checkToggle: (from: Square, to: Square): boolean => {
+        const { y: y1 } = toXY(from);
+        const { y: y2 } = toXY(to);
+
+        return Math.abs(y1 - y2) === 2;
+      },
+      toggle: (current: Square, color: Color): void => {
+        const enPassantSquare = getSquare(current, color);
+        at(enPassantSquare).setEnPassant(color, current);
+      },
+      remove: (): void => {
+        for (const squareObj of board.values()) {
+          if (squareObj.enPassant) return (squareObj.enPassant = undefined);
+        }
+      }
+    };
+  })();
 
   const at = (square: Square) => ({
     place: (piece: PieceObj) => {
@@ -92,7 +92,7 @@ const Gameboard = (board: Board) => {
   });
 
   const get = {
-    kingPosition: (color: Color) => {
+    kingPosition: (color: Color): Square | undefined => {
       for (const [square, value] of board.entries()) {
         if (
           value.piece &&
@@ -102,7 +102,15 @@ const Gameboard = (board: Board) => {
           return square;
       }
     },
-    squaresGivingCheck: (from: Square, end: Square): string[] => {
+    piecePositions: (color: Color): Square[] => {
+      const piecePositions = [];
+      for (const [square, value] of board.entries()) {
+        if (value.piece && value.piece.color === color)
+          piecePositions.push(square);
+      }
+      return piecePositions;
+    },
+    squaresGivingCheckAfterMove: (from: Square, end: Square): string[] => {
       const squaresGivingCheck: string[] = [];
 
       const piece = board.get(end)?.piece as PieceObj;
@@ -122,7 +130,7 @@ const Gameboard = (board: Board) => {
 
       return squaresGivingCheck;
     },
-    checkmate: (color: Color, squaresGivingCheck: string[]): boolean => {
+    isCheckmate: (color: Color, squaresGivingCheck: string[]): boolean => {
       const kingPos = get.kingPosition(color) as Square;
       const legalMoves = at(kingPos).getLegalMoves();
       // check if check can be blocked
@@ -140,7 +148,10 @@ const Gameboard = (board: Board) => {
     enPassant,
     at,
     from,
-    get
+    get,
+    get board() {
+      return board;
+    }
   };
 };
 

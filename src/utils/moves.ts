@@ -125,7 +125,7 @@ function getLegalMoves(origin: Square, board: Board) {
   const { type, color } = square.piece as PieceObj;
   const piece = Piece(color, type);
 
-  let possibleMoves = getPossibleMoves(origin, board);
+  const possibleMoves = getPossibleMoves(origin, board);
 
   const obstructions = possibleMoves.filter((s) => board.get(s)?.piece);
   if (!obstructions.length) {
@@ -134,7 +134,6 @@ function getLegalMoves(origin: Square, board: Board) {
     return possibleMoves;
   }
 
-  possibleMoves = removeMovesWithPieces(possibleMoves, board, piece.color); // filter out squares with own pieces
   let legalMoves: Moves = [];
   switch (type) {
     case 'knight': {
@@ -159,7 +158,7 @@ function getLegalMoves(origin: Square, board: Board) {
     }
   }
 
-  return legalMoves;
+  return removeMovesWithPieces(legalMoves, board, piece.color);
 }
 
 function getAllMovesForColor(color: Color, board: Board): Moves {
@@ -180,6 +179,7 @@ function getPawnCaptures(pawnSquare: Square, board: Board) {
 
   const captureMoves = pawn.getPawnCaptures(pawnSquare);
   if (!captureMoves) return [];
+
   return captureMoves.filter((s) => {
     const squareVal = board.get(s);
     if (!squareVal) return false;
@@ -263,6 +263,7 @@ function removeObstructedMoves(
   const obstructionVectors = splitIntoVectors(obstructions, startingSquare);
   for (const vector in allVectors) {
     if (!obstructionVectors[vector]) {
+      // look for vector obstruction is on
       filteredMoves.push(allVectors[vector]);
       continue;
     }
