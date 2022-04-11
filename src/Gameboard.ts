@@ -1,12 +1,12 @@
 import {
   getLegalMoves,
-  isDiscoveredCheck,
+  getDiscoveredCheck,
   canBlockOrCaptureCheck
 } from './utils/moves';
 import { toXY, fromXY } from './utils/helpers';
 
 import { Color, Square, Board } from './types/types';
-import { PieceObj } from './types/interfaces';
+import { PieceMap, PieceObj } from './types/interfaces';
 
 const Gameboard = (board: Board) => {
   board = board || createBoard();
@@ -102,6 +102,22 @@ const Gameboard = (board: Board) => {
           return square;
       }
     },
+    pieceMap: (): {
+      white: PieceMap;
+      black: PieceMap;
+    } => {
+      const pieceMap = { white: {} as PieceMap, black: {} as PieceMap };
+      for (const [square, value] of board.entries()) {
+        const { piece } = value;
+        if (!piece) continue;
+
+        const { type, color } = piece;
+        pieceMap[color][type] = pieceMap[color][type]
+          ? [...pieceMap[color][type], square]
+          : [square];
+      }
+      return pieceMap;
+    },
     piecePositions: (color: Color): Square[] => {
       const piecePositions = [];
       for (const [square, value] of board.entries()) {
@@ -120,7 +136,7 @@ const Gameboard = (board: Board) => {
       const pieceHitsKing = getLegalMoves(end, board).includes(kingPosition);
       if (pieceHitsKing) squaresGivingCheck.push(end);
 
-      const discoveredCheck = isDiscoveredCheck(
+      const discoveredCheck = getDiscoveredCheck(
         kingPosition,
         oppColor,
         from,

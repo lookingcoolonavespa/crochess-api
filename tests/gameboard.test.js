@@ -469,7 +469,7 @@ describe('testing getLegalMoves for Pawn (white)', () => {
   });
 });
 
-describe('testing gameboard.check functions', () => {
+describe('testing gameboard.get functions', () => {
   describe('inCheck works', () => {
     test('when piece hits king after it moves', () => {
       const gameboard = Gameboard();
@@ -729,5 +729,25 @@ describe('testing gameboard.check functions', () => {
 
       expect(checkmate).toBe(true);
     });
+  });
+
+  test('pieceMap works', () => {
+    const gameboard = Gameboard();
+    const king = { type: 'king', color: 'white' };
+    const oppKnight = { type: 'knight', color: 'black' };
+
+    gameboard.at('h1').place(king);
+    gameboard.at('h2').place({ type: 'bishop', color: 'white' });
+    gameboard.at('g2').place({ type: 'bishop', color: 'white' });
+    gameboard.at('g1').place({ type: 'rook', color: 'white' });
+    gameboard.at('f2').place(oppKnight);
+
+    const pieceMap = gameboard.get.pieceMap();
+    const expected = {
+      white: { rook: ['g1'], bishop: ['g2', 'h2'], king: ['h1'] },
+      black: { knight: ['f2'] }
+    };
+
+    expect(pieceMap).toEqual(expected);
   });
 });

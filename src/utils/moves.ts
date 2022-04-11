@@ -285,7 +285,7 @@ function removeProtectedSquares(
   board: Board
 ): Moves {
   // a) for each piece inside king's move radius, check if it is opposite color
-  // b) for each piece of opposite color inside the move radius, replace with King (need to do this to find if pawn protects a piece)
+  // b) for each piece of opposite color inside the move radius, replace with King (need to do this to find if pawn protects a piece bc getLegalMoves only checks pawn capture squares if there is an opp piece on those squares)
   // c) check board for any piece that has that square in it's move set
 
   // a)
@@ -329,12 +329,12 @@ function removeMovesWithPieces(
 
 /* gameboard checks */
 
-function isDiscoveredCheck(
+function getDiscoveredCheck(
   kingPos: Square,
   kingColor: Color,
   vacated: Square,
   board: Board
-): string {
+): Square {
   // openSquare is a square just vacated
   let squaresAlongVector = getMovesAlongVector(
     kingPos,
@@ -361,7 +361,7 @@ function canBlockOrCaptureCheck(
   kingPos: Square,
   squareGivingCheck: Square,
   board: Board
-) {
+): boolean {
   const king = board.get(kingPos)?.piece as PieceObj;
   const piece = board.get(squareGivingCheck)?.piece as PieceObj;
 
@@ -384,4 +384,4 @@ function canBlockOrCaptureCheck(
   return ownPieceMoves.some((move) => blockOrCaptureSquares.includes(move));
 }
 
-export { getLegalMoves, isDiscoveredCheck, canBlockOrCaptureCheck };
+export { getLegalMoves, getDiscoveredCheck, canBlockOrCaptureCheck };

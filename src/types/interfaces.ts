@@ -58,3 +58,17 @@ export interface Gameboard {
   board: Board;
   domBoard: Element;
 }
+
+export interface PieceMap {
+  rook: Square[];
+  bishop: Square[];
+  knight: Square[];
+  king: Square[];
+  queen: Square[];
+  pawn: Square[];
+}
+
+export interface AllPieceMap {
+  white: PieceMap;
+  black: PieceMap;
+}
