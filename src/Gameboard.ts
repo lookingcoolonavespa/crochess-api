@@ -2,14 +2,15 @@ import {
   getLegalMoves,
   getDiscoveredCheck,
   canBlockOrCaptureCheck,
-  getAttackingMovesForColor
+  getAttackingMovesForColor,
+  getLegalMovesInCheck
 } from './utils/moves';
 import { toXY, fromXY } from './utils/helpers';
 
-import { Color, Square, Board, PieceType } from './types/types';
+import { Color, Square, Board, PieceType, Moves } from './types/types';
 import { PieceMap, PieceObj } from './types/interfaces';
 
-const Gameboard = (board: Board) => {
+const Gameboard = (board: Board, squaresGivingCheck: Moves) => {
   board = board || createBoard();
 
   function createBoard() {
@@ -30,10 +31,10 @@ const Gameboard = (board: Board) => {
     const castleSquares =
       side === 'kingside' ? [`f${rank}`, `g${rank}`] : [`c${rank}`, `d${rank}`];
 
-    let canCastle = true;
-
     const oppColor = color === 'white' ? 'black' : 'white';
     const oppMoves = getAttackingMovesForColor(oppColor, board);
+
+    let canCastle = true;
 
     castleSquares.forEach((s) => {
       // check if castle square is cleared
@@ -134,7 +135,26 @@ const Gameboard = (board: Board) => {
       return board.get(square)?.piece;
     },
     getLegalMoves: () => {
-      return getLegalMoves(square, board);
+      squaresGivingCheck = squaresGivingCheck || [];
+      const { type, color } = at(square).piece as PieceObj;
+
+      switch (squaresGivingCheck.length) {
+        case 2: {
+          if (type !== 'king') return [];
+          return getLegalMoves(square, board);
+        }
+        case 1: {
+          return getLegalMovesInCheck(
+            origin,
+            board,
+            get.kingPosition(color) as Square,
+            squaresGivingCheck[0]
+          );
+        }
+        case 0: {
+          return getLegalMoves(square, board);
+        }
+      }
     }
   });
 

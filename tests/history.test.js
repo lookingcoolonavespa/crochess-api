@@ -2,8 +2,8 @@
 import History from '../src/History';
 import Gameboard from '../src/Gameboard';
 
-describe('affixPiece works', () => {
-  test('doesnt affix anything for pawn moves', () => {
+describe('getPiecePrefix works', () => {
+  test('no prefix for pawn moves', () => {
     const gameboard = Gameboard();
     const history = History(
       undefined,
@@ -18,12 +18,12 @@ describe('affixPiece works', () => {
     gameboard.at(from).place(piece);
     gameboard.from(from).to(to);
 
-    const notation = history.affixPiece(from, to);
+    const notation = history.get.piecePrefix(from, to);
 
-    expect(notation).toBe(to);
+    expect(notation).toBe('');
   });
 
-  test('attaches correct prefix when there are no complications', () => {
+  test('gets correct prefix when there are no complications', () => {
     const gameboard = Gameboard();
     const history = History(
       undefined,
@@ -38,9 +38,9 @@ describe('affixPiece works', () => {
     gameboard.at(from).place(piece);
     gameboard.from(from).to(to);
 
-    const notation = history.affixPiece(from, to);
+    const notation = history.get.piecePrefix(from, to);
 
-    expect(notation).toBe('Be2');
+    expect(notation).toBe('B');
   });
 
   test('attaches file when theres another knight on same rank', () => {
@@ -62,9 +62,9 @@ describe('affixPiece works', () => {
       gameboard.get.pieceMap()
     );
 
-    const notation = history.affixPiece(from, to);
+    const notation = history.get.piecePrefix(from, to);
 
-    expect(notation).toBe('Nge2');
+    expect(notation).toBe('Ng');
   });
 
   test('attaches rank when theres another knight on same file', () => {
@@ -86,9 +86,9 @@ describe('affixPiece works', () => {
       gameboard.get.pieceMap()
     );
 
-    const notation = history.affixPiece(from, to);
+    const notation = history.get.piecePrefix(from, to);
 
-    expect(notation).toBe('N1e2');
+    expect(notation).toBe('N1');
   });
 
   test('attaches file when theres another rook on same rank', () => {
@@ -110,9 +110,9 @@ describe('affixPiece works', () => {
       gameboard.get.pieceMap()
     );
 
-    const notation = history.affixPiece(from, to);
+    const notation = history.get.piecePrefix(from, to);
 
-    expect(notation).toBe('Rae1');
+    expect(notation).toBe('Ra');
   });
 
   test('attaches rank when theres another rook on same file', () => {
@@ -134,8 +134,8 @@ describe('affixPiece works', () => {
       gameboard.get.pieceMap()
     );
 
-    const notation = history.affixPiece(from, to);
+    const notation = history.get.piecePrefix(from, to);
 
-    expect(notation).toBe('R1a5');
+    expect(notation).toBe('R1');
   });
 });

@@ -1,6 +1,7 @@
 {
-  "name": "chess",
-  "private": true,
+  "name": "crochess-api",
+  "version": "1.0.0",
+  "private": false,
   "jest": {
     "preset": "ts-jest/presets/js-with-babel",
     "testEnvironment": "jsdom",

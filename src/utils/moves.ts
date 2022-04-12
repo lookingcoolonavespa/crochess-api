@@ -118,7 +118,7 @@ function getPossibleMoves(origin: Square, board: Board) {
 }
 
 function getLegalMoves(origin: Square, board: Board) {
-  // get moves of piece that is on origin
+  // get moves regardless of whether or not there is check
 
   const square = board.get(origin) as SquareObj;
 
@@ -158,6 +158,23 @@ function getLegalMoves(origin: Square, board: Board) {
   }
 
   return removeMovesWithPieces(legalMoves, board, piece.color);
+}
+
+function getLegalMovesInCheck(
+  origin: Square,
+  board: Board,
+  kingPos: Square,
+  squareGivingCheck: Square
+) {
+  const squaresThatDealWithCheck = getSquaresBetweenKingAndCheck(
+    kingPos,
+    squareGivingCheck,
+    Array.from(board.keys())
+  );
+
+  const moves = getLegalMoves(origin, board);
+
+  return moves.filter((s) => squaresThatDealWithCheck.includes(s));
 }
 
 function getAttackingMoves(origin: Square, board: Board) {
@@ -226,6 +243,7 @@ function getSquaresBetweenKingAndCheck(
   checkPos: Square,
   allSquares: Moves
 ) {
+  // includes kingPos and checkPos
   const squaresAlongVector = getMovesAlongVector(kingPos, checkPos, allSquares);
   const squaresBetweenKingAndPiece = removeMovesBehindTwoSquares(
     kingPos,
@@ -370,22 +388,12 @@ function canBlockOrCaptureCheck(
   board: Board
 ): boolean {
   const king = board.get(kingPos)?.piece as PieceObj;
-  const piece = board.get(squareGivingCheck)?.piece as PieceObj;
 
-  let blockOrCaptureSquares: Square | Moves;
-  switch (piece.type) {
-    case 'knight': {
-      blockOrCaptureSquares = squareGivingCheck;
-      break;
-    }
-    default: {
-      blockOrCaptureSquares = getSquaresBetweenKingAndCheck(
-        kingPos,
-        squareGivingCheck,
-        Array.from(board.keys())
-      );
-    }
-  }
+  const blockOrCaptureSquares = getSquaresBetweenKingAndCheck(
+    kingPos,
+    squareGivingCheck,
+    Array.from(board.keys())
+  ); // also includes check square
 
   const ownPieceMoves = getAllMovesForColor(king.color, board);
   return ownPieceMoves.some((move) => blockOrCaptureSquares.includes(move));
@@ -394,6 +402,7 @@ function canBlockOrCaptureCheck(
 export {
   getAttackingMovesForColor,
   getLegalMoves,
+  getLegalMovesInCheck,
   getDiscoveredCheck,
   canBlockOrCaptureCheck
 };
