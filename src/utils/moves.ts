@@ -384,4 +384,9 @@ function canBlockOrCaptureCheck(
   return ownPieceMoves.some((move) => blockOrCaptureSquares.includes(move));
 }
 
-export { getLegalMoves, getDiscoveredCheck, canBlockOrCaptureCheck };
+export {
+  getAllMovesForColor,
+  getLegalMoves,
+  getDiscoveredCheck,
+  canBlockOrCaptureCheck
+};

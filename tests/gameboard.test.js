@@ -751,3 +751,5 @@ describe('testing gameboard.get functions', () => {
     expect(pieceMap).toEqual(expected);
   });
 });
+
+describe('castle stuff', () => {});

@@ -15,47 +15,50 @@ export default function History(
 ) {
   const history: HistoryType = prevHistory || [];
 
-  return {
-    affixPiece: (from: Square, to: Square) => {
-      const { type, color } = board.get(to)?.piece as PieceObj;
+  function affixPiece(from: Square, to: Square) {
+    const { type, color } = board.get(to)?.piece as PieceObj;
 
-      switch (type) {
-        case 'pawn':
-          return to;
-        case 'knight':
-        case 'rook': {
-          let prefix = type === 'rook' ? 'R' : 'N';
-          if (pieceMap[color][type].length !== 1) {
-            pieceMap[color][type].forEach((s) => {
-              if (s === to) return;
+    switch (type) {
+      case 'pawn':
+        return to;
+      case 'knight':
+      case 'rook': {
+        let prefix = type === 'rook' ? 'R' : 'N';
+        if (pieceMap[color][type].length !== 1) {
+          // look for piece of same type that couldve also went to the square
+          pieceMap[color][type].forEach((s) => {
+            if (s === to) return;
 
-              const boardCopy = new Map(board);
-              boardCopy.set(to, { piece: null });
+            const boardCopy = new Map(board);
+            boardCopy.set(to, { piece: null });
 
-              if (getLegalMoves(s, boardCopy).includes(to)) {
-                const [x1, y1] = from.split('');
-                const [x2] = s.split('');
-                const sameFile = x1 === x2;
+            if (getLegalMoves(s, boardCopy).includes(to)) {
+              const [x1, y1] = from.split('');
+              const [x2] = s.split('');
+              const sameFile = x1 === x2;
 
-                prefix = sameFile ? prefix + y1 : prefix + x1;
-              }
-            });
-          }
-
-          return `${prefix}${to}`;
+              prefix = sameFile ? prefix + y1 : prefix + x1;
+            }
+          });
         }
-        default: {
-          const prefix = type.charAt(0).toUpperCase();
-          return `${prefix}${to}`;
-        }
+
+        return `${prefix}${to}`;
       }
-    },
-    insertMove: (move: Square) => {
+      default: {
+        const prefix = type.charAt(0).toUpperCase();
+        return `${prefix}${to}`;
+      }
+    }
+  }
+
+  return {
+    insertMove: (move: Square, from: Square) => {
+      const notation = affixPiece(from, move);
       const lastMovePair = history[history.length - 1];
       if (lastMovePair.length === 1) {
-        lastMovePair.push(move);
+        lastMovePair.push(notation);
       } else {
-        const newMovePair = [move];
+        const newMovePair = [notation];
         history.push(newMovePair);
       }
     }
