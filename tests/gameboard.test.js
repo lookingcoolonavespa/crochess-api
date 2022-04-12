@@ -752,4 +752,48 @@ describe('testing gameboard.get functions', () => {
   });
 });
 
-describe('castle stuff', () => {});
+describe('castle stuff', () => {
+  test('canCastle is true with no pieces on the board', () => {
+    const gameboard = Gameboard();
+
+    const castle = gameboard.canCastle();
+
+    expect(castle).toBe(true);
+  });
+
+  test('canCastle is false when theres a piece on the castle squares', () => {
+    const gameboard = Gameboard();
+
+    const piece = { type: 'knight', color: 'white' };
+
+    gameboard.at('g1').place(piece);
+
+    const castle = gameboard.canCastle('white', 'kingside');
+
+    expect(castle).toBe(false);
+  });
+
+  test('canCastle is false when theres a piece attacking one of the castle squares', () => {
+    const gameboard = Gameboard();
+
+    const piece = { type: 'knight', color: 'black' };
+
+    gameboard.at('f3').place(piece);
+
+    const castle = gameboard.canCastle('white', 'kingside');
+
+    expect(castle).toBe(false);
+  });
+
+  test('canCastle is false when theres a pawn attacking one of the castle squares', () => {
+    const gameboard = Gameboard();
+
+    const piece = { type: 'pawn', color: 'black' };
+
+    gameboard.at('f2').place(piece);
+
+    const castle = gameboard.canCastle('white', 'kingside');
+
+    expect(castle).toBe(false);
+  });
+});

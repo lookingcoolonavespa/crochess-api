@@ -122,20 +122,19 @@ function getLegalMoves(origin: Square, board: Board) {
 
   const square = board.get(origin) as SquareObj;
 
-  const { type, color } = square.piece as PieceObj;
-  const piece = Piece(color, type);
+  const piece = square.piece as PieceObj;
 
   const possibleMoves = getPossibleMoves(origin, board);
 
   const obstructions = possibleMoves.filter((s) => board.get(s)?.piece);
   if (!obstructions.length) {
-    if (type === 'pawn')
+    if (piece.type === 'pawn')
       return [...getPawnCaptures(origin, board), ...possibleMoves];
     return possibleMoves;
   }
 
   let legalMoves: Moves = [];
-  switch (type) {
+  switch (piece.type) {
     case 'knight': {
       legalMoves = possibleMoves;
       break;
@@ -161,6 +160,22 @@ function getLegalMoves(origin: Square, board: Board) {
   return removeMovesWithPieces(legalMoves, board, piece.color);
 }
 
+function getAttackingMoves(origin: Square, board: Board) {
+  // for when you need to check for if squares are protected
+  const square = board.get(origin) as SquareObj;
+
+  const { type, color } = square.piece as PieceObj;
+
+  switch (type) {
+    case 'pawn': {
+      const piece = Piece(color, 'pawn');
+      return piece.getPawnCaptures(origin) as Moves;
+    }
+    default:
+      return getLegalMoves(origin, board);
+  }
+}
+
 function getAllMovesForColor(color: Color, board: Board): Moves {
   const allMoves: Moves[] = [];
   for (const [square, { piece }] of board.entries()) {
@@ -168,6 +183,18 @@ function getAllMovesForColor(color: Color, board: Board): Moves {
     if (piece.color !== color) continue;
 
     allMoves.push(getLegalMoves(square, board));
+  }
+
+  return allMoves.flat();
+}
+
+function getAttackingMovesForColor(color: Color, board: Board): Moves {
+  const allMoves: Moves[] = [];
+  for (const [square, { piece }] of board.entries()) {
+    if (!piece) continue;
+    if (piece.color !== color) continue;
+
+    allMoves.push(getAttackingMoves(square, board));
   }
 
   return allMoves.flat();
@@ -280,7 +307,7 @@ function removeObstructedMoves(
 }
 
 function removeProtectedSquares(
-  king: PieceInterface,
+  king: PieceObj,
   possibleMoves: Moves,
   board: Board
 ): Moves {

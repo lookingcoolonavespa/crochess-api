@@ -12,10 +12,10 @@ import { PieceMap, PieceObj } from './types/interfaces';
 const Gameboard = (board: Board) => {
   board = board || createBoard();
 
-  const files = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
-  const ranks = [1, 2, 3, 4, 5, 6, 7, 8];
-
   function createBoard() {
+    const files = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
+    const ranks = [1, 2, 3, 4, 5, 6, 7, 8];
+
     return files.reduce((acc, file) => {
       ranks.forEach((rank) => {
         const square = file.concat(rank.toString());
@@ -33,7 +33,9 @@ const Gameboard = (board: Board) => {
     let canCastle = true;
 
     const oppColor = color === 'white' ? 'black' : 'white';
+    const boardCopy = new Map(board);
     const oppMoves = getAllMovesForColor(oppColor, board);
+    console.log(oppMoves);
 
     castleSquares.forEach((s) => {
       // check if castle square is cleared
@@ -64,8 +66,8 @@ const Gameboard = (board: Board) => {
       const rookPos = pieceMap[color].rook.find((square) => {
         const file = square.split('')[0];
         return side === 'kingside'
-          ? files.indexOf(file) > 3
-          : files.indexOf(file) < 3;
+          ? ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'].indexOf(file) > 3
+          : ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'].indexOf(file) < 3;
       });
 
       return rookPos;
