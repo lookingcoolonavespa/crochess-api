@@ -2,14 +2,13 @@ const path = require('path');
 
 module.exports = {
   mode: 'development',
-  entry: './src/index.tsx',
+  entry: './src/main.ts',
   devtool: 'eval-source-map',
   devServer: {
     static: './dist'
   },
   module: {
     rules: [
-      { test: /\.css$/i, use: ['style-loader', 'css-loader'] },
       {
         test: /\.(jsx|js|tsx|ts)$/,
         use: [{ loader: 'babel-loader' }, { loader: 'ts-loader' }],
@@ -22,6 +21,9 @@ module.exports = {
   },
   output: {
     filename: 'main.js',
+    library: 'croChess',
+    libraryTarget: 'umd',
+    globalObject: 'this',
     path: path.resolve(__dirname, 'dist')
   }
 };
