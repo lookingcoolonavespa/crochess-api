@@ -27,7 +27,12 @@ export default function History(
           let prefix = type === 'rook' ? 'R' : 'N';
           if (pieceMap[color][type].length !== 1) {
             pieceMap[color][type].forEach((s) => {
-              if (getLegalMoves(s, board).includes(to)) {
+              if (s === to) return;
+
+              const boardCopy = new Map(board);
+              boardCopy.set(to, { piece: null });
+
+              if (getLegalMoves(s, boardCopy).includes(to)) {
                 const [x1, y1] = from.split('');
                 const [x2] = s.split('');
                 const sameFile = x1 === x2;
