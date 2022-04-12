@@ -796,4 +796,84 @@ describe('castle stuff', () => {
 
     expect(castle).toBe(false);
   });
+
+  test('pawn attack is not false positive', () => {
+    const gameboard = Gameboard();
+
+    const piece = { type: 'pawn', color: 'black' };
+
+    gameboard.at('d2').place(piece);
+
+    const castle = gameboard.canCastle('white', 'kingside');
+
+    expect(castle).toBe(true);
+  });
+
+  test('castle sets king and rook on right squares (kingside, black)', () => {
+    const gameboard = Gameboard();
+
+    const king = { type: 'king', color: 'black' };
+    const rook = { type: 'rook', color: 'black' };
+
+    gameboard.at('e8').place(king);
+    gameboard.at('h8').place(rook);
+
+    gameboard.castle('black', 'kingside');
+
+    expect(gameboard.get.pieceMap()).toEqual({
+      white: {},
+      black: { rook: ['f8'], king: ['g8'] }
+    });
+  });
+
+  test('castle sets king and rook on right squares (queenside, black)', () => {
+    const gameboard = Gameboard();
+
+    const king = { type: 'king', color: 'black' };
+    const rook = { type: 'rook', color: 'black' };
+
+    gameboard.at('e8').place(king);
+    gameboard.at('a8').place(rook);
+
+    gameboard.castle('black', 'queenside');
+
+    expect(gameboard.get.pieceMap()).toEqual({
+      white: {},
+      black: { rook: ['d8'], king: ['c8'] }
+    });
+  });
+
+  test('castle sets king and rook on right squares (kingside, white)', () => {
+    const gameboard = Gameboard();
+
+    const king = { type: 'king', color: 'white' };
+    const rook = { type: 'rook', color: 'white' };
+
+    gameboard.at('e1').place(king);
+    gameboard.at('h1').place(rook);
+
+    gameboard.castle('white', 'kingside');
+
+    expect(gameboard.get.pieceMap()).toEqual({
+      black: {},
+      white: { rook: ['f1'], king: ['g1'] }
+    });
+  });
+
+  test('castle sets king and rook on right squares (queenside, white)', () => {
+    const gameboard = Gameboard();
+
+    const king = { type: 'king', color: 'white' };
+    const rook = { type: 'rook', color: 'white' };
+
+    gameboard.at('e1').place(king);
+    gameboard.at('a1').place(rook);
+
+    gameboard.castle('white', 'queenside');
+
+    expect(gameboard.get.pieceMap()).toEqual({
+      black: {},
+      white: { rook: ['d1'], king: ['c1'] }
+    });
+  });
 });

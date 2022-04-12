@@ -311,31 +311,11 @@ function removeProtectedSquares(
   possibleMoves: Moves,
   board: Board
 ): Moves {
-  // a) for each piece inside king's move radius, check if it is opposite color
-  // b) for each piece of opposite color inside the move radius, replace with King (need to do this to find if pawn protects a piece bc getLegalMoves only checks pawn capture squares if there is an opp piece on those squares)
-  // c) check board for any piece that has that square in it's move set
-
-  // a)
+  // bc king cant move if square is protected
   const oppColor = king.color === 'white' ? 'black' : 'white';
-  const enemyPiecesSquares = possibleMoves.filter((s) => {
-    const squareVal = board.get(s);
-    if (!squareVal) return false;
-    const piece = squareVal.piece;
-    if (!piece) return false;
 
-    return piece.color === oppColor;
-  });
-
-  // b)
-  const boardCopy = new Map(board);
-  enemyPiecesSquares.forEach((s) => {
-    boardCopy.set(s, { piece: king });
-  });
-
-  // c)
-  const allEnemyMoves = getAllMovesForColor(oppColor, boardCopy);
+  const allEnemyMoves = getAttackingMovesForColor(oppColor, board);
   return possibleMoves.filter((s) => {
-    // get squares such that no enemy pieces can capture there
     return !allEnemyMoves.includes(s);
   });
 }
@@ -412,7 +392,7 @@ function canBlockOrCaptureCheck(
 }
 
 export {
-  getAllMovesForColor,
+  getAttackingMovesForColor,
   getLegalMoves,
   getDiscoveredCheck,
   canBlockOrCaptureCheck

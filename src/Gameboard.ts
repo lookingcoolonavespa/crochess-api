@@ -2,7 +2,7 @@ import {
   getLegalMoves,
   getDiscoveredCheck,
   canBlockOrCaptureCheck,
-  getAllMovesForColor
+  getAttackingMovesForColor
 } from './utils/moves';
 import { toXY, fromXY } from './utils/helpers';
 
@@ -33,9 +33,7 @@ const Gameboard = (board: Board) => {
     let canCastle = true;
 
     const oppColor = color === 'white' ? 'black' : 'white';
-    const boardCopy = new Map(board);
-    const oppMoves = getAllMovesForColor(oppColor, board);
-    console.log(oppMoves);
+    const oppMoves = getAttackingMovesForColor(oppColor, board);
 
     castleSquares.forEach((s) => {
       // check if castle square is cleared
