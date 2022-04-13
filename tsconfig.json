@@ -1,15 +1,19 @@
 {
   "compilerOptions": {
-    "outDir": "./build",
+    "typeRoots": ["@types", "./node_modules/@types"],
+    "moduleResolution": "node",
+    "baseUrl": "./",
+    "outDir": "dist",
     "allowJs": true,
     "module": "es6",
-    "target": "es5",
+    "target": "es6",
     "downlevelIteration": true,
     "noImplicitAny": true,
     "strictNullChecks": true,
     "sourceMap": true,
     "esModuleInterop": true
   },
-  "include": ["./src/**/*", "tests"],
+  "include": ["./src/**/*"],
+  "exclude": ["test/**/*"],
   "types": ["@types/jest"]
 }

@@ -134,7 +134,7 @@ const Gameboard = (board: Board, squaresGivingCheck: Moves) => {
     get piece() {
       return board.get(square)?.piece;
     },
-    getLegalMoves: () => {
+    getLegalMoves: (): Moves => {
       squaresGivingCheck = squaresGivingCheck || [];
       const { type, color } = at(square).piece as PieceObj;
 
@@ -151,7 +151,7 @@ const Gameboard = (board: Board, squaresGivingCheck: Moves) => {
             squaresGivingCheck[0]
           );
         }
-        case 0: {
+        default: {
           return getLegalMoves(square, board);
         }
       }
@@ -196,15 +196,7 @@ const Gameboard = (board: Board, squaresGivingCheck: Moves) => {
       }
       return pieceMap;
     },
-    piecePositions: (color: Color): Square[] => {
-      const piecePositions = [];
-      for (const [square, value] of board.entries()) {
-        if (value.piece && value.piece.color === color)
-          piecePositions.push(square);
-      }
-      return piecePositions;
-    },
-    squaresGivingCheckAfterMove: (from: Square, end: Square): string[] => {
+    squaresGivingCheckAfterMove: (from: Square, end: Square): Square[] => {
       const squaresGivingCheck: string[] = [];
 
       const piece = board.get(end)?.piece as PieceObj;
