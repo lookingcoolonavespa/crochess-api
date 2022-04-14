@@ -72,3 +72,52 @@ export interface AllPieceMap {
   white: PieceMap;
   black: PieceMap;
 }
+
+export interface GameboardObj {
+  createBoard: () => Board;
+  castle: (color: Color, side: 'kingside' | 'queenside') => void;
+  canCastle: (color: Color, side: 'kingside' | 'queenside') => boolean;
+  enPassant: {
+    checkToggle: (from: Square, to: Square) => boolean;
+    toggle: (current: Square, color: Color) => void;
+    remove: () => void;
+  };
+  at: (square: Square) => {
+    place: (piece: PieceObj) => 'square does not exist' | undefined;
+    remove: () => 'square does not exist' | undefined;
+    promote: (pieceType: PieceType) => void;
+    setEnPassant: (
+      color: Color,
+      current: Square
+    ) => 'square does not exist' | undefined;
+    readonly piece: PieceObj | null | undefined;
+    getLegalMoves: () => Moves;
+  };
+  from: (s1: Square) => {
+    to: (s2: Square) => void;
+  };
+  get: {
+    kingPosition: (color: Color) => Square | undefined;
+    pieceMap: () => {
+      white: PieceMap;
+      black: PieceMap;
+    };
+    squaresGivingCheckAfterMove: (from: Square, end: Square) => Square[];
+    isCheckmate: (color: Color, squaresGivingCheck: string[]) => boolean;
+  };
+  readonly board: Board;
+}
+
+export interface HistoryObj {
+  get: {
+    piecePrefix: (from: Square, to: Square) => string;
+    castleNotation: (side: 'kingside' | 'queenside') => 'O-O' | 'O-O-O';
+  };
+  affix: {
+    capture: (move: Square, prefix: string) => string;
+    promote: (move: Square, pieceType: PieceType) => string;
+    check: (notation: string) => string;
+    checkmate: (notation: string) => string;
+  };
+  insertMove: (notation: string) => void;
+}

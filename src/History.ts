@@ -2,7 +2,7 @@
 // for each move needs to attach piece Type to beginning of move if not pawn
 // should further specify square of piece if, say both rooks, can move to same square
 
-import { AllPieceMap, PieceObj } from './types/interfaces';
+import { AllPieceMap, HistoryObj, PieceObj } from './types/interfaces';
 import { Board, PieceType, Square } from './types/types';
 import { getLegalMoves } from './utils/moves';
 
@@ -12,7 +12,7 @@ export default function History(
   prevHistory: HistoryType,
   board: Board,
   pieceMap: AllPieceMap
-) {
+): HistoryObj {
   const history: HistoryType = prevHistory || [];
 
   const get = {

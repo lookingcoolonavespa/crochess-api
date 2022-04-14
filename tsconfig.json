@@ -11,7 +11,8 @@
     "noImplicitAny": true,
     "strictNullChecks": true,
     "sourceMap": true,
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    "declaration": true
   },
   "include": ["./src/**/*"],
   "exclude": ["test/**/*"],

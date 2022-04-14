@@ -8,24 +8,25 @@ import {
 import { toXY, fromXY } from './utils/helpers';
 
 import { Color, Square, Board, PieceType, Moves } from './types/types';
-import { PieceMap, PieceObj } from './types/interfaces';
+import { GameboardObj, PieceMap, PieceObj } from './types/interfaces';
 
-const Gameboard = (board: Board, squaresGivingCheck: Moves) => {
-  board = board || createBoard();
+function createBoard(): Board {
+  const files = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
+  const ranks = [1, 2, 3, 4, 5, 6, 7, 8];
 
-  function createBoard() {
-    const files = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
-    const ranks = [1, 2, 3, 4, 5, 6, 7, 8];
+  return files.reduce((acc, file) => {
+    ranks.forEach((rank) => {
+      const square = file.concat(rank.toString());
+      acc.set(square, { piece: null });
+    });
+    return acc;
+  }, new Map());
+}
 
-    return files.reduce((acc, file) => {
-      ranks.forEach((rank) => {
-        const square = file.concat(rank.toString());
-        acc.set(square, { piece: null });
-      });
-      return acc;
-    }, new Map());
-  }
-
+const Gameboard = (
+  board = createBoard(),
+  squaresGivingCheck?: Moves
+): GameboardObj => {
   function canCastle(color: Color, side: 'kingside' | 'queenside') {
     const rank = color === 'white' ? 1 : 8;
     const castleSquares =
