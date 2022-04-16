@@ -6,14 +6,17 @@ import {
   getLegalMovesInCheck
 } from './utils/moves';
 import { toXY, fromXY } from './utils/helpers';
-
+import { ranks, files } from './ranksAndFiles';
 import { Color, Square, Board, PieceType, Moves } from './types/types';
-import { GameboardObj, PieceMap, PieceObj } from './types/interfaces';
+import {
+  AllPieceMap,
+  CastleObj,
+  GameboardObj,
+  PieceMap,
+  PieceObj
+} from './types/interfaces';
 
 function createBoard(): Board {
-  const files = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
-  const ranks = [1, 2, 3, 4, 5, 6, 7, 8];
-
   return files.reduce((acc, file) => {
     ranks.forEach((rank) => {
       const square = file.concat(rank.toString());
@@ -25,32 +28,48 @@ function createBoard(): Board {
 
 const Gameboard = (
   board = createBoard(),
-  squaresGivingCheck?: Moves
+  squaresGivingCheck?: Moves,
+  Castle?: CastleObj
 ): GameboardObj => {
-  function canCastle(color: Color, side: 'kingside' | 'queenside') {
-    const rank = color === 'white' ? 1 : 8;
-    const castleSquares =
-      side === 'kingside' ? [`f${rank}`, `g${rank}`] : [`c${rank}`, `d${rank}`];
+  function canCastle(color: Color, side: 'kingside' | 'queenside'): boolean {
+    if (Castle && !Castle[color][side]) return false;
+
+    // check if rook still exists
+    if (!checkIfRookExists()) return false;
 
     const oppColor = color === 'white' ? 'black' : 'white';
     const oppMoves = getAttackingMovesForColor(oppColor, board);
 
-    let canCastle = true;
-
-    castleSquares.forEach((s) => {
+    const castleSquares = get.castleSquares(color)[side];
+    for (const square of castleSquares) {
       // check if castle square is cleared
-      if (at(s).piece) canCastle = false;
-
+      if (at(square).piece) return false;
       // make sure castle square isnt attacked
-      if (oppMoves.includes(s)) {
-        canCastle = false;
-      }
-    });
+      if (oppMoves.includes(square)) return false;
+    }
 
-    return canCastle;
+    return true;
+
+    function checkIfRookExists(): boolean {
+      let rookExists = false;
+      const rank = color === 'white' ? 1 : 8;
+      const loopStart =
+        side === 'queenside' ? files.indexOf('a') : files.indexOf('d');
+      const loopEnd =
+        side === 'queenside' ? files.indexOf('e') : files.indexOf('h');
+      for (let i = loopStart; i <= loopEnd; i++) {
+        const square = files[i] + rank;
+
+        const piece = at(square).piece;
+        if (!piece) continue;
+
+        if (piece.type === 'rook') rookExists = true;
+      }
+      return rookExists;
+    }
   }
 
-  function castle(color: Color, side: 'kingside' | 'queenside') {
+  function castle(color: Color, side: 'kingside' | 'queenside'): void {
     const rank = color === 'white' ? 1 : 8;
     const castleSquares =
       side === 'kingside' ? [`f${rank}`, `g${rank}`] : [`d${rank}`, `c${rank}`];
@@ -66,8 +85,8 @@ const Gameboard = (
       const rookPos = pieceMap[color].rook.find((square) => {
         const file = square.split('')[0];
         return side === 'kingside'
-          ? ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'].indexOf(file) > 3
-          : ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'].indexOf(file) < 3;
+          ? files.indexOf(file) > 3
+          : files.indexOf(file) < 3;
       });
 
       return rookPos;
@@ -104,25 +123,25 @@ const Gameboard = (
   })();
 
   const at = (square: Square) => ({
-    place: (piece: PieceObj) => {
-      if (!board.get(square)) return 'square does not exist';
+    place: (piece: PieceObj): void => {
+      if (!board.get(square)) return;
 
       board.set(square, { piece });
     },
-    remove: () => {
-      if (!board.get(square)) return 'square does not exist';
+    remove: (): void => {
+      if (!board.get(square)) return;
 
       board.set(square, { piece: null });
     },
-    promote: (pieceType: PieceType) => {
+    promote: (pieceType: PieceType): void => {
       const squareVal = board.get(square);
       const piece = squareVal?.piece;
       if (!piece) return;
 
       board.set(square, { ...squareVal, piece: { ...piece, type: pieceType } });
     },
-    setEnPassant: (color: Color, current: Square) => {
-      if (!board.get(square)) return 'square does not exist';
+    setEnPassant: (color: Color, current: Square): void => {
+      if (!board.get(square)) return;
 
       board.set(square, {
         piece: null,
@@ -153,14 +172,28 @@ const Gameboard = (
           );
         }
         default: {
-          return getLegalMoves(square, board);
+          if (type === 'king') {
+            let legalMoves = getLegalMoves(square, board);
+            if (canCastle(color, 'kingside'))
+              legalMoves = [
+                ...legalMoves,
+                ...get.castleSquares(color).kingside
+              ];
+            if (canCastle(color, 'queenside'))
+              legalMoves = [
+                ...legalMoves,
+                ...get.castleSquares(color).queenside
+              ];
+
+            return legalMoves;
+          } else return getLegalMoves(square, board);
         }
       }
     }
   });
 
   const from = (s1: Square) => ({
-    to: (s2: Square) => {
+    to: (s2: Square): void => {
       const piece = at(s1).piece;
       if (!piece) return;
 
@@ -181,10 +214,7 @@ const Gameboard = (
           return square;
       }
     },
-    pieceMap: (): {
-      white: PieceMap;
-      black: PieceMap;
-    } => {
+    pieceMap: (): AllPieceMap => {
       const pieceMap = { white: {} as PieceMap, black: {} as PieceMap };
       for (const [square, value] of board.entries()) {
         const { piece } = value;
@@ -227,6 +257,13 @@ const Gameboard = (
       }
       if (!legalMoves || !legalMoves.length) return true;
       return false;
+    },
+    castleSquares(color: Color) {
+      const rank = color === 'white' ? 1 : 8;
+      return {
+        kingside: [`f${rank}`, `g${rank}`],
+        queenside: [`c${rank}`, `d${rank}`]
+      };
     }
   };
 

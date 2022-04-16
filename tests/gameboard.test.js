@@ -1,6 +1,7 @@
 /* eslint-disable no-undef */
 import Gameboard from '../src/Gameboard';
 import Piece from '../src/Piece';
+import Castle from '../src/Castle';
 
 test('gameboard is correct', () => {
   const gameboard = Gameboard().board;
@@ -12,12 +13,6 @@ test('gameboard places pieces correctly', () => {
   const rook = { type: 'rook', color: 'white' };
   gameboard.at('a1').place({ type: 'rook', color: 'white' });
   expect(gameboard.at('a1').piece).toEqual(rook);
-});
-
-test('gameboard.at.place doesnt accept invalid squares', () => {
-  const gameboard = Gameboard();
-  const rook = { type: 'rook', color: 'white' };
-  expect(gameboard.at('a0').place(rook)).toBe('square does not exist');
 });
 
 test('gameboard moves pieces correctly', () => {
@@ -753,127 +748,170 @@ describe('testing gameboard.get functions', () => {
 });
 
 describe('castle stuff', () => {
-  test('canCastle is true with no pieces on the board', () => {
-    const gameboard = Gameboard();
+  describe('canCastle works', () => {
+    test('reads castle object correctly', () => {
+      const wKing = { type: 'king', color: 'white' };
+      const wRook = { type: 'rook', color: 'white' };
+      const bKing = { type: 'king', color: 'black' };
+      const bRook = { type: 'rook', color: 'black' };
 
-    const castle = gameboard.canCastle();
+      const gameboards = [
+        Gameboard(undefined, [], Castle(true, true, true, true)),
+        Gameboard(undefined, [], Castle(false, false, false, false))
+      ];
+      gameboards.forEach((board) => {
+        board.at('e1').place(wKing);
+        board.at('a1').place(wRook);
+        board.at('h1').place(wRook);
+        board.at('e8').place(bKing);
+        board.at('a8').place(bRook);
+        board.at('h8').place(bRook);
+      });
 
-    expect(castle).toBe(true);
-  });
+      expect(gameboards[0].canCastle('white', 'kingside')).toBe(true);
+      expect(gameboards[0].canCastle('white', 'queenside')).toBe(true);
+      expect(gameboards[0].canCastle('black', 'kingside')).toBe(true);
+      expect(gameboards[0].canCastle('black', 'queenside')).toBe(true);
 
-  test('canCastle is false when theres a piece on the castle squares', () => {
-    const gameboard = Gameboard();
+      expect(gameboards[1].canCastle('white', 'kingside')).toBe(false);
+      expect(gameboards[1].canCastle('white', 'queenside')).toBe(false);
+      expect(gameboards[1].canCastle('black', 'kingside')).toBe(false);
+      expect(gameboards[1].canCastle('black', 'queenside')).toBe(false);
+    });
 
-    const piece = { type: 'knight', color: 'white' };
+    test('returns false when rook is missing', () => {
+      const gameboard = Gameboard();
 
-    gameboard.at('g1').place(piece);
+      expect(gameboard.canCastle('white', 'kingside')).toBe(false);
+      expect(gameboard.canCastle('white', 'queenside')).toBe(false);
+      expect(gameboard.canCastle('black', 'kingside')).toBe(false);
+      expect(gameboard.canCastle('black', 'queenside')).toBe(false);
+    });
 
-    const castle = gameboard.canCastle('white', 'kingside');
+    test('canCastle is false when theres a piece on the castle squares', () => {
+      const gameboard = Gameboard();
 
-    expect(castle).toBe(false);
-  });
+      const rook = { type: 'rook', color: 'white' };
+      const piece = { type: 'knight', color: 'white' };
 
-  test('canCastle is false when theres a piece attacking one of the castle squares', () => {
-    const gameboard = Gameboard();
+      gameboard.at('h1').place(rook);
+      gameboard.at('g1').place(piece);
 
-    const piece = { type: 'knight', color: 'black' };
+      const castle = gameboard.canCastle('white', 'kingside');
 
-    gameboard.at('f3').place(piece);
+      expect(castle).toBe(false);
+    });
 
-    const castle = gameboard.canCastle('white', 'kingside');
+    test('canCastle is false when theres a piece attacking one of the castle squares', () => {
+      const gameboard = Gameboard();
 
-    expect(castle).toBe(false);
-  });
+      const rook = { type: 'rook', color: 'white' };
+      const piece = { type: 'knight', color: 'black' };
 
-  test('canCastle is false when theres a pawn attacking one of the castle squares', () => {
-    const gameboard = Gameboard();
+      gameboard.at('h1').place(rook);
+      gameboard.at('f3').place(piece);
 
-    const piece = { type: 'pawn', color: 'black' };
+      const castle = gameboard.canCastle('white', 'kingside');
 
-    gameboard.at('f2').place(piece);
+      expect(castle).toBe(false);
+    });
 
-    const castle = gameboard.canCastle('white', 'kingside');
+    test('canCastle is false when theres a pawn attacking one of the castle squares', () => {
+      const gameboard = Gameboard();
 
-    expect(castle).toBe(false);
-  });
+      const rook = { type: 'rook', color: 'white' };
+      const piece = { type: 'pawn', color: 'black' };
 
-  test('pawn attack is not false positive', () => {
-    const gameboard = Gameboard();
+      gameboard.at('h1').place(rook);
+      gameboard.at('f2').place(piece);
 
-    const piece = { type: 'pawn', color: 'black' };
+      const castle = gameboard.canCastle('white', 'kingside');
 
-    gameboard.at('d2').place(piece);
+      expect(castle).toBe(false);
+    });
 
-    const castle = gameboard.canCastle('white', 'kingside');
+    test('pawn attack is not false positive', () => {
+      const gameboard = Gameboard();
 
-    expect(castle).toBe(true);
-  });
+      const rook = { type: 'rook', color: 'white' };
+      const piece = { type: 'pawn', color: 'black' };
 
-  test('castle sets king and rook on right squares (kingside, black)', () => {
-    const gameboard = Gameboard();
+      gameboard.at('h1').place(rook);
+      gameboard.at('d2').place(piece);
 
-    const king = { type: 'king', color: 'black' };
-    const rook = { type: 'rook', color: 'black' };
+      const castle = gameboard.canCastle('white', 'kingside');
 
-    gameboard.at('e8').place(king);
-    gameboard.at('h8').place(rook);
-
-    gameboard.castle('black', 'kingside');
-
-    expect(gameboard.get.pieceMap()).toEqual({
-      white: {},
-      black: { rook: ['f8'], king: ['g8'] }
+      expect(castle).toBe(true);
     });
   });
 
-  test('castle sets king and rook on right squares (queenside, black)', () => {
-    const gameboard = Gameboard();
+  describe('castle works', () => {
+    test('castle sets king and rook on right squares (kingside, black)', () => {
+      const gameboard = Gameboard();
 
-    const king = { type: 'king', color: 'black' };
-    const rook = { type: 'rook', color: 'black' };
+      const king = { type: 'king', color: 'black' };
+      const rook = { type: 'rook', color: 'black' };
 
-    gameboard.at('e8').place(king);
-    gameboard.at('a8').place(rook);
+      gameboard.at('e8').place(king);
+      gameboard.at('h8').place(rook);
 
-    gameboard.castle('black', 'queenside');
+      gameboard.castle('black', 'kingside');
 
-    expect(gameboard.get.pieceMap()).toEqual({
-      white: {},
-      black: { rook: ['d8'], king: ['c8'] }
+      expect(gameboard.get.pieceMap()).toEqual({
+        white: {},
+        black: { rook: ['f8'], king: ['g8'] }
+      });
     });
-  });
 
-  test('castle sets king and rook on right squares (kingside, white)', () => {
-    const gameboard = Gameboard();
+    test('castle sets king and rook on right squares (queenside, black)', () => {
+      const gameboard = Gameboard();
 
-    const king = { type: 'king', color: 'white' };
-    const rook = { type: 'rook', color: 'white' };
+      const king = { type: 'king', color: 'black' };
+      const rook = { type: 'rook', color: 'black' };
 
-    gameboard.at('e1').place(king);
-    gameboard.at('h1').place(rook);
+      gameboard.at('e8').place(king);
+      gameboard.at('a8').place(rook);
 
-    gameboard.castle('white', 'kingside');
+      gameboard.castle('black', 'queenside');
 
-    expect(gameboard.get.pieceMap()).toEqual({
-      black: {},
-      white: { rook: ['f1'], king: ['g1'] }
+      expect(gameboard.get.pieceMap()).toEqual({
+        white: {},
+        black: { rook: ['d8'], king: ['c8'] }
+      });
     });
-  });
 
-  test('castle sets king and rook on right squares (queenside, white)', () => {
-    const gameboard = Gameboard();
+    test('castle sets king and rook on right squares (kingside, white)', () => {
+      const gameboard = Gameboard();
 
-    const king = { type: 'king', color: 'white' };
-    const rook = { type: 'rook', color: 'white' };
+      const king = { type: 'king', color: 'white' };
+      const rook = { type: 'rook', color: 'white' };
 
-    gameboard.at('e1').place(king);
-    gameboard.at('a1').place(rook);
+      gameboard.at('e1').place(king);
+      gameboard.at('h1').place(rook);
 
-    gameboard.castle('white', 'queenside');
+      gameboard.castle('white', 'kingside');
 
-    expect(gameboard.get.pieceMap()).toEqual({
-      black: {},
-      white: { rook: ['d1'], king: ['c1'] }
+      expect(gameboard.get.pieceMap()).toEqual({
+        black: {},
+        white: { rook: ['f1'], king: ['g1'] }
+      });
+    });
+
+    test('castle sets king and rook on right squares (queenside, white)', () => {
+      const gameboard = Gameboard();
+
+      const king = { type: 'king', color: 'white' };
+      const rook = { type: 'rook', color: 'white' };
+
+      gameboard.at('e1').place(king);
+      gameboard.at('a1').place(rook);
+
+      gameboard.castle('white', 'queenside');
+
+      expect(gameboard.get.pieceMap()).toEqual({
+        black: {},
+        white: { rook: ['d1'], king: ['c1'] }
+      });
     });
   });
 });

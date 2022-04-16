@@ -83,13 +83,10 @@ export interface GameboardObj {
     remove: () => void;
   };
   at: (square: Square) => {
-    place: (piece: PieceObj) => 'square does not exist' | undefined;
-    remove: () => 'square does not exist' | undefined;
+    place: (piece: PieceObj) => void;
+    remove: () => void;
     promote: (pieceType: PieceType) => void;
-    setEnPassant: (
-      color: Color,
-      current: Square
-    ) => 'square does not exist' | undefined;
+    setEnPassant: (color: Color, current: Square) => void;
     readonly piece: PieceObj | null | undefined;
     getLegalMoves: () => Moves;
   };
@@ -120,4 +117,15 @@ export interface HistoryObj {
     checkmate: (notation: string) => string;
   };
   insertMove: (notation: string) => void;
+}
+
+export interface CastleObj {
+  white: {
+    kingside: boolean;
+    queenside: boolean;
+  };
+  black: {
+    kingside: boolean;
+    queenside: boolean;
+  };
 }
