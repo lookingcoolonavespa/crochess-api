@@ -338,8 +338,8 @@ const Gameboard = (
         if (canBlockOrCaptureCheck(kingPos, squaresGivingCheck[0], board))
           return false;
       }
-      if (!legalMoves || !legalMoves.length) return true;
-      return false;
+      if (legalMoves.length) return false;
+      return true;
     },
     castleSquares(color: Color): CastleSquaresType {
       const rank = color === 'white' ? 1 : 8;

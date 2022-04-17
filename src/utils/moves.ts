@@ -149,7 +149,7 @@ function getLegalMoves(origin: Square, board: Board) {
       break;
     }
     case 'king': {
-      legalMoves = removeProtectedSquares(piece, possibleMoves, board);
+      legalMoves = removeProtectedSquares(origin, possibleMoves, board);
       break;
     }
     default: {
@@ -178,7 +178,6 @@ function getLegalMovesInCheck(
 }
 
 function getAttackingMoves(origin: Square, board: Board) {
-  // for when you need to check for if squares are protected
   const square = board.get(origin) as SquareObj;
 
   const { type, color } = square.piece as PieceObj;
@@ -188,16 +187,29 @@ function getAttackingMoves(origin: Square, board: Board) {
       const piece = Piece(color, 'pawn');
       return piece.getPawnCaptures(origin) as Moves;
     }
+    case 'king': {
+      const attackingMoves = removeMovesWithPieces(
+        getPossibleMoves(origin, board),
+        board,
+        color
+      );
+      return attackingMoves;
+    }
     default:
       return getLegalMoves(origin, board);
   }
 }
 
-function getAllMovesForColor(color: Color, board: Board): Moves {
+function getAllMovesForColor(
+  color: Color,
+  board: Board,
+  skipKing?: boolean
+): Moves {
   const allMoves: Moves[] = [];
   for (const [square, { piece }] of board.entries()) {
     if (!piece) continue;
     if (piece.color !== color) continue;
+    if (skipKing && piece.type === 'king') continue;
 
     allMoves.push(getLegalMoves(square, board));
   }
@@ -325,14 +337,18 @@ function removeObstructedMoves(
 }
 
 function removeProtectedSquares(
-  king: PieceObj,
+  kingPos: Square,
   possibleMoves: Moves,
   board: Board
 ): Moves {
+  const king = board.get(kingPos)?.piece as PieceObj;
   // bc king cant move if square is protected
   const oppColor = king.color === 'white' ? 'black' : 'white';
 
-  const allEnemyMoves = getAttackingMovesForColor(oppColor, board);
+  const boardCopy = new Map(board);
+  possibleMoves.forEach((s) => boardCopy.set(s, { piece: king }));
+
+  const allEnemyMoves = getAttackingMovesForColor(oppColor, boardCopy);
   return possibleMoves.filter((s) => {
     return !allEnemyMoves.includes(s);
   });
@@ -395,7 +411,7 @@ function canBlockOrCaptureCheck(
     Array.from(board.keys())
   ); // also includes check square
 
-  const ownPieceMoves = getAllMovesForColor(king.color, board);
+  const ownPieceMoves = getAllMovesForColor(king.color, board, true);
   return ownPieceMoves.some((move) => blockOrCaptureSquares.includes(move));
 }
 

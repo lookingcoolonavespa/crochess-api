@@ -464,6 +464,37 @@ describe('testing getLegalMoves for Pawn (white)', () => {
   });
 });
 
+describe('legal moves for king', () => {
+  test('cant capture piece that is protected by a piece', () => {
+    const gameboard = Gameboard();
+
+    gameboard.at('e1').place({ color: 'white', type: 'king' });
+    gameboard.at('e2').place({ color: 'black', type: 'knight' });
+    gameboard.at('e8').place({ color: 'black', type: 'rook' });
+
+    const legalMoves = gameboard.at('e1').getLegalMoves();
+
+    const expected = ['d1', 'f1', 'd2', 'f2'];
+    expect(legalMoves).toEqual(expect.arrayContaining(expected));
+    expect(legalMoves).toEqual(expect.not.arrayContaining(['e2']));
+  });
+
+  test('works with multiple kings on the board', () => {
+    const gameboard = Gameboard();
+
+    gameboard.at('e1').place({ color: 'white', type: 'king' });
+    gameboard.at('e2').place({ color: 'black', type: 'knight' });
+    gameboard.at('e8').place({ color: 'black', type: 'rook' });
+    gameboard.at('d8').place({ color: 'black', type: 'king' });
+
+    const legalMoves = gameboard.at('e1').getLegalMoves();
+
+    const expected = ['d1', 'f1', 'd2', 'f2'];
+    expect(legalMoves).toEqual(expect.arrayContaining(expected));
+    expect(legalMoves).toEqual(expect.not.arrayContaining(['e2']));
+  });
+});
+
 describe('testing gameboard.get functions', () => {
   describe('inCheck works', () => {
     test('when piece hits king after it moves', () => {
@@ -668,7 +699,7 @@ describe('testing gameboard.get functions', () => {
 
       expect(checkmate).toBe(true);
     });
-    test('mate with protected pawn ', () => {
+    test('mate with pawn protected by pawn ', () => {
       const gameboard = Gameboard();
       const king = { type: 'king', color: 'white' };
 
