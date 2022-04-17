@@ -45,22 +45,22 @@ const Gameboard = (
     promote?: PieceType
   ): Board | undefined {
     const piece = at(s1).piece;
-    if (!piece) return;
 
-    if (!validate.move(s1, s1)) return;
+    // validate move
+    if (!piece) return;
+    if (!validate.move(s1, s2)) return;
+    if (promote && !validate.promotion(s1, s2)) return;
+
+    enPassant.remove();
 
     switch (piece.type) {
       case 'pawn': {
-        // promotion stuff
         if (promote) {
-          if (!validate.promotion(s1, s2)) return;
-
-          from(s1).to(s2);
-          at(s2).promote(promote);
+          at(s1).promote(promote);
         }
 
         if (enPassant.checkToggle(s1, s2)) {
-          enPassant.toggle(s2);
+          enPassant.toggle(piece.color, s2);
         }
 
         from(s1).to(s2);
@@ -86,7 +86,6 @@ const Gameboard = (
         from(s1).to(s2);
     }
 
-    enPassant.remove();
     return board;
   }
 
@@ -194,8 +193,7 @@ const Gameboard = (
 
         return Math.abs(y1 - y2) === 2;
       },
-      toggle: (current: Square): void => {
-        const { color } = at(current).piece as PieceObj;
+      toggle: (color: Color, current: Square): void => {
         const enPassantSquare = getSquare(current, color);
         at(enPassantSquare).setEnPassant(color, current);
       },
@@ -232,7 +230,7 @@ const Gameboard = (
         piece: null,
         enPassant: {
           current /* square pawn is on */,
-          color: color
+          color
         }
       });
     },
@@ -368,9 +366,9 @@ const Gameboard = (
 
       const endOfBoard = piece.color === 'white' ? 8 : 1;
       const [, rank] = to.split('');
-      if (+rank === endOfBoard) return true;
+      if (+rank !== endOfBoard) return false;
 
-      return false;
+      return true;
     }
   };
 

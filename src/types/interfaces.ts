@@ -90,7 +90,7 @@ export interface GameboardObj {
   };
   enPassant: {
     checkToggle: (from: Square, to: Square) => boolean;
-    toggle: (current: Square, color: Color) => void;
+    toggle: (color: Color, current: Square) => void;
     remove: () => void;
   };
   at: (square: Square) => {

@@ -434,7 +434,7 @@ describe('testing getLegalMoves for Pawn (white)', () => {
     gameboard.from('e2').to('e4');
 
     if (gameboard.enPassant.checkToggle('e2', 'e4')) {
-      gameboard.enPassant.toggle('e4', pieceToBeCaptured.color);
+      gameboard.enPassant.toggle(pieceToBeCaptured.color, 'e4');
     }
 
     const legalMoves = gameboard.at('d4').getLegalMoves();
@@ -768,24 +768,28 @@ describe('castle stuff', () => {
         board.at('h8').place(bRook);
       });
 
-      expect(gameboards[0].canCastle('white', 'kingside')).toBe(true);
-      expect(gameboards[0].canCastle('white', 'queenside')).toBe(true);
-      expect(gameboards[0].canCastle('black', 'kingside')).toBe(true);
-      expect(gameboards[0].canCastle('black', 'queenside')).toBe(true);
+      expect(gameboards[0].castling.canCastle('white', 'kingside')).toBe(true);
+      expect(gameboards[0].castling.canCastle('white', 'queenside')).toBe(true);
+      expect(gameboards[0].castling.canCastle('black', 'kingside')).toBe(true);
+      expect(gameboards[0].castling.canCastle('black', 'queenside')).toBe(true);
 
-      expect(gameboards[1].canCastle('white', 'kingside')).toBe(false);
-      expect(gameboards[1].canCastle('white', 'queenside')).toBe(false);
-      expect(gameboards[1].canCastle('black', 'kingside')).toBe(false);
-      expect(gameboards[1].canCastle('black', 'queenside')).toBe(false);
+      expect(gameboards[1].castling.canCastle('white', 'kingside')).toBe(false);
+      expect(gameboards[1].castling.canCastle('white', 'queenside')).toBe(
+        false
+      );
+      expect(gameboards[1].castling.canCastle('black', 'kingside')).toBe(false);
+      expect(gameboards[1].castling.canCastle('black', 'queenside')).toBe(
+        false
+      );
     });
 
     test('returns false when rook is missing', () => {
       const gameboard = Gameboard();
 
-      expect(gameboard.canCastle('white', 'kingside')).toBe(false);
-      expect(gameboard.canCastle('white', 'queenside')).toBe(false);
-      expect(gameboard.canCastle('black', 'kingside')).toBe(false);
-      expect(gameboard.canCastle('black', 'queenside')).toBe(false);
+      expect(gameboard.castling.canCastle('white', 'kingside')).toBe(false);
+      expect(gameboard.castling.canCastle('white', 'queenside')).toBe(false);
+      expect(gameboard.castling.canCastle('black', 'kingside')).toBe(false);
+      expect(gameboard.castling.canCastle('black', 'queenside')).toBe(false);
     });
 
     test('canCastle is false when theres a piece on the castle squares', () => {
@@ -797,7 +801,7 @@ describe('castle stuff', () => {
       gameboard.at('h1').place(rook);
       gameboard.at('g1').place(piece);
 
-      const castle = gameboard.canCastle('white', 'kingside');
+      const castle = gameboard.castling.canCastle('white', 'kingside');
 
       expect(castle).toBe(false);
     });
@@ -811,7 +815,7 @@ describe('castle stuff', () => {
       gameboard.at('h1').place(rook);
       gameboard.at('f3').place(piece);
 
-      const castle = gameboard.canCastle('white', 'kingside');
+      const castle = gameboard.castling.canCastle('white', 'kingside');
 
       expect(castle).toBe(false);
     });
@@ -825,7 +829,7 @@ describe('castle stuff', () => {
       gameboard.at('h1').place(rook);
       gameboard.at('f2').place(piece);
 
-      const castle = gameboard.canCastle('white', 'kingside');
+      const castle = gameboard.castling.canCastle('white', 'kingside');
 
       expect(castle).toBe(false);
     });
@@ -839,7 +843,7 @@ describe('castle stuff', () => {
       gameboard.at('h1').place(rook);
       gameboard.at('d2').place(piece);
 
-      const castle = gameboard.canCastle('white', 'kingside');
+      const castle = gameboard.castling.canCastle('white', 'kingside');
 
       expect(castle).toBe(true);
     });
@@ -855,7 +859,7 @@ describe('castle stuff', () => {
       gameboard.at('e8').place(king);
       gameboard.at('h8').place(rook);
 
-      gameboard.castle('black', 'kingside');
+      gameboard.castling.castle('black', 'kingside');
 
       expect(gameboard.get.pieceMap()).toEqual({
         white: {},
@@ -872,7 +876,7 @@ describe('castle stuff', () => {
       gameboard.at('e8').place(king);
       gameboard.at('a8').place(rook);
 
-      gameboard.castle('black', 'queenside');
+      gameboard.castling.castle('black', 'queenside');
 
       expect(gameboard.get.pieceMap()).toEqual({
         white: {},
@@ -889,7 +893,7 @@ describe('castle stuff', () => {
       gameboard.at('e1').place(king);
       gameboard.at('h1').place(rook);
 
-      gameboard.castle('white', 'kingside');
+      gameboard.castling.castle('white', 'kingside');
 
       expect(gameboard.get.pieceMap()).toEqual({
         black: {},
@@ -906,12 +910,122 @@ describe('castle stuff', () => {
       gameboard.at('e1').place(king);
       gameboard.at('a1').place(rook);
 
-      gameboard.castle('white', 'queenside');
+      gameboard.castling.castle('white', 'queenside');
 
       expect(gameboard.get.pieceMap()).toEqual({
         black: {},
         white: { rook: ['d1'], king: ['c1'] }
       });
     });
+  });
+});
+
+describe('validate works', () => {
+  describe('validate.move works', () => {
+    test('returns false when piece doesnt exist', () => {
+      const gameboard = Gameboard();
+      const valid = gameboard.validate.move('e2', 'e4');
+
+      expect(valid).toBe(false);
+    });
+
+    test('returns true when move is in legal moves', () => {
+      const gameboard = Gameboard();
+      gameboard.at('e2').place({ color: 'white', type: 'pawn' });
+      const valid = gameboard.validate.move('e2', 'e4');
+
+      expect(valid).toBe(true);
+    });
+
+    test('returns false when move isnt in legal moves', () => {
+      const gameboard = Gameboard();
+      gameboard.at('e2').place({ color: 'white', type: 'pawn' });
+      const valid = gameboard.validate.move('e2', 'e5');
+
+      expect(valid).toBe(false);
+    });
+  });
+
+  describe('validate.promotion works', () => {
+    test('returns false when piece type isnt pawn', () => {
+      const gameboard = Gameboard();
+      gameboard.at('d7').place({ color: 'white', type: 'king' });
+
+      const noPieceValidation = gameboard.validate.promotion('e7', 'e8');
+      const notPawnValidation = gameboard.validate.promotion('d7', 'd8');
+
+      expect(noPieceValidation).toBe(false);
+      expect(notPawnValidation).toBe(false);
+    });
+  });
+  test('returns false when rank isnt end of board', () => {
+    const gameboard = Gameboard();
+    gameboard.at('e6').place({ color: 'white', type: 'pawn' });
+
+    expect(gameboard.validate.promotion('e6', 'e7')).toBe(false);
+  });
+  test('returns true when rank is end of board', () => {
+    const gameboard = Gameboard();
+    gameboard.at('e7').place({ color: 'white', type: 'pawn' });
+
+    expect(gameboard.validate.promotion('e7', 'e8')).toBe(true);
+  });
+});
+
+describe('makeMove works', () => {
+  test('returns undefined when piece doesnt exist', () => {
+    const gameboard = Gameboard();
+
+    const newBoardState = gameboard.makeMove('e2', 'e4');
+
+    expect(newBoardState).toBe(undefined);
+  });
+  test('toggles enPassant', () => {
+    const gameboard = Gameboard();
+
+    gameboard.at('e6').setEnPassant('black', 'e5');
+    gameboard.at('e2').place({ color: 'white', type: 'pawn' });
+    gameboard.makeMove('e2', 'e4');
+    const removedEnPassant = gameboard.board.get('e6').enPassant;
+    const enPassant = gameboard.board.get('e3').enPassant;
+    const pawnOnE4 = gameboard.board.get('e4').piece;
+
+    expect(removedEnPassant).toBe(undefined);
+    expect(enPassant).toEqual({ current: 'e4', color: 'white' });
+    expect(pawnOnE4).toEqual({ color: 'white', type: 'pawn' });
+  });
+  test('promotes correctly', () => {
+    const gameboard = Gameboard();
+
+    gameboard.at('e7').place({ color: 'white', type: 'pawn' });
+    gameboard.makeMove('e7', 'e8', 'queen');
+
+    expect(gameboard.at('e7').piece).toBe(null);
+    expect(gameboard.at('e8').piece).toEqual({ color: 'white', type: 'queen' });
+  });
+  test('handles castling correctly', () => {
+    const gameboard = Gameboard();
+    const wKing = { color: 'white', type: 'king' };
+    const bKing = { color: 'black', type: 'king' };
+    const wRook = { color: 'white', type: 'rook' };
+    const bRook = { color: 'black', type: 'rook' };
+
+    gameboard.at('e1').place(wKing);
+    gameboard.at('h1').place(wRook);
+
+    gameboard.at('e8').place(bKing);
+    gameboard.at('a8').place(bRook);
+
+    gameboard.makeMove('e1', 'g1');
+    gameboard.makeMove('e8', 'c8');
+
+    expect(gameboard.at('e8').piece).toBe(null);
+    expect(gameboard.at('a8').piece).toBe(null);
+    expect(gameboard.at('c8').piece).toEqual(bKing);
+    expect(gameboard.at('d8').piece).toEqual(bRook);
+    expect(gameboard.at('e1').piece).toBe(null);
+    expect(gameboard.at('h1').piece).toBe(null);
+    expect(gameboard.at('g1').piece).toEqual(wKing);
+    expect(gameboard.at('f1').piece).toEqual(wRook);
   });
 });
