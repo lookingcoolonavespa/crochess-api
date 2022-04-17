@@ -1,4 +1,11 @@
-import { Color, Square, Board, Moves, PieceType } from './types';
+import {
+  Color,
+  Square,
+  Board,
+  Moves,
+  PieceType,
+  CastleSquaresType
+} from './types';
 
 export interface Coord {
   x: number;
@@ -75,8 +82,12 @@ export interface AllPieceMap {
 
 export interface GameboardObj {
   createBoard: () => Board;
-  castle: (color: Color, side: 'kingside' | 'queenside') => void;
-  canCastle: (color: Color, side: 'kingside' | 'queenside') => boolean;
+  makeMove: (s1: Square, s2: Square, promote?: PieceType) => Board | undefined;
+  castling: {
+    castle: (color: Color, side: 'kingside' | 'queenside') => void;
+    canCastle: (color: Color, side: 'kingside' | 'queenside') => boolean;
+    getRightsAfterMove: (square: Square) => CastleObj;
+  };
   enPassant: {
     checkToggle: (from: Square, to: Square) => boolean;
     toggle: (current: Square, color: Color) => void;
@@ -101,6 +112,11 @@ export interface GameboardObj {
     };
     squaresGivingCheckAfterMove: (from: Square, end: Square) => Square[];
     isCheckmate: (color: Color, squaresGivingCheck: string[]) => boolean;
+    castleSquares: (color: Color) => CastleSquaresType;
+  };
+  validate: {
+    move: (from: Square, to: Square) => boolean;
+    promotion: (from: Square, to: Square) => boolean;
   };
   readonly board: Board;
 }

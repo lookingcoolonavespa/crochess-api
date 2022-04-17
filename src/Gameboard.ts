@@ -7,7 +7,14 @@ import {
 } from './utils/moves';
 import { toXY, fromXY } from './utils/helpers';
 import { ranks, files } from './ranksAndFiles';
-import { Color, Square, Board, PieceType, Moves } from './types/types';
+import {
+  Color,
+  Square,
+  Board,
+  PieceType,
+  Moves,
+  CastleSquaresType
+} from './types/types';
 import {
   AllPieceMap,
   CastleObj,
@@ -15,6 +22,7 @@ import {
   PieceMap,
   PieceObj
 } from './types/interfaces';
+import Castle from './Castle';
 
 function createBoard(): Board {
   return files.reduce((acc, file) => {
@@ -29,72 +37,148 @@ function createBoard(): Board {
 const Gameboard = (
   board = createBoard(),
   squaresGivingCheck?: Moves,
-  Castle?: CastleObj
+  CastleRights?: CastleObj
 ): GameboardObj => {
-  function canCastle(color: Color, side: 'kingside' | 'queenside'): boolean {
-    if (Castle && !Castle[color][side]) return false;
+  function makeMove(
+    s1: Square,
+    s2: Square,
+    promote?: PieceType
+  ): Board | undefined {
+    const piece = at(s1).piece;
+    if (!piece) return;
 
-    // check if rook still exists
-    if (!checkIfRookExists()) return false;
+    if (!validate.move(s1, s1)) return;
 
-    const oppColor = color === 'white' ? 'black' : 'white';
-    const oppMoves = getAttackingMovesForColor(oppColor, board);
+    switch (piece.type) {
+      case 'pawn': {
+        // promotion stuff
+        if (promote) {
+          if (!validate.promotion(s1, s2)) return;
 
-    const castleSquares = get.castleSquares(color)[side];
-    for (const square of castleSquares) {
-      // check if castle square is cleared
-      if (at(square).piece) return false;
-      // make sure castle square isnt attacked
-      if (oppMoves.includes(square)) return false;
-    }
+          from(s1).to(s2);
+          at(s2).promote(promote);
+        }
 
-    return true;
+        if (enPassant.checkToggle(s1, s2)) {
+          enPassant.toggle(s2);
+        }
 
-    function checkIfRookExists(): boolean {
-      let rookExists = false;
-      const rank = color === 'white' ? 1 : 8;
-      const loopStart =
-        side === 'queenside' ? files.indexOf('a') : files.indexOf('d');
-      const loopEnd =
-        side === 'queenside' ? files.indexOf('e') : files.indexOf('h');
-      for (let i = loopStart; i <= loopEnd; i++) {
-        const square = files[i] + rank;
-
-        const piece = at(square).piece;
-        if (!piece) continue;
-
-        if (piece.type === 'rook') rookExists = true;
+        from(s1).to(s2);
+        break;
       }
-      return rookExists;
+
+      case 'king': {
+        // check if move is castle
+        let castleSide: '' | 'queenside' | 'kingside' = '';
+        const castleSquares = get.castleSquares(piece.color);
+
+        for (const [side, squares] of Object.entries(castleSquares)) {
+          if (squares[1] === s2) castleSide = side as 'kingside' | 'queenside';
+        }
+
+        if (castleSide) castling.castle(piece.color, castleSide);
+        else from(s1).to(s2);
+
+        break;
+      }
+
+      default:
+        from(s1).to(s2);
     }
+
+    enPassant.remove();
+    return board;
   }
 
-  function castle(color: Color, side: 'kingside' | 'queenside'): void {
-    const rank = color === 'white' ? 1 : 8;
-    const castleSquares =
-      side === 'kingside' ? [`f${rank}`, `g${rank}`] : [`d${rank}`, `c${rank}`];
+  const castling = {
+    canCastle: (color: Color, side: 'kingside' | 'queenside'): boolean => {
+      if (CastleRights && !CastleRights[color][side]) return false;
 
-    const kingPos = get.kingPosition(color) as Square;
-    const rookPos = getRookPos() as Square;
+      // check if rook still exists
+      if (!checkIfRookExists()) return false;
 
-    from(rookPos).to(castleSquares[0]);
-    from(kingPos).to(castleSquares[1]);
+      const oppColor = color === 'white' ? 'black' : 'white';
+      const oppMoves = getAttackingMovesForColor(oppColor, board);
 
-    function getRookPos() {
-      const pieceMap = get.pieceMap();
-      const rookPos = pieceMap[color].rook.find((square) => {
-        const file = square.split('')[0];
-        return side === 'kingside'
-          ? files.indexOf(file) > 3
-          : files.indexOf(file) < 3;
-      });
+      const castleSquares = get.castleSquares(color)[side];
+      for (const square of castleSquares) {
+        // check if castle square is cleared
+        if (at(square).piece) return false;
+        // make sure castle square isnt attacked
+        if (oppMoves.includes(square)) return false;
+      }
 
-      return rookPos;
+      return true;
+
+      function checkIfRookExists(): boolean {
+        let rookExists = false;
+        const rank = color === 'white' ? 1 : 8;
+        const loopStart =
+          side === 'queenside' ? files.indexOf('a') : files.indexOf('d');
+        const loopEnd =
+          side === 'queenside' ? files.indexOf('e') : files.indexOf('h');
+        for (let i = loopStart; i <= loopEnd; i++) {
+          const square = files[i] + rank;
+
+          const piece = at(square).piece;
+          if (!piece) continue;
+
+          if (piece.type === 'rook') rookExists = true;
+        }
+        return rookExists;
+      }
+    },
+    castle: (color: Color, side: 'kingside' | 'queenside'): void => {
+      const castleSquares = get.castleSquares(color)[side];
+
+      const kingPos = get.kingPosition(color) as Square;
+      const rookPos = getRookPos() as Square;
+
+      from(rookPos).to(castleSquares[0]);
+      from(kingPos).to(castleSquares[1]);
+
+      function getRookPos() {
+        const pieceMap = get.pieceMap();
+        const rookPos = pieceMap[color].rook.find((square) => {
+          const file = square.split('')[0];
+          return side === 'kingside'
+            ? files.indexOf(file) > 3
+            : files.indexOf(file) < 3;
+        });
+
+        return rookPos;
+      }
+      // need to get king position
+      // need to get castle squares
+      // need to find rook
+    },
+    getRightsAfterMove: (square: Square): CastleObj => {
+      const piece = at(square).piece as PieceObj;
+
+      const castleRights = CastleRights || Castle(true, true, true, true);
+
+      if (
+        castleRights[piece.color].kingside ||
+        castleRights[piece.color].queenside
+      ) {
+        // check if i need to change castling rights
+        if (piece.type === 'king') {
+          castleRights[piece.color].kingside = false;
+          castleRights[piece.color].queenside = false;
+        }
+
+        if (piece.type === 'rook') {
+          // need to find if it is kingside or queenside rook
+          const [file] = square.split('');
+          const kingside = files.indexOf(file) > 3;
+          if (kingside) castleRights[piece.color].kingside = false;
+          else castleRights[piece.color].queenside = false;
+        }
+      }
+
+      return castleRights;
     }
-    // need to get king position
-    // need to get castle squares
-    // need to find rook
-  }
+  };
 
   const enPassant = (() => {
     function getSquare(current: Square, color: Color): Square {
@@ -110,7 +194,8 @@ const Gameboard = (
 
         return Math.abs(y1 - y2) === 2;
       },
-      toggle: (current: Square, color: Color): void => {
+      toggle: (current: Square): void => {
+        const { color } = at(current).piece as PieceObj;
         const enPassantSquare = getSquare(current, color);
         at(enPassantSquare).setEnPassant(color, current);
       },
@@ -146,7 +231,7 @@ const Gameboard = (
       board.set(square, {
         piece: null,
         enPassant: {
-          current,
+          current /* square pawn is on */,
           color: color
         }
       });
@@ -174,12 +259,12 @@ const Gameboard = (
         default: {
           if (type === 'king') {
             let legalMoves = getLegalMoves(square, board);
-            if (canCastle(color, 'kingside'))
+            if (castling.canCastle(color, 'kingside'))
               legalMoves = [
                 ...legalMoves,
                 ...get.castleSquares(color).kingside
               ];
-            if (canCastle(color, 'queenside'))
+            if (castling.canCastle(color, 'queenside'))
               legalMoves = [
                 ...legalMoves,
                 ...get.castleSquares(color).queenside
@@ -258,23 +343,46 @@ const Gameboard = (
       if (!legalMoves || !legalMoves.length) return true;
       return false;
     },
-    castleSquares(color: Color) {
+    castleSquares(color: Color): CastleSquaresType {
       const rank = color === 'white' ? 1 : 8;
       return {
         kingside: [`f${rank}`, `g${rank}`],
-        queenside: [`c${rank}`, `d${rank}`]
+        queenside: [`d${rank}`, `c${rank}`]
       };
+    }
+  };
+
+  const validate = {
+    move: (from: Square, to: Square): boolean => {
+      const piece = at(from).piece;
+      if (!piece) return false;
+
+      if (!at(from).getLegalMoves().includes(to)) return false;
+
+      return true;
+    },
+    promotion: (from: Square, to: Square): boolean => {
+      const piece = at(from).piece;
+
+      if (piece?.type !== 'pawn') return false;
+
+      const endOfBoard = piece.color === 'white' ? 8 : 1;
+      const [, rank] = to.split('');
+      if (+rank === endOfBoard) return true;
+
+      return false;
     }
   };
 
   return {
     createBoard,
-    castle,
-    canCastle,
+    castling,
     enPassant,
     at,
     from,
     get,
+    validate,
+    makeMove,
     get board() {
       return board;
     }

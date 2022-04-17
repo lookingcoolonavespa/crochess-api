@@ -15,3 +15,8 @@ export type PieceType =
   | 'bishop'
   | 'rook'
   | 'pawn';
+
+export interface CastleSquaresType {
+  kingside: Moves;
+  queenside: Moves;
+}
