@@ -20,9 +20,11 @@ import {
 import {
   AllPieceMap,
   CastleObj,
+  EnPassantObj,
   GameboardObj,
   PieceMap,
-  PieceObj
+  PieceObj,
+  SquareObj
 } from './types/interfaces';
 import Castle from './Castle';
 import { startingPositions } from './main';
@@ -69,14 +71,17 @@ const Gameboard = (
     if (!validate.move(s1, s2)) return;
     if (promote && !validate.promotion(s1, s2)) return;
 
-    enPassant.remove();
-
     switch (piece.type) {
       case 'pawn': {
         if (promote) {
           at(s1).promote(promote);
         }
 
+        if (enPassant.isCapture(s1, s2)) {
+          enPassant.capture(s2);
+        }
+
+        enPassant.remove();
         if (enPassant.checkToggle(s1, s2)) {
           enPassant.toggle(piece.color, s2);
         }
@@ -97,11 +102,14 @@ const Gameboard = (
         if (castleSide) castle(piece.color, castleSide);
         else from(s1).to(s2);
 
+        enPassant.remove();
+
         break;
       }
 
       default:
         from(s1).to(s2);
+        enPassant.remove();
     }
 
     return board;
@@ -158,6 +166,19 @@ const Gameboard = (
         for (const squareObj of boardMap.values()) {
           if (squareObj.enPassant) return (squareObj.enPassant = undefined);
         }
+      },
+      isCapture: (from: Square, to: Square, boardMap = board): boolean => {
+        const piece = at(from, boardMap).piece;
+        const enPassant = boardMap.get(to)?.enPassant;
+        if (!piece || piece.type !== 'pawn') return false;
+        if (!enPassant) return false;
+        if (enPassant.color === piece.color) return false;
+        return true;
+      },
+      capture: (to: Square, boardMap = board) => {
+        const enPassant = boardMap.get(to)?.enPassant as EnPassantObj;
+
+        at(enPassant.current, boardMap).remove();
       }
     };
   })();
@@ -381,13 +402,15 @@ const Gameboard = (
     boardStateFromHistory: (history: HistoryType): Board => {
       const boardMap = createBoard();
       placePieces(startingPositions.standard, boardMap);
-      const pieceMap = startingPositions.standard;
+      let pieceMap = startingPositions.standard;
 
+      // history is 2d array
       const flat = history.flat();
 
       for (const [i, m] of flat.entries()) {
         const parsed = parseNotation(m);
         const color = i % 2 === 0 ? 'white' : 'black';
+
         if (parsed.castle) {
           castle(color, parsed.castle, boardMap);
           continue;
@@ -402,15 +425,35 @@ const Gameboard = (
           const notation = parsed.from;
           s1 =
             possiblePieces.find((s) => {
+              // if notation is a number, that means piece is on the rank === notation, if not, same file
               return isNaN(Number(notation))
                 ? s[0] === notation
                 : s[1] === notation;
             }) || '';
         } else s1 = possiblePieces[0];
-        if (!s1) {
+
+        const piece = at(s1, boardMap).piece;
+        if (!s1 || !piece) {
           break;
         }
+
+        if (piece.type === 'pawn') {
+          if (enPassant.isCapture(s1, parsed.to, boardMap)) {
+            enPassant.capture(parsed.to, boardMap);
+          }
+
+          enPassant.remove(boardMap);
+
+          if (enPassant.checkToggle(s1, parsed.to))
+            enPassant.toggle(color, parsed.to, boardMap);
+
+          if (parsed.promote) {
+            at(s1, boardMap).promote(parsed.promote);
+          }
+        } else enPassant.remove(boardMap);
+
         from(s1, boardMap).to(parsed.to);
+        pieceMap = get.pieceMap(boardMap);
       }
 
       return boardMap;

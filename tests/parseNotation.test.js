@@ -59,3 +59,21 @@ describe('pawn notation', () => {
     expect(captureToPromote.from).toBe('b');
   });
 });
+
+describe('check notation doesnt get in the way', () => {
+  test('on promotion', () => {
+    const promoteMove = parseNotation('a8=Q+');
+
+    expect(promoteMove.pieceType).toBe('pawn');
+    expect(promoteMove.promote).toBe('queen');
+    expect(promoteMove.to).toBe('a8');
+  });
+
+  test('when multiple pieces can go to same square', () => {
+    const fileMove = parseNotation('Nba5+');
+    const rankMove = parseNotation('N3a5+');
+
+    expect(fileMove.from).toBe('b');
+    expect(rankMove.from).toBe('3');
+  });
+});

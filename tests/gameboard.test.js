@@ -776,75 +776,436 @@ describe('testing gameboard.get functions', () => {
   });
 
   describe('getBoardStateFromHistory works', () => {
-    test('with one move', () => {
-      const gameboard = Gameboard();
-      const history = [['e4', 'e5']];
-      const boardMap = gameboard.get.boardStateFromHistory(history);
+    // test('with one move', () => {
+    //   const gameboard = Gameboard();
+    //   const history = [['e4', 'e5']];
+    //   const boardMap = gameboard.get.boardStateFromHistory(history);
 
-      const wPawn = { color: 'white', type: 'pawn' };
-      const bPawn = { color: 'black', type: 'pawn' };
+    //   const wPawn = { color: 'white', type: 'pawn' };
+    //   const bPawn = { color: 'black', type: 'pawn' };
 
-      const pieceMap = gameboard.get.pieceMap(boardMap);
+    //   const pieceMap = gameboard.get.pieceMap(boardMap);
 
-      expect(pieceMap.black.pawn).toEqual(
-        expect.arrayContaining(['a7', 'b7', 'c7', 'd7', 'e5', 'f7', 'g7', 'h7'])
-      );
-      expect(pieceMap.black.pawn.length).toBe(8);
+    //   expect(pieceMap.black.pawn).toEqual(
+    //     expect.arrayContaining(['a7', 'b7', 'c7', 'd7', 'e5', 'f7', 'g7', 'h7'])
+    //   );
+    //   expect(pieceMap.black.pawn.length).toBe(8);
 
-      expect(pieceMap.white.pawn).toEqual(
-        expect.arrayContaining(['a2', 'b2', 'c2', 'd2', 'e4', 'f2', 'g2', 'h2'])
-      );
-      expect(pieceMap.black.pawn.length).toBe(8);
-      expect(boardMap.get('e4').piece).toEqual(wPawn);
-      expect(boardMap.get('e2').piece).toBe(null);
-      expect(boardMap.get('e5').piece).toEqual(bPawn);
-      expect(boardMap.get('e7').piece).toBe(null);
-    });
+    //   expect(pieceMap.white.pawn).toEqual(
+    //     expect.arrayContaining(['a2', 'b2', 'c2', 'd2', 'e4', 'f2', 'g2', 'h2'])
+    //   );
+    //   expect(pieceMap.black.pawn.length).toBe(8);
+    //   expect(boardMap.get('e4').piece).toEqual(wPawn);
+    //   expect(boardMap.get('e2').piece).toBe(null);
+    //   expect(boardMap.get('e5').piece).toEqual(bPawn);
+    //   expect(boardMap.get('e7').piece).toBe(null);
+    // });
 
-    test('with castle', () => {
+    // test('with castle', () => {
+    //   const gameboard = Gameboard();
+    //   const history = [
+    //     ['e4', 'e5'],
+    //     ['Nf3', 'Nf6'],
+    //     ['Be2', 'Be7'],
+    //     ['0-0', '0-0']
+    //   ];
+    //   const boardMap = gameboard.get.boardStateFromHistory(history);
+    //   const pieceMap = gameboard.get.pieceMap(boardMap);
+
+    //   expect(pieceMap).toEqual(
+    //     expect.objectContaining({
+    //       white: {
+    //         rook: expect.arrayContaining(['a1', 'f1']),
+    //         knight: expect.arrayContaining(['f3', 'b1']),
+    //         bishop: expect.arrayContaining(['e2', 'c1']),
+    //         king: expect.arrayContaining(['g1']),
+    //         queen: expect.arrayContaining(['d1']),
+    //         pawn: expect.arrayContaining([
+    //           'a2',
+    //           'b2',
+    //           'c2',
+    //           'd2',
+    //           'e4',
+    //           'f2',
+    //           'g2',
+    //           'h2'
+    //         ])
+    //       },
+    //       black: {
+    //         rook: expect.arrayContaining(['a8', 'f8']),
+    //         knight: expect.arrayContaining(['f6', 'b8']),
+    //         bishop: expect.arrayContaining(['e7', 'c8']),
+    //         king: expect.arrayContaining(['g8']),
+    //         queen: expect.arrayContaining(['d8']),
+    //         pawn: expect.arrayContaining([
+    //           'a7',
+    //           'b7',
+    //           'c7',
+    //           'd7',
+    //           'e5',
+    //           'f7',
+    //           'g7',
+    //           'h7'
+    //         ])
+    //       }
+    //     })
+    //   );
+
+    //   expect(pieceMap.black.rook.length).toBe(2);
+    //   expect(pieceMap.black.knight.length).toBe(2);
+    //   expect(pieceMap.black.king.length).toBe(1);
+    //   expect(pieceMap.black.bishop.length).toBe(2);
+    //   expect(pieceMap.black.pawn.length).toBe(8);
+    //   expect(pieceMap.white.rook.length).toBe(2);
+    //   expect(pieceMap.white.knight.length).toBe(2);
+    //   expect(pieceMap.white.king.length).toBe(1);
+    //   expect(pieceMap.white.bishop.length).toBe(2);
+    //   expect(pieceMap.white.pawn.length).toBe(8);
+    // });
+
+    // test('with captures', () => {
+    //   const gameboard = Gameboard();
+    //   const history = [
+    //     ['e4', 'e5'],
+    //     ['Nf3', 'Nf6'],
+    //     ['d4', 'exd4']
+    //   ];
+    //   const boardMap = gameboard.get.boardStateFromHistory(history);
+    //   const pieceMap = gameboard.get.pieceMap(boardMap);
+
+    //   expect(pieceMap).toEqual(
+    //     expect.objectContaining({
+    //       white: {
+    //         rook: expect.arrayContaining(['a1', 'h1']),
+    //         knight: expect.arrayContaining(['f3', 'b1']),
+    //         bishop: expect.arrayContaining(['f1', 'c1']),
+    //         king: expect.arrayContaining(['e1']),
+    //         queen: expect.arrayContaining(['d1']),
+    //         pawn: expect.arrayContaining([
+    //           'a2',
+    //           'b2',
+    //           'c2',
+    //           'e4',
+    //           'f2',
+    //           'g2',
+    //           'h2'
+    //         ])
+    //       },
+    //       black: {
+    //         rook: expect.arrayContaining(['a8', 'h8']),
+    //         knight: expect.arrayContaining(['f6', 'b8']),
+    //         bishop: expect.arrayContaining(['f8', 'c8']),
+    //         king: expect.arrayContaining(['e8']),
+    //         queen: expect.arrayContaining(['d8']),
+    //         pawn: expect.arrayContaining([
+    //           'a7',
+    //           'b7',
+    //           'c7',
+    //           'd7',
+    //           'd4',
+    //           'f7',
+    //           'g7',
+    //           'h7'
+    //         ])
+    //       }
+    //     })
+    //   );
+
+    //   expect(pieceMap.black.rook.length).toBe(2);
+    //   expect(pieceMap.black.knight.length).toBe(2);
+    //   expect(pieceMap.black.king.length).toBe(1);
+    //   expect(pieceMap.black.bishop.length).toBe(2);
+    //   expect(pieceMap.black.pawn.length).toBe(8);
+    //   expect(pieceMap.white.rook.length).toBe(2);
+    //   expect(pieceMap.white.knight.length).toBe(2);
+    //   expect(pieceMap.white.king.length).toBe(1);
+    //   expect(pieceMap.white.bishop.length).toBe(2);
+    //   expect(pieceMap.white.pawn.length).toBe(7);
+    // });
+
+    // test('with multiple options for pawn captures', () => {
+    //   const gameboard = Gameboard();
+    //   const history = [
+    //     ['e4', 'e5'],
+    //     ['Nf3', 'c5'],
+    //     ['d4', 'exd4']
+    //   ];
+    //   const boardMap = gameboard.get.boardStateFromHistory(history);
+    //   const pieceMap = gameboard.get.pieceMap(boardMap);
+
+    //   expect(pieceMap).toEqual(
+    //     expect.objectContaining({
+    //       white: {
+    //         rook: expect.arrayContaining(['a1', 'h1']),
+    //         knight: expect.arrayContaining(['f3', 'b1']),
+    //         bishop: expect.arrayContaining(['f1', 'c1']),
+    //         king: expect.arrayContaining(['e1']),
+    //         queen: expect.arrayContaining(['d1']),
+    //         pawn: expect.arrayContaining([
+    //           'a2',
+    //           'b2',
+    //           'c2',
+    //           'e4',
+    //           'f2',
+    //           'g2',
+    //           'h2'
+    //         ])
+    //       },
+    //       black: {
+    //         rook: expect.arrayContaining(['a8', 'h8']),
+    //         knight: expect.arrayContaining(['g8', 'b8']),
+    //         bishop: expect.arrayContaining(['f8', 'c8']),
+    //         king: expect.arrayContaining(['e8']),
+    //         queen: expect.arrayContaining(['d8']),
+    //         pawn: expect.arrayContaining([
+    //           'a7',
+    //           'b7',
+    //           'c5',
+    //           'd7',
+    //           'd4',
+    //           'f7',
+    //           'g7',
+    //           'h7'
+    //         ])
+    //       }
+    //     })
+    //   );
+
+    //   expect(pieceMap.black.rook.length).toBe(2);
+    //   expect(pieceMap.black.knight.length).toBe(2);
+    //   expect(pieceMap.black.king.length).toBe(1);
+    //   expect(pieceMap.black.bishop.length).toBe(2);
+    //   expect(pieceMap.black.pawn.length).toBe(8);
+    //   expect(pieceMap.white.rook.length).toBe(2);
+    //   expect(pieceMap.white.knight.length).toBe(2);
+    //   expect(pieceMap.white.king.length).toBe(1);
+    //   expect(pieceMap.white.bishop.length).toBe(2);
+    //   expect(pieceMap.white.pawn.length).toBe(7);
+
+    //   const history2 = [
+    //     ['e4', 'e5'],
+    //     ['Nf3', 'c5'],
+    //     ['d4', 'cxd4']
+    //   ];
+    //   const boardMap2 = gameboard.get.boardStateFromHistory(history2);
+    //   const pieceMap2 = gameboard.get.pieceMap(boardMap2);
+
+    //   expect(pieceMap2).toEqual(
+    //     expect.objectContaining({
+    //       white: {
+    //         rook: expect.arrayContaining(['a1', 'h1']),
+    //         knight: expect.arrayContaining(['f3', 'b1']),
+    //         bishop: expect.arrayContaining(['f1', 'c1']),
+    //         king: expect.arrayContaining(['e1']),
+    //         queen: expect.arrayContaining(['d1']),
+    //         pawn: expect.arrayContaining([
+    //           'a2',
+    //           'b2',
+    //           'c2',
+    //           'e4',
+    //           'f2',
+    //           'g2',
+    //           'h2'
+    //         ])
+    //       },
+    //       black: {
+    //         rook: expect.arrayContaining(['a8', 'h8']),
+    //         knight: expect.arrayContaining(['g8', 'b8']),
+    //         bishop: expect.arrayContaining(['f8', 'c8']),
+    //         king: expect.arrayContaining(['e8']),
+    //         queen: expect.arrayContaining(['d8']),
+    //         pawn: expect.arrayContaining([
+    //           'a7',
+    //           'b7',
+    //           'e5',
+    //           'd7',
+    //           'd4',
+    //           'f7',
+    //           'g7',
+    //           'h7'
+    //         ])
+    //       }
+    //     })
+    //   );
+
+    //   expect(pieceMap2.black.rook.length).toBe(2);
+    //   expect(pieceMap2.black.knight.length).toBe(2);
+    //   expect(pieceMap2.black.king.length).toBe(1);
+    //   expect(pieceMap2.black.bishop.length).toBe(2);
+    //   expect(pieceMap2.black.pawn.length).toBe(8);
+    //   expect(pieceMap2.white.rook.length).toBe(2);
+    //   expect(pieceMap2.white.knight.length).toBe(2);
+    //   expect(pieceMap2.white.king.length).toBe(1);
+    //   expect(pieceMap2.white.bishop.length).toBe(2);
+    //   expect(pieceMap2.white.pawn.length).toBe(7);
+    // });
+
+    test('with multiple options for same move (pieces)', () => {
       const gameboard = Gameboard();
       const history = [
         ['e4', 'e5'],
-        ['Nf3', 'Nf6'],
-        ['Be2', 'Be7'],
-        ['0-0', '0-0']
+        ['Bc4', 'Bc5'],
+        ['Ne2', 'Ne7'],
+        ['Nc3', 'Nc6'],
+        ['d4', 'd5'],
+        ['exd5', 'exd4'],
+        ['Ne4', 'Ne5'],
+        ['N2g3', 'N5g6']
+      ];
+      const boardMap = gameboard.get.boardStateFromHistory(history);
+      const pieceMap = gameboard.get.pieceMap(boardMap);
+      expect(pieceMap).toEqual(
+        expect.objectContaining({
+          white: {
+            rook: expect.arrayContaining(['a1', 'h1']),
+            knight: expect.arrayContaining(['e4', 'g3']),
+            bishop: expect.arrayContaining(['c4', 'c1']),
+            king: expect.arrayContaining(['e1']),
+            queen: expect.arrayContaining(['d1']),
+            pawn: expect.arrayContaining([
+              'a2',
+              'b2',
+              'c2',
+              'd5',
+              'f2',
+              'g2',
+              'h2'
+            ])
+          },
+          black: {
+            rook: expect.arrayContaining(['a8', 'h8']),
+            knight: expect.arrayContaining(['g6', 'e7']),
+            bishop: expect.arrayContaining(['c5', 'c8']),
+            king: expect.arrayContaining(['e8']),
+            queen: expect.arrayContaining(['d8']),
+            pawn: expect.arrayContaining([
+              'a7',
+              'b7',
+              'd4',
+              'c7',
+              'f7',
+              'g7',
+              'h7'
+            ])
+          }
+        })
+      );
+
+      expect(pieceMap.black.rook.length).toBe(2);
+      expect(pieceMap.black.knight.length).toBe(2);
+      expect(pieceMap.black.king.length).toBe(1);
+      expect(pieceMap.black.bishop.length).toBe(2);
+      expect(pieceMap.black.pawn.length).toBe(7);
+      expect(pieceMap.white.rook.length).toBe(2);
+      expect(pieceMap.white.knight.length).toBe(2);
+      expect(pieceMap.white.king.length).toBe(1);
+      expect(pieceMap.white.bishop.length).toBe(2);
+      expect(pieceMap.white.pawn.length).toBe(7);
+
+      const history2 = [
+        ['e4', 'e5'],
+        ['Bc4', 'Bc5'],
+        ['Ne2', 'Nc6'],
+        ['Nec3', 'Nce7']
+      ];
+      const boardMap2 = gameboard.get.boardStateFromHistory(history2);
+      const pieceMap2 = gameboard.get.pieceMap(boardMap2);
+
+      expect(pieceMap2).toEqual(
+        expect.objectContaining({
+          white: {
+            rook: expect.arrayContaining(['a1', 'h1']),
+            knight: expect.arrayContaining(['c3', 'b1']),
+            bishop: expect.arrayContaining(['c4', 'c1']),
+            king: expect.arrayContaining(['e1']),
+            queen: expect.arrayContaining(['d1']),
+            pawn: expect.arrayContaining([
+              'a2',
+              'b2',
+              'c2',
+              'd2',
+              'e4',
+              'f2',
+              'g2',
+              'h2'
+            ])
+          },
+          black: {
+            rook: expect.arrayContaining(['a8', 'h8']),
+            knight: expect.arrayContaining(['g8', 'e7']),
+            bishop: expect.arrayContaining(['c5', 'c8']),
+            king: expect.arrayContaining(['e8']),
+            queen: expect.arrayContaining(['d8']),
+            pawn: expect.arrayContaining([
+              'a7',
+              'b7',
+              'e5',
+              'd7',
+              'c7',
+              'f7',
+              'g7',
+              'h7'
+            ])
+          }
+        })
+      );
+
+      expect(pieceMap2.black.rook.length).toBe(2);
+      expect(pieceMap2.black.knight.length).toBe(2);
+      expect(pieceMap2.black.king.length).toBe(1);
+      expect(pieceMap2.black.bishop.length).toBe(2);
+      expect(pieceMap2.black.pawn.length).toBe(8);
+      expect(pieceMap2.white.rook.length).toBe(2);
+      expect(pieceMap2.white.knight.length).toBe(2);
+      expect(pieceMap2.white.king.length).toBe(1);
+      expect(pieceMap2.white.bishop.length).toBe(2);
+      expect(pieceMap2.white.pawn.length).toBe(8);
+    });
+
+    test('promotion/enPassant works', () => {
+      const gameboard = Gameboard();
+      const history = [
+        ['a4', 'h5'],
+        ['a5', 'b5'],
+        ['axb6', 'h4'],
+        ['bxa7', 'h3'],
+        ['axb8=Q', 'hxg2'],
+        ['Qxa8', 'gxh1=N']
       ];
       const boardMap = gameboard.get.boardStateFromHistory(history);
       const pieceMap = gameboard.get.pieceMap(boardMap);
 
-      expect(pieceMap.black.rook).toEqual(expect.arrayContaining(['a8', 'f8']));
-      expect(pieceMap.black.rook.length).toBe(2);
-      expect(pieceMap.black.knight).toEqual(
-        expect.arrayContaining(['b8', 'f6'])
+      expect(pieceMap).toEqual(
+        expect.objectContaining({
+          white: {
+            rook: expect.arrayContaining(['a1']),
+            knight: expect.arrayContaining(['b1', 'g1']),
+            bishop: expect.arrayContaining(['f1', 'c1']),
+            king: expect.arrayContaining(['e1']),
+            queen: expect.arrayContaining(['d1', 'a8']),
+            pawn: expect.arrayContaining(['b2', 'c2', 'e2', 'd2', 'f2', 'h2'])
+          },
+          black: {
+            rook: expect.arrayContaining(['h8']),
+            knight: expect.arrayContaining(['h1', 'g8']),
+            bishop: expect.arrayContaining(['f8', 'c8']),
+            king: expect.arrayContaining(['e8']),
+            queen: expect.arrayContaining(['d8']),
+            pawn: expect.arrayContaining(['d7', 'e7', 'c7', 'f7', 'g7'])
+          }
+        })
       );
-      expect(pieceMap.black.knight.length).toBe(2);
-      expect(pieceMap.black.king).toEqual(expect.arrayContaining(['g8']));
-      expect(pieceMap.black.king.length).toBe(1);
-      expect(pieceMap.black.bishop).toEqual(
-        expect.arrayContaining(['e7', 'c8'])
-      );
-      expect(pieceMap.black.bishop.length).toBe(2);
-      expect(pieceMap.black.pawn).toEqual(
-        expect.arrayContaining(['a7', 'b7', 'c7', 'd7', 'e5', 'f7', 'g7', 'h7'])
-      );
-      expect(pieceMap.black.pawn.length).toBe(8);
 
-      expect(pieceMap.white.rook).toEqual(expect.arrayContaining(['a1', 'f1']));
-      expect(pieceMap.white.rook.length).toBe(2);
-      expect(pieceMap.white.knight).toEqual(
-        expect.arrayContaining(['b1', 'f3'])
-      );
+      expect(pieceMap.black.rook.length).toBe(1);
+      expect(pieceMap.black.knight.length).toBe(2);
+      expect(pieceMap.black.king.length).toBe(1);
+      expect(pieceMap.black.bishop.length).toBe(2);
+      expect(pieceMap.black.pawn.length).toBe(5);
+      expect(pieceMap.white.rook.length).toBe(1);
       expect(pieceMap.white.knight.length).toBe(2);
-      expect(pieceMap.white.king).toEqual(expect.arrayContaining(['g1']));
       expect(pieceMap.white.king.length).toBe(1);
-      expect(pieceMap.white.bishop).toEqual(
-        expect.arrayContaining(['e2', 'c1'])
-      );
       expect(pieceMap.white.bishop.length).toBe(2);
-      expect(pieceMap.white.pawn).toEqual(
-        expect.arrayContaining(['a2', 'b2', 'c2', 'd2', 'e4', 'f2', 'g2', 'h2'])
-      );
-      expect(pieceMap.white.pawn.length).toBe(8);
+      expect(pieceMap.white.pawn.length).toBe(6);
     });
   });
 });
@@ -1091,6 +1452,19 @@ describe('makeMove works', () => {
     expect(removedEnPassant).toBe(undefined);
     expect(enPassant).toEqual({ current: 'e4', color: 'white' });
     expect(pawnOnE4).toEqual({ color: 'white', type: 'pawn' });
+  });
+  test('removes enPassant pawn', () => {
+    const gameboard = Gameboard();
+
+    gameboard.at('e5').place({ type: 'pawn', color: 'black' });
+    gameboard.at('e6').setEnPassant('black', 'e5');
+    gameboard.at('d5').place({ color: 'white', type: 'pawn' });
+    gameboard.makeMove('d5', 'e6');
+    const enPassant = gameboard.at('e5').piece;
+    const pawnOnE6 = gameboard.at('e6').piece;
+
+    expect(enPassant).toBe(null);
+    expect(pawnOnE6).toEqual({ color: 'white', type: 'pawn' });
   });
   test('promotes correctly', () => {
     const gameboard = Gameboard();
