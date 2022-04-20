@@ -62,8 +62,7 @@ describe('testing getLegalMoves for Rook', () => {
       'h1'
     ];
 
-    expect(legalMoves).toEqual(expect.arrayContaining(expected));
-    expect(legalMoves.length).toBe(expected.length);
+    expect(legalMoves).toEqual(expected);
   });
 
   test('obstruction is in front of piece on vertical axis', () => {
@@ -76,8 +75,7 @@ describe('testing getLegalMoves for Rook', () => {
     const legalMoves = gameboard.at('a1').getLegalMoves();
     const expected = ['a2', 'b1', 'c1', 'd1', 'e1', 'f1', 'g1', 'h1'];
 
-    expect(legalMoves).toEqual(expect.arrayContaining(expected));
-    expect(legalMoves.length).toBe(expected.length);
+    expect(legalMoves).toEqual(expected);
   });
 
   test('obstruction is in behind of piece on vertical axis', () => {
@@ -776,6 +774,79 @@ describe('testing gameboard.get functions', () => {
 
     expect(pieceMap).toEqual(expected);
   });
+
+  describe('getBoardStateFromHistory works', () => {
+    test('with one move', () => {
+      const gameboard = Gameboard();
+      const history = [['e4', 'e5']];
+      const boardMap = gameboard.get.boardStateFromHistory(history);
+
+      const wPawn = { color: 'white', type: 'pawn' };
+      const bPawn = { color: 'black', type: 'pawn' };
+
+      const pieceMap = gameboard.get.pieceMap(boardMap);
+
+      expect(pieceMap.black.pawn).toEqual(
+        expect.arrayContaining(['a7', 'b7', 'c7', 'd7', 'e5', 'f7', 'g7', 'h7'])
+      );
+      expect(pieceMap.black.pawn.length).toBe(8);
+
+      expect(pieceMap.white.pawn).toEqual(
+        expect.arrayContaining(['a2', 'b2', 'c2', 'd2', 'e4', 'f2', 'g2', 'h2'])
+      );
+      expect(pieceMap.black.pawn.length).toBe(8);
+      expect(boardMap.get('e4').piece).toEqual(wPawn);
+      expect(boardMap.get('e2').piece).toBe(null);
+      expect(boardMap.get('e5').piece).toEqual(bPawn);
+      expect(boardMap.get('e7').piece).toBe(null);
+    });
+
+    test('with castle', () => {
+      const gameboard = Gameboard();
+      const history = [
+        ['e4', 'e5'],
+        ['Nf3', 'Nf6'],
+        ['Be2', 'Be7'],
+        ['0-0', '0-0']
+      ];
+      const boardMap = gameboard.get.boardStateFromHistory(history);
+      const pieceMap = gameboard.get.pieceMap(boardMap);
+
+      expect(pieceMap.black.rook).toEqual(expect.arrayContaining(['a8', 'f8']));
+      expect(pieceMap.black.rook.length).toBe(2);
+      expect(pieceMap.black.knight).toEqual(
+        expect.arrayContaining(['b8', 'f6'])
+      );
+      expect(pieceMap.black.knight.length).toBe(2);
+      expect(pieceMap.black.king).toEqual(expect.arrayContaining(['g8']));
+      expect(pieceMap.black.king.length).toBe(1);
+      expect(pieceMap.black.bishop).toEqual(
+        expect.arrayContaining(['e7', 'c8'])
+      );
+      expect(pieceMap.black.bishop.length).toBe(2);
+      expect(pieceMap.black.pawn).toEqual(
+        expect.arrayContaining(['a7', 'b7', 'c7', 'd7', 'e5', 'f7', 'g7', 'h7'])
+      );
+      expect(pieceMap.black.pawn.length).toBe(8);
+
+      expect(pieceMap.white.rook).toEqual(expect.arrayContaining(['a1', 'f1']));
+      expect(pieceMap.white.rook.length).toBe(2);
+      expect(pieceMap.white.knight).toEqual(
+        expect.arrayContaining(['b1', 'f3'])
+      );
+      expect(pieceMap.white.knight.length).toBe(2);
+      expect(pieceMap.white.king).toEqual(expect.arrayContaining(['g1']));
+      expect(pieceMap.white.king.length).toBe(1);
+      expect(pieceMap.white.bishop).toEqual(
+        expect.arrayContaining(['e2', 'c1'])
+      );
+      expect(pieceMap.white.bishop.length).toBe(2);
+      expect(pieceMap.white.pawn).toEqual(
+        expect.arrayContaining(['a2', 'b2', 'c2', 'd2', 'e4', 'f2', 'g2', 'h2'])
+      );
+      expect(pieceMap.white.pawn.length).toBe(8);
+    });
+  });
 });
 
 describe('castle stuff', () => {
@@ -799,28 +870,24 @@ describe('castle stuff', () => {
         board.at('h8').place(bRook);
       });
 
-      expect(gameboards[0].castling.canCastle('white', 'kingside')).toBe(true);
-      expect(gameboards[0].castling.canCastle('white', 'queenside')).toBe(true);
-      expect(gameboards[0].castling.canCastle('black', 'kingside')).toBe(true);
-      expect(gameboards[0].castling.canCastle('black', 'queenside')).toBe(true);
+      expect(gameboards[0].get.canCastle('white', 'kingside')).toBe(true);
+      expect(gameboards[0].get.canCastle('white', 'queenside')).toBe(true);
+      expect(gameboards[0].get.canCastle('black', 'kingside')).toBe(true);
+      expect(gameboards[0].get.canCastle('black', 'queenside')).toBe(true);
 
-      expect(gameboards[1].castling.canCastle('white', 'kingside')).toBe(false);
-      expect(gameboards[1].castling.canCastle('white', 'queenside')).toBe(
-        false
-      );
-      expect(gameboards[1].castling.canCastle('black', 'kingside')).toBe(false);
-      expect(gameboards[1].castling.canCastle('black', 'queenside')).toBe(
-        false
-      );
+      expect(gameboards[1].get.canCastle('white', 'kingside')).toBe(false);
+      expect(gameboards[1].get.canCastle('white', 'queenside')).toBe(false);
+      expect(gameboards[1].get.canCastle('black', 'kingside')).toBe(false);
+      expect(gameboards[1].get.canCastle('black', 'queenside')).toBe(false);
     });
 
     test('returns false when rook is missing', () => {
       const gameboard = Gameboard();
 
-      expect(gameboard.castling.canCastle('white', 'kingside')).toBe(false);
-      expect(gameboard.castling.canCastle('white', 'queenside')).toBe(false);
-      expect(gameboard.castling.canCastle('black', 'kingside')).toBe(false);
-      expect(gameboard.castling.canCastle('black', 'queenside')).toBe(false);
+      expect(gameboard.get.canCastle('white', 'kingside')).toBe(false);
+      expect(gameboard.get.canCastle('white', 'queenside')).toBe(false);
+      expect(gameboard.get.canCastle('black', 'kingside')).toBe(false);
+      expect(gameboard.get.canCastle('black', 'queenside')).toBe(false);
     });
 
     test('canCastle is false when theres a piece on the castle squares', () => {
@@ -832,7 +899,7 @@ describe('castle stuff', () => {
       gameboard.at('h1').place(rook);
       gameboard.at('g1').place(piece);
 
-      const castle = gameboard.castling.canCastle('white', 'kingside');
+      const castle = gameboard.get.canCastle('white', 'kingside');
 
       expect(castle).toBe(false);
     });
@@ -846,7 +913,7 @@ describe('castle stuff', () => {
       gameboard.at('h1').place(rook);
       gameboard.at('f3').place(piece);
 
-      const castle = gameboard.castling.canCastle('white', 'kingside');
+      const castle = gameboard.get.canCastle('white', 'kingside');
 
       expect(castle).toBe(false);
     });
@@ -860,7 +927,7 @@ describe('castle stuff', () => {
       gameboard.at('h1').place(rook);
       gameboard.at('f2').place(piece);
 
-      const castle = gameboard.castling.canCastle('white', 'kingside');
+      const castle = gameboard.get.canCastle('white', 'kingside');
 
       expect(castle).toBe(false);
     });
@@ -874,7 +941,7 @@ describe('castle stuff', () => {
       gameboard.at('h1').place(rook);
       gameboard.at('d2').place(piece);
 
-      const castle = gameboard.castling.canCastle('white', 'kingside');
+      const castle = gameboard.get.canCastle('white', 'kingside');
 
       expect(castle).toBe(true);
     });
@@ -890,7 +957,7 @@ describe('castle stuff', () => {
       gameboard.at('e8').place(king);
       gameboard.at('h8').place(rook);
 
-      gameboard.castling.castle('black', 'kingside');
+      gameboard.castle('black', 'kingside');
 
       expect(gameboard.get.pieceMap()).toEqual({
         white: {},
@@ -907,7 +974,7 @@ describe('castle stuff', () => {
       gameboard.at('e8').place(king);
       gameboard.at('a8').place(rook);
 
-      gameboard.castling.castle('black', 'queenside');
+      gameboard.castle('black', 'queenside');
 
       expect(gameboard.get.pieceMap()).toEqual({
         white: {},
@@ -924,7 +991,7 @@ describe('castle stuff', () => {
       gameboard.at('e1').place(king);
       gameboard.at('h1').place(rook);
 
-      gameboard.castling.castle('white', 'kingside');
+      gameboard.castle('white', 'kingside');
 
       expect(gameboard.get.pieceMap()).toEqual({
         black: {},
@@ -941,7 +1008,7 @@ describe('castle stuff', () => {
       gameboard.at('e1').place(king);
       gameboard.at('a1').place(rook);
 
-      gameboard.castling.castle('white', 'queenside');
+      gameboard.castle('white', 'queenside');
 
       expect(gameboard.get.pieceMap()).toEqual({
         black: {},

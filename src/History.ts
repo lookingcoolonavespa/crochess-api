@@ -3,10 +3,8 @@
 // should further specify square of piece if, say both rooks, can move to same square
 
 import { AllPieceMap, HistoryObj, PieceObj } from './types/interfaces';
-import { Board, PieceType, Square } from './types/types';
+import { Board, PieceType, Square, HistoryType } from './types/types';
 import { getLegalMoves } from './utils/moves';
-
-type HistoryType = Square[][];
 
 export default function History(
   prevHistory: HistoryType,

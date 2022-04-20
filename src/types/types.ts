@@ -20,3 +20,7 @@ export interface CastleSquaresType {
   kingside: Moves;
   queenside: Moves;
 }
+
+export type HistoryType = Square[][];
+
+export type PieceAbbreviation = 'K' | 'Q' | 'N' | 'B' | 'R';

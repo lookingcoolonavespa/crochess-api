@@ -1,11 +1,6 @@
 import { calcDistance, toXY } from './helpers';
-import {
-  PieceInterface,
-  SquareObj,
-  PieceObj,
-  EnPassantObj
-} from '../types/interfaces';
-import { Moves, Board, Square, Color } from '../types/types';
+import { SquareObj, PieceObj, EnPassantObj } from '../types/interfaces';
+import { Moves, Board, Square, Color, PieceType } from '../types/types';
 import Piece from '../Piece';
 
 const moves = {
@@ -188,6 +183,7 @@ function getAttackingMoves(origin: Square, board: Board) {
       return piece.getPawnCaptures(origin) as Moves;
     }
     case 'king': {
+      // need to do this because getLegalMoves will recursively call removeProtectedSquares otherwise
       const attackingMoves = removeMovesWithPieces(
         getPossibleMoves(origin, board),
         board,
@@ -342,9 +338,10 @@ function removeProtectedSquares(
   board: Board
 ): Moves {
   const king = board.get(kingPos)?.piece as PieceObj;
-  // bc king cant move if square is protected
   const oppColor = king.color === 'white' ? 'black' : 'white';
 
+  // bc king cant move if square is protected
+  // set king piece on each square in possible moves to find which squares are protected
   const boardCopy = new Map(board);
   possibleMoves.forEach((s) => boardCopy.set(s, { piece: king }));
 
@@ -413,6 +410,20 @@ function canBlockOrCaptureCheck(
 
   const ownPieceMoves = getAllMovesForColor(king.color, board, true);
   return ownPieceMoves.some((move) => blockOrCaptureSquares.includes(move));
+}
+
+function getPiecesWithMove(
+  board: Board,
+  move: Square,
+  pieceType: PieceType,
+  color: 'black' | 'white'
+) {
+  const pieceSquares: Moves = [];
+  for (const [square, { piece }] of board.entries()) {
+    if (!piece) continue;
+    if (piece.color !== color) continue;
+    if (piece.type !== pieceType) continue;
+  }
 }
 
 export {
