@@ -114,6 +114,7 @@ export interface GameboardObj {
     canCastle: (color: Color, side: 'kingside' | 'queenside') => boolean;
     castleRightsAfterMove: (square: Square) => CastleObj;
     boardStateFromHistory: (history: HistoryType) => Board;
+    moveNotation: (from: Square, to: Square, boardMap: Board) => string;
   };
   validate: {
     move: (from: Square, to: Square) => boolean;
@@ -147,10 +148,20 @@ export interface CastleObj {
   };
 }
 
-export interface MoveInterface {
+export interface ParsedNotationInterface {
   pieceType: PieceType;
   to: Square;
   from?: string;
   promote?: PieceType;
   castle?: 'kingside' | 'queenside';
+}
+
+export interface MoveDetailsInterface {
+  capture?: boolean;
+  castle?: 'kingside' | 'queenside';
+  promote?: PieceType;
+  check?: boolean;
+  checkmate?: boolean;
+  pieceType?: PieceType;
+  differentiation?: string;
 }

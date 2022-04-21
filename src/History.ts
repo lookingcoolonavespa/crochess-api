@@ -55,8 +55,8 @@ export default function History(
   };
 
   const affix = {
-    capture: (move: Square, prefix: string) => {
-      return `${prefix}x${move}`;
+    capture: (notation: string, prefix: string) => {
+      return `${prefix}x${notation}`;
     },
     promote: (move: Square, pieceType: PieceType) => {
       const suffix =

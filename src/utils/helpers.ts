@@ -1,4 +1,4 @@
-import { Coord, MoveInterface } from '../types/interfaces';
+import { Coord, ParsedNotationInterface } from '../types/interfaces';
 import { PieceAbbreviation, PieceType, Square } from '../types/types';
 
 function toXY(square: Square): Coord {
@@ -48,7 +48,7 @@ function getPieceFromAbbr(abbr: PieceAbbreviation) {
 }
 
 function parseNotation(notation: string) {
-  const move = <MoveInterface>{};
+  const move = <ParsedNotationInterface>{};
 
   const replaced = notation.replace(/[+x#]/, '');
 

@@ -28,6 +28,7 @@ import {
 } from './types/interfaces';
 import Castle from './Castle';
 import { startingPositions } from './main';
+import History from './History';
 
 function createBoard(): Board {
   return files.reduce((acc, file) => {
@@ -92,13 +93,7 @@ const Gameboard = (
 
       case 'king': {
         // check if move is castle
-        let castleSide: '' | 'queenside' | 'kingside' = '';
-        const castleSquares = get.castleSquares(piece.color);
-
-        for (const [side, squares] of Object.entries(castleSquares)) {
-          if (squares[1] === s2) castleSide = side as 'kingside' | 'queenside';
-        }
-
+        const castleSide = get.castleSide(piece.color, s2);
         if (castleSide) castle(piece.color, castleSide);
         else from(s1).to(s2);
 
@@ -290,6 +285,22 @@ const Gameboard = (
       }
       return pieceMap;
     },
+    piecesThatHitSquare: (
+      color: Color,
+      pieceType: PieceType,
+      square: Square,
+      boardMap = board
+    ): Square[] => {
+      const pieceMap = get.pieceMap(boardMap);
+      if (pieceMap[color][pieceType].includes(square)) return [];
+
+      const pieces: Square[] = [];
+      if (pieceMap[color][pieceType].length <= 1) return [];
+      pieceMap[color][pieceType].forEach((s) => {
+        if (at(s, boardMap).getLegalMoves().includes(square)) pieces.push(s);
+      });
+      return pieces;
+    },
     squaresGivingCheckAfterMove: (from: Square, end: Square): Square[] => {
       const squaresGivingCheck: string[] = [];
 
@@ -331,6 +342,15 @@ const Gameboard = (
         kingside: [`f${rank}`, `g${rank}`],
         queenside: [`d${rank}`, `c${rank}`]
       };
+    },
+    castleSide(color: Color, to: Square): '' | 'queenside' | 'kingside' {
+      let castleSide: '' | 'queenside' | 'kingside' = '';
+      const castleSquares = get.castleSquares(color);
+
+      for (const [side, squares] of Object.entries(castleSquares)) {
+        if (squares[1] === to) castleSide = side as 'kingside' | 'queenside';
+      }
+      return castleSide;
     },
     castleRightsAfterMove: (square: Square, boardMap = board): CastleObj => {
       const piece = at(square, boardMap).piece as PieceObj;
@@ -407,6 +427,7 @@ const Gameboard = (
       // history is 2d array
       const flat = history.flat();
 
+      /* iterate over history */
       for (const [i, m] of flat.entries()) {
         const parsed = parseNotation(m);
         const color = i % 2 === 0 ? 'white' : 'black';
@@ -420,6 +441,7 @@ const Gameboard = (
           getLegalMoves(s, boardMap).includes(parsed.to)
         );
 
+        // get 'from' square
         let s1: Square;
         if (parsed.from) {
           const notation = parsed.from;
@@ -437,6 +459,7 @@ const Gameboard = (
           break;
         }
 
+        // make move
         if (piece.type === 'pawn') {
           if (enPassant.isCapture(s1, parsed.to, boardMap)) {
             enPassant.capture(parsed.to, boardMap);
@@ -457,6 +480,36 @@ const Gameboard = (
       }
 
       return boardMap;
+    },
+    moveNotation(
+      from: Square,
+      to: Square,
+      promote?: PieceType,
+      boardMap = board
+    ) {
+      const { type } = at(from, boardMap).piece as PieceObj;
+      const history = History([], boardMap, get.pieceMap(boardMap));
+      const capture = at(to, boardMap).piece;
+
+      // need to check for check
+
+      let notation: string = to;
+      switch (type) {
+        case 'pawn': {
+          if (promote) notation = history.affix.promote(notation, promote);
+          if (capture) notation = history.affix.capture(notation, from[0]);
+          // need to check for capture
+          break;
+        }
+        case 'king': {
+          // need to check for castle
+        }
+        default: {
+          const prefix = history.get.piecePrefix(from, to);
+          if (capture) notation = history.affix();
+        }
+      }
+      return notation;
     }
   };
 
