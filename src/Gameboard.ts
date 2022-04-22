@@ -48,6 +48,8 @@ const Gameboard = (
   squaresGivingCheck?: Moves,
   CastleRights?: CastleObj
 ): GameboardObj => {
+  board = new Map(board);
+
   function placePieces(pieceMap: AllPieceMap, boardMap = board) {
     let color: keyof typeof pieceMap;
     for (color in pieceMap) {
@@ -325,11 +327,11 @@ const Gameboard = (
       return squaresGivingCheck;
     },
     isCheckmate: (
-      color: Color,
+      colorOfKing: Color,
       squaresGivingCheck: string[],
       boardMap = board
     ): boolean => {
-      const kingPos = get.kingPosition(color, boardMap) as Square;
+      const kingPos = get.kingPosition(colorOfKing, boardMap) as Square;
       const legalMoves = at(kingPos, boardMap).getLegalMoves();
       // check if check can be blocked
       if (squaresGivingCheck.length === 1) {

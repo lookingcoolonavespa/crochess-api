@@ -137,17 +137,7 @@ export interface GameboardObj {
 }
 
 export interface HistoryObj {
-  get: {
-    piecePrefix: (from: Square, to: Square) => string;
-    castleNotation: (side: 'kingside' | 'queenside') => 'O-O' | 'O-O-O';
-  };
-  affix: {
-    capture: (move: Square, prefix: string) => string;
-    promote: (move: Square, pieceType: PieceType) => string;
-    check: (notation: string) => string;
-    checkmate: (notation: string) => string;
-  };
-  insertMove: (notation: string) => void;
+  insertMove: (notation: string) => HistoryType;
 }
 
 export interface CastleObj {

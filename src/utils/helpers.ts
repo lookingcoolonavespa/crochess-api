@@ -1,7 +1,7 @@
 import { Coord, ParsedNotationInterface } from '../types/interfaces';
 import { PieceAbbreviation, PieceType, Square } from '../types/types';
 
-function toXY(square: Square): Coord {
+export function toXY(square: Square): Coord {
   const [x, y] = square.split('');
   return {
     x: ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'].indexOf(x.toLowerCase()),
@@ -9,14 +9,14 @@ function toXY(square: Square): Coord {
   };
 }
 
-function fromXY(coord: Coord): Square {
+export function fromXY(coord: Coord): Square {
   const { x, y } = coord;
   const col = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'][x];
   if (!col) return '';
   return col.concat(y.toString());
 }
 
-const calcDistance = (squareOne: string) => (squareTwo: string) => {
+export const calcDistance = (squareOne: string) => (squareTwo: string) => {
   const { x: x1, y: y1 } = toXY(squareOne);
   const { x: x2, y: y2 } = toXY(squareTwo);
 
@@ -28,7 +28,7 @@ const calcDistance = (squareOne: string) => (squareTwo: string) => {
   };
 };
 
-function getPieceFromAbbr(abbr: PieceAbbreviation) {
+export function getPieceFromAbbr(abbr: PieceAbbreviation) {
   switch (abbr) {
     case 'K':
       return 'king';
@@ -47,7 +47,7 @@ function getPieceFromAbbr(abbr: PieceAbbreviation) {
   }
 }
 
-function parseNotation(notation: string) {
+export function parseNotation(notation: string) {
   const move = <ParsedNotationInterface>{};
 
   const replaced = notation.replace(/[+x#]/, '');
@@ -96,4 +96,6 @@ function parseNotation(notation: string) {
   return move;
 }
 
-export { toXY, fromXY, calcDistance, getPieceFromAbbr, parseNotation };
+export function deepCopy2dArray(arr: string[][]): string[][] {
+  return arr.map((n) => [...n]);
+}
