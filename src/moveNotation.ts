@@ -66,8 +66,9 @@ const moveNotation = (notation: string) => {
     if (capture) affix.capture();
     affix.pieceNotation(pieceType as PieceType, differentiation);
     if (promote) affix.promote(promote);
-    if (check) affix.check();
+
     if (checkmate) affix.checkmate();
+    else if (check) affix.check();
 
     return notation;
   }

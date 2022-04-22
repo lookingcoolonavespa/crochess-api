@@ -63,8 +63,13 @@ function parseNotation(notation: string) {
     move.pieceType = getPieceFromAbbr(replaced[0] as PieceAbbreviation);
     move.to = replaced.slice(-2);
 
-    if (replaced.length === 4) {
-      move.from = replaced[1];
+    switch (replaced.length) {
+      case 4:
+        move.from = replaced[1];
+        break;
+      case 5:
+        move.from = replaced.slice(1, 3);
+        break;
     }
 
     return move;

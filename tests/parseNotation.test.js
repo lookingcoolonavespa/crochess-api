@@ -33,9 +33,11 @@ describe('piece notation', () => {
   test('when multiple pieces can go to same square', () => {
     const fileMove = parseNotation('Nba5');
     const rankMove = parseNotation('N3a5');
+    const fullMove = parseNotation('Na5c4');
 
     expect(fileMove.from).toBe('b');
     expect(rankMove.from).toBe('3');
+    expect(fullMove.from).toBe('a5');
   });
 });
 

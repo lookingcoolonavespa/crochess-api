@@ -22,6 +22,7 @@ import {
   CastleObj,
   EnPassantObj,
   GameboardObj,
+  MoveDetailsInterface,
   PieceMap,
   PieceObj,
   SquareObj
@@ -29,6 +30,8 @@ import {
 import Castle from './Castle';
 import { startingPositions } from './main';
 import History from './History';
+import moveNotation from './moveNotation';
+import Piece from './Piece';
 
 function createBoard(): Board {
   return files.reduce((acc, file) => {
@@ -419,7 +422,9 @@ const Gameboard = (
         return rookExists;
       }
     },
-    boardStateFromHistory: (history: HistoryType): Board => {
+    boardStateFromHistory: (history: HistoryType): Board[] => {
+      const boardStates: Board[] = [];
+
       const boardMap = createBoard();
       placePieces(startingPositions.standard, boardMap);
       let pieceMap = startingPositions.standard;
@@ -434,6 +439,8 @@ const Gameboard = (
 
         if (parsed.castle) {
           castle(color, parsed.castle, boardMap);
+          pieceMap = get.pieceMap(boardMap);
+          boardStates.push(new Map(boardMap));
           continue;
         }
 
@@ -445,13 +452,16 @@ const Gameboard = (
         let s1: Square;
         if (parsed.from) {
           const notation = parsed.from;
-          s1 =
-            possiblePieces.find((s) => {
-              // if notation is a number, that means piece is on the rank === notation, if not, same file
-              return isNaN(Number(notation))
-                ? s[0] === notation
-                : s[1] === notation;
-            }) || '';
+          if (notation.length === 2) s1 = notation;
+          else {
+            s1 =
+              possiblePieces.find((s) => {
+                // if notation is a number, that means piece is on the rank === notation, if not, same file
+                return isNaN(Number(notation))
+                  ? s[0] === notation
+                  : s[1] === notation;
+              }) || '';
+          }
         } else s1 = possiblePieces[0];
 
         const piece = at(s1, boardMap).piece;
@@ -477,39 +487,67 @@ const Gameboard = (
 
         from(s1, boardMap).to(parsed.to);
         pieceMap = get.pieceMap(boardMap);
+        boardStates.push(new Map(boardMap));
       }
 
-      return boardMap;
+      return boardStates;
     },
     moveNotation(
       from: Square,
       to: Square,
       promote?: PieceType,
+      check?: boolean,
+      checkmate?: boolean,
       boardMap = board
-    ) {
-      const { type } = at(from, boardMap).piece as PieceObj;
-      const history = History([], boardMap, get.pieceMap(boardMap));
-      const capture = at(to, boardMap).piece;
+    ): string {
+      const moveDetails: MoveDetailsInterface = {};
 
-      // need to check for check
+      const { type, color } = at(from, boardMap).piece as PieceObj;
+      moveDetails.pieceType = type;
 
-      let notation: string = to;
+      if (checkmate) moveDetails.checkmate = checkmate;
+      else if (check) moveDetails.check = check;
+
+      let capture = false;
       switch (type) {
         case 'pawn': {
-          if (promote) notation = history.affix.promote(notation, promote);
-          if (capture) notation = history.affix.capture(notation, from[0]);
-          // need to check for capture
+          capture = Piece(color, type)
+            .getPawnCaptures(from)
+            ?.includes(to) as boolean;
+          moveDetails.capture = capture;
+          if (capture) moveDetails.differentiation = from[0];
           break;
         }
-        case 'king': {
-          // need to check for castle
-        }
         default: {
-          const prefix = history.get.piecePrefix(from, to);
-          if (capture) notation = history.affix();
+          capture = !!at(to, boardMap).piece;
+          moveDetails.capture = capture;
         }
       }
-      return notation;
+
+      if (promote) moveDetails.promote = promote;
+
+      // get differentiation ie. when multiple pieces hit the same square
+      const piecesThatHitSquare = get.piecesThatHitSquare(
+        color,
+        type,
+        to,
+        boardMap
+      );
+      switch (piecesThatHitSquare.length) {
+        case 3:
+          moveDetails.differentiation = from;
+          break;
+        case 2: {
+          // need to find if on same file or rank
+          const otherPiece = piecesThatHitSquare.find(
+            (s) => s !== from
+          ) as Square;
+          moveDetails.differentiation =
+            otherPiece[0] === from[0] ? from[1] : from[0];
+        }
+      }
+
+      return moveNotation(to).get(moveDetails);
     }
   };
 

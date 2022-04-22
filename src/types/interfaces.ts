@@ -108,13 +108,26 @@ export interface GameboardObj {
       white: PieceMap;
       black: PieceMap;
     };
+    piecesThatHitSquare: (
+      color: Color,
+      pieceType: PieceType,
+      square: Square,
+      boardMap?: Board
+    ) => Square[];
     squaresGivingCheckAfterMove: (from: Square, end: Square) => Square[];
     isCheckmate: (color: Color, squaresGivingCheck: string[]) => boolean;
     castleSquares: (color: Color) => CastleSquaresType;
     canCastle: (color: Color, side: 'kingside' | 'queenside') => boolean;
     castleRightsAfterMove: (square: Square) => CastleObj;
-    boardStateFromHistory: (history: HistoryType) => Board;
-    moveNotation: (from: Square, to: Square, boardMap: Board) => string;
+    boardStateFromHistory: (history: HistoryType) => Board[];
+    moveNotation: (
+      from: Square,
+      to: Square,
+      promote?: PieceType,
+      check?: boolean,
+      checkmate?: boolean,
+      boardMap?: Board
+    ) => string;
   };
   validate: {
     move: (from: Square, to: Square) => boolean;
