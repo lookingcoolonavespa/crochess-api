@@ -172,7 +172,7 @@ function getLegalMovesInCheck(
   return moves.filter((s) => squaresThatDealWithCheck.includes(s));
 }
 
-function getAttackingMoves(origin: Square, board: Board) {
+function getAttackingMoves(origin: Square, board: Board): Moves {
   const square = board.get(origin) as SquareObj;
 
   const { type, color } = square.piece as PieceObj;
@@ -340,14 +340,26 @@ function removeProtectedSquares(
   const king = board.get(kingPos)?.piece as PieceObj;
   const oppColor = king.color === 'white' ? 'black' : 'white';
 
+  const enemyPiecesInVicinity: Square[] = possibleMoves.filter(
+    (s) => board.get(s)?.piece?.color === oppColor
+  );
+  const squaresProtectedByEnemyInVicinity: Square[] = enemyPiecesInVicinity
+    .map((s) => getAttackingMoves(s, board))
+    .flat();
   // bc king cant move if square is protected
   // set king piece on each square in possible moves to find which squares are protected
   const boardCopy = new Map(board);
   possibleMoves.forEach((s) => boardCopy.set(s, { piece: king }));
 
-  const allEnemyMoves = getAttackingMovesForColor(oppColor, boardCopy);
+  const squaresProtectedByRange = getAttackingMovesForColor(
+    oppColor,
+    boardCopy
+  );
   return possibleMoves.filter((s) => {
-    return !allEnemyMoves.includes(s);
+    return (
+      !squaresProtectedByRange.includes(s) &&
+      !squaresProtectedByEnemyInVicinity.includes(s)
+    );
   });
 }
 

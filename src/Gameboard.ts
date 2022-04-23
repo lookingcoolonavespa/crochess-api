@@ -5,7 +5,7 @@ import {
   getAttackingMovesForColor,
   getLegalMovesInCheck
 } from './utils/moves';
-import { toXY, fromXY, getPieceFromAbbr, parseNotation } from './utils/helpers';
+import { toXY, fromXY, parseNotation } from './utils/helpers';
 import { ranks, files } from './ranksAndFiles';
 import {
   Color,
@@ -14,8 +14,7 @@ import {
   PieceType,
   Moves,
   CastleSquaresType,
-  HistoryType,
-  PieceAbbreviation
+  HistoryType
 } from './types/types';
 import {
   AllPieceMap,
@@ -24,12 +23,10 @@ import {
   GameboardObj,
   MoveDetailsInterface,
   PieceMap,
-  PieceObj,
-  SquareObj
+  PieceObj
 } from './types/interfaces';
 import Castle from './Castle';
 import { startingPositions } from './main';
-import History from './History';
 import moveNotation from './moveNotation';
 import Piece from './Piece';
 
@@ -322,7 +319,8 @@ const Gameboard = (
         from,
         board
       );
-      if (discoveredCheck) squaresGivingCheck.push(discoveredCheck);
+      if (discoveredCheck && discoveredCheck !== end)
+        squaresGivingCheck.push(discoveredCheck);
 
       return squaresGivingCheck;
     },

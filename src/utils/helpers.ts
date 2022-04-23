@@ -1,5 +1,5 @@
 import { Coord, ParsedNotationInterface } from '../types/interfaces';
-import { PieceAbbreviation, PieceType, Square } from '../types/types';
+import { PieceAbbreviation, Square } from '../types/types';
 
 export function toXY(square: Square): Coord {
   const [x, y] = square.split('');

@@ -1,7 +1,3 @@
-// should output history object that holds move history in 2d array
-// for each move needs to attach piece Type to beginning of move if not pawn
-// should further specify square of piece if, say both rooks, can move to same square
-
 import { HistoryObj } from './types/interfaces';
 import { HistoryType } from './types/types';
 import { deepCopy2dArray } from './utils/helpers';

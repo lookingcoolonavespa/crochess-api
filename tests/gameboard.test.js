@@ -492,10 +492,24 @@ describe('legal moves for king', () => {
     expect(legalMoves).toEqual(expect.arrayContaining(expected));
     expect(legalMoves).toEqual(expect.not.arrayContaining(['e2']));
   });
+
+  test('doesnt include squares protected by a piece all up in the kings grill', () => {
+    const gameboard = Gameboard();
+
+    gameboard.at('e8').place({ color: 'black', type: 'king' });
+    gameboard.at('f7').place({ color: 'white', type: 'queen' });
+    gameboard.at('c4').place({ color: 'white', type: 'bishop' });
+    gameboard.at('d7').place({ color: 'black', type: 'pawn' });
+    gameboard.at('d8').place({ color: 'black', type: 'queen' });
+
+    const legalMoves = gameboard.at('e8').getLegalMoves();
+
+    expect(legalMoves).toEqual([]);
+  });
 });
 
 describe('testing gameboard.get functions', () => {
-  describe('inCheck works', () => {
+  describe('squaresGivingCheck works', () => {
     test('when piece hits king after it moves', () => {
       const gameboard = Gameboard();
       const king = { type: 'king', color: 'white' };
@@ -676,6 +690,25 @@ describe('testing gameboard.get functions', () => {
       );
 
       expect(piecesGivingCheck).toEqual([]);
+    });
+    test('no duplicate checks', () => {
+      const gameboard = Gameboard();
+      const king = { type: 'king', color: 'white' };
+      const oppQueen = { type: 'queen', color: 'black' };
+      const oppQueenStartSquare = 'h4';
+      const oppQueenEndSquare = 'f2';
+
+      gameboard.at('e1').place(king);
+      gameboard.at(oppQueenStartSquare).place(oppQueen);
+
+      gameboard.from(oppQueenStartSquare).to(oppQueenEndSquare);
+
+      const piecesGivingCheck = gameboard.get.squaresGivingCheckAfterMove(
+        oppQueenStartSquare,
+        oppQueenEndSquare
+      );
+
+      expect(piecesGivingCheck).toEqual(['f2']);
     });
   });
 
