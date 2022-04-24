@@ -114,7 +114,6 @@ function getPossibleMoves(origin: Square, board: Board) {
 
 function getLegalMoves(origin: Square, board: Board) {
   // get moves regardless of whether or not there is check
-
   const square = board.get(origin) as SquareObj;
 
   const piece = square.piece as PieceObj;
@@ -123,9 +122,15 @@ function getLegalMoves(origin: Square, board: Board) {
 
   const obstructions = possibleMoves.filter((s) => board.get(s)?.piece);
   if (!obstructions.length) {
-    if (piece.type === 'pawn')
-      return [...getPawnCaptures(origin, board), ...possibleMoves];
-    return possibleMoves;
+    switch (piece.type) {
+      case 'pawn':
+        return [...getPawnCaptures(origin, board), ...possibleMoves];
+
+      case 'king':
+        return removeProtectedSquares(origin, possibleMoves, board);
+      default:
+        return possibleMoves;
+    }
   }
 
   let legalMoves: Moves = [];
@@ -166,7 +171,6 @@ function getLegalMovesInCheck(
     squareGivingCheck,
     Array.from(board.keys())
   );
-
   const moves = getLegalMoves(origin, board);
 
   return moves.filter((s) => squaresThatDealWithCheck.includes(s));

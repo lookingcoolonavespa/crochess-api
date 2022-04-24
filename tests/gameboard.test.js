@@ -493,7 +493,7 @@ describe('legal moves for king', () => {
     expect(legalMoves).toEqual(expect.not.arrayContaining(['e2']));
   });
 
-  test('doesnt include squares protected by a piece all up in the kings grill', () => {
+  test('doesnt include squares protected by a piece in kings immediate vicinity', () => {
     const gameboard = Gameboard();
 
     gameboard.at('e8').place({ color: 'black', type: 'king' });
@@ -505,6 +505,53 @@ describe('legal moves for king', () => {
     const legalMoves = gameboard.at('e8').getLegalMoves();
 
     expect(legalMoves).toEqual([]);
+  });
+});
+
+describe('legal moves in check works', () => {
+  test('when you cant block or capture check', () => {
+    const gameboard = Gameboard(undefined, ['f2']);
+
+    gameboard.at('e1').place({ color: 'white', type: 'king' });
+    gameboard.at('g1').place({ color: 'white', type: 'knight' });
+
+    gameboard.at('f2').place({ color: 'black', type: 'queen' });
+    gameboard.at('h3').place({ color: 'black', type: 'knight' });
+
+    const kingMoves = gameboard.at('e1').getLegalMoves();
+    const knightMoves = gameboard.at('g1').getLegalMoves();
+
+    expect(kingMoves).toEqual(['d1']);
+    expect(knightMoves).toEqual([]);
+  });
+  test('when you can block check', () => {
+    const gameboard = Gameboard(undefined, ['g3']);
+
+    gameboard.at('e1').place({ color: 'white', type: 'king' });
+    gameboard.at('d2').place({ color: 'white', type: 'rook' });
+
+    gameboard.at('g3').place({ color: 'black', type: 'queen' });
+
+    const kingMoves = gameboard.at('e1').getLegalMoves();
+    const rookMoves = gameboard.at('d2').getLegalMoves();
+    expect(kingMoves).toEqual(expect.arrayContaining(['d1', 'e2', 'f1']));
+    expect(kingMoves.length).toBe(3);
+    expect(rookMoves).toEqual(['f2']);
+  });
+  test('when you can capture check', () => {
+    const gameboard = Gameboard(undefined, ['g3']);
+
+    gameboard.at('e1').place({ color: 'white', type: 'king' });
+    gameboard.at('d3').place({ color: 'white', type: 'rook' });
+
+    gameboard.at('g3').place({ color: 'black', type: 'queen' });
+
+    const kingMoves = gameboard.at('e1').getLegalMoves();
+    const rookMoves = gameboard.at('d3').getLegalMoves();
+
+    expect(kingMoves).toEqual(expect.arrayContaining(['d1', 'e2', 'f1', 'd2']));
+    expect(kingMoves.length).toBe(4);
+    expect(rookMoves).toEqual(['g3']);
   });
 });
 
@@ -1588,6 +1635,24 @@ describe('validate works', () => {
       const valid = gameboard.validate.move('e2', 'e5');
 
       expect(valid).toBe(false);
+    });
+    test('works with checks', () => {
+      const gameboard = Gameboard(undefined, ['g3']);
+
+      gameboard.at('e1').place({ color: 'white', type: 'king' });
+      gameboard.at('d2').place({ color: 'white', type: 'rook' });
+
+      gameboard.at('g3').place({ color: 'black', type: 'queen' });
+
+      const kingIllegalMove = gameboard.validate.move('e1', 'f2');
+      const kingLegalMove = gameboard.validate.move('e1', 'f1');
+      const rookIllegalMove = gameboard.validate.move('d2', 'g2');
+      const rookLegalMove = gameboard.validate.move('d2', 'f2');
+
+      expect(kingIllegalMove).toBe(false);
+      expect(kingLegalMove).toBe(true);
+      expect(rookIllegalMove).toBe(false);
+      expect(rookLegalMove).toBe(true);
     });
   });
 

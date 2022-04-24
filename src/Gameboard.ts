@@ -224,12 +224,14 @@ const Gameboard = (
           return getLegalMoves(square, boardMap);
         }
         case 1: {
-          return getLegalMovesInCheck(
-            origin,
-            boardMap,
-            get.kingPosition(color) as Square,
-            checks[0]
-          );
+          if (type === 'king') return getLegalMoves(square, boardMap);
+          else
+            return getLegalMovesInCheck(
+              square,
+              boardMap,
+              get.kingPosition(color) as Square,
+              checks[0]
+            );
         }
         default: {
           if (type === 'king') {
