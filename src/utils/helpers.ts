@@ -1,4 +1,8 @@
-import { Coord, ParsedNotationInterface } from '../types/interfaces';
+import {
+  AllPieceMap,
+  Coord,
+  ParsedNotationInterface
+} from '../types/interfaces';
 import { PieceAbbreviation, Square } from '../types/types';
 
 export function toXY(square: Square): Coord {
@@ -98,4 +102,25 @@ export function parseNotation(notation: string) {
 
 export function deepCopy2dArray(arr: string[][]): string[][] {
   return arr.map((n) => [...n]);
+}
+
+export function comparePieceMaps(pm1: AllPieceMap, pm2: AllPieceMap) {
+  let color: keyof typeof pm1;
+  for (color in pm1) {
+    const map = pm1[color];
+
+    let pieceType: keyof typeof map;
+    for (pieceType in map) {
+      const squares = map[pieceType];
+      const squares2 = pm2[color][pieceType];
+
+      if (squares.length !== squares2.length) continue;
+
+      for (let j = 0; j < squares.length; j++) {
+        if (squares[j] !== squares2[j]) return false;
+      }
+    }
+  }
+
+  return true;
 }

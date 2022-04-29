@@ -180,6 +180,16 @@ const Gameboard = (
     };
   })();
 
+  const isDraw = {
+    byThreefoldRepetition: (allPieceMaps: AllPieceMap[]) => {
+      return allPieceMaps.reduce((acc, curr, idx) => {
+        for (let i = idx; i < allPieceMaps.length; i++) {
+          const versus = allPieceMaps[i];
+        }
+      }, false);
+    }
+  };
+
   const at = (square: Square, boardMap = board) => ({
     place: (piece: PieceObj): void => {
       if (!boardMap.get(square)) return;
@@ -277,15 +287,30 @@ const Gameboard = (
       }
     },
     pieceMap: (boardMap = board): AllPieceMap => {
-      const pieceMap = { white: {} as PieceMap, black: {} as PieceMap };
+      const pieceMap = {
+        white: {
+          rook: [],
+          knight: [],
+          bishop: [],
+          king: [],
+          queen: [],
+          pawn: []
+        } as PieceMap,
+        black: {
+          rook: [],
+          knight: [],
+          bishop: [],
+          king: [],
+          queen: [],
+          pawn: []
+        } as PieceMap
+      };
       for (const [square, value] of boardMap.entries()) {
         const { piece } = value;
         if (!piece) continue;
 
         const { type, color } = piece;
-        pieceMap[color][type] = pieceMap[color][type]
-          ? [...pieceMap[color][type], square]
-          : [square];
+        pieceMap[color][type].push(square);
       }
       return pieceMap;
     },
