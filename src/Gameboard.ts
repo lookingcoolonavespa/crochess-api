@@ -5,7 +5,7 @@ import {
   getAttackingMovesForColor,
   getLegalMovesInCheck
 } from './utils/moves';
-import { toXY, fromXY, parseNotation } from './utils/helpers';
+import { toXY, fromXY, parseNotation, comparePieceMaps } from './utils/helpers';
 import { ranks, files } from './ranksAndFiles';
 import {
   Color,
@@ -181,12 +181,15 @@ const Gameboard = (
   })();
 
   const isDraw = {
-    byThreefoldRepetition: (allPieceMaps: AllPieceMap[]) => {
-      return allPieceMaps.reduce((acc, curr, idx) => {
-        for (let i = idx; i < allPieceMaps.length; i++) {
-          const versus = allPieceMaps[i];
-        }
-      }, false);
+    byThreefoldRepetition: (
+      allPieceMaps: AllPieceMap[],
+      newPieceMap: AllPieceMap
+    ) => {
+      return (
+        allPieceMaps.filter((pm) => {
+          return comparePieceMaps(pm, newPieceMap);
+        }).length >= 3
+      );
     }
   };
 
@@ -288,29 +291,16 @@ const Gameboard = (
     },
     pieceMap: (boardMap = board): AllPieceMap => {
       const pieceMap = {
-        white: {
-          rook: [],
-          knight: [],
-          bishop: [],
-          king: [],
-          queen: [],
-          pawn: []
-        } as PieceMap,
-        black: {
-          rook: [],
-          knight: [],
-          bishop: [],
-          king: [],
-          queen: [],
-          pawn: []
-        } as PieceMap
+        white: {} as PieceMap,
+        black: {} as PieceMap
       };
       for (const [square, value] of boardMap.entries()) {
         const { piece } = value;
         if (!piece) continue;
 
         const { type, color } = piece;
-        pieceMap[color][type].push(square);
+        if (pieceMap[color][type]) pieceMap[color][type].push(square);
+        else pieceMap[color][type] = [square];
       }
       return pieceMap;
     },
@@ -449,8 +439,8 @@ const Gameboard = (
         return rookExists;
       }
     },
-    boardStateFromHistory: (history: HistoryType): Board[] => {
-      const boardStates: Board[] = [];
+    pieceMapsFromHistory: (history: HistoryType): AllPieceMap[] => {
+      const pieceMaps: AllPieceMap[] = [];
 
       const boardMap = createBoard();
       placePieces(startingPositions.standard, boardMap);
@@ -467,7 +457,7 @@ const Gameboard = (
         if (parsed.castle) {
           castle(color, parsed.castle, boardMap);
           pieceMap = get.pieceMap(boardMap);
-          boardStates.push(new Map(boardMap));
+          pieceMaps.push(pieceMap);
           continue;
         }
 
@@ -514,10 +504,10 @@ const Gameboard = (
 
         from(s1, boardMap).to(parsed.to);
         pieceMap = get.pieceMap(boardMap);
-        boardStates.push(new Map(boardMap));
+        pieceMaps.push(pieceMap);
       }
 
-      return boardStates;
+      return pieceMaps;
     },
     moveNotation(
       from: Square,
@@ -604,6 +594,7 @@ const Gameboard = (
     createBoard,
     placePieces,
     castle,
+    isDraw,
     enPassant,
     at,
     from,

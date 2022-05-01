@@ -86,6 +86,12 @@ export interface GameboardObj {
   placePieces: (pieceMap: AllPieceMap, boardMap?: Board) => void;
   makeMove: (s1: Square, s2: Square, promote?: PieceType) => Board | undefined;
   castle: (color: Color, side: 'kingside' | 'queenside') => void;
+  isDraw: {
+    byThreefoldRepetition: (
+      allPieceMaps: AllPieceMap[],
+      newPieceMap: AllPieceMap
+    ) => boolean;
+  };
   enPassant: {
     checkToggle: (from: Square, to: Square) => boolean;
     toggle: (color: Color, current: Square) => void;
@@ -119,7 +125,7 @@ export interface GameboardObj {
     castleSquares: (color: Color) => CastleSquaresType;
     canCastle: (color: Color, side: 'kingside' | 'queenside') => boolean;
     castleRightsAfterMove: (square: Square) => CastleObj;
-    boardStateFromHistory: (history: HistoryType) => Board[];
+    pieceMapsFromHistory: (history: HistoryType) => AllPieceMap[];
     moveNotation: (
       from: Square,
       to: Square,

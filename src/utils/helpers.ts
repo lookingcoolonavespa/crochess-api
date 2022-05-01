@@ -114,10 +114,13 @@ export function comparePieceMaps(pm1: AllPieceMap, pm2: AllPieceMap) {
       const squares = map[pieceType];
       const squares2 = pm2[color][pieceType];
 
-      if (squares.length !== squares2.length) continue;
+      if (squares.length !== squares2.length) return false;
 
       for (let j = 0; j < squares.length; j++) {
-        if (squares[j] !== squares2[j]) return false;
+        if (color === 'black' && pieceType === 'pawn')
+          if (squares[j] !== squares2[j]) {
+            return false;
+          }
       }
     }
   }
