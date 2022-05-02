@@ -94,7 +94,7 @@ export interface GameboardObj {
   };
   enPassant: {
     checkToggle: (from: Square, to: Square) => boolean;
-    toggle: (color: Color, current: Square) => void;
+    toggle: (color: Color, current: Square) => Square;
     remove: () => void;
   };
   at: (square: Square) => {
@@ -125,7 +125,7 @@ export interface GameboardObj {
     castleSquares: (color: Color) => CastleSquaresType;
     canCastle: (color: Color, side: 'kingside' | 'queenside') => boolean;
     castleRightsAfterMove: (square: Square) => CastleObj;
-    pieceMapsFromHistory: (history: HistoryType) => AllPieceMap[];
+    boardStatesFromHistory: (history: HistoryType) => BoardStateInterface[];
     moveNotation: (
       from: Square,
       to: Square,
@@ -173,4 +173,10 @@ export interface MoveDetailsInterface {
   checkmate?: boolean;
   pieceType?: PieceType;
   differentiation?: string;
+}
+
+export interface BoardStateInterface {
+  pieceMap: AllPieceMap;
+  castleRights: CastleObj;
+  enPassant?: EnPassantObj;
 }

@@ -26,6 +26,7 @@ import {
 } from './types/types';
 import {
   AllPieceMap,
+  BoardStateInterface,
   CastleObj,
   EnPassantObj,
   GameboardObj,
@@ -163,9 +164,10 @@ const Gameboard = (
 
         return Math.abs(y1 - y2) === 2;
       },
-      toggle: (color: Color, current: Square, boardMap = board): void => {
+      toggle: (color: Color, current: Square, boardMap = board): Square => {
         const enPassantSquare = getSquare(current, color);
         at(enPassantSquare, boardMap).setEnPassant(color, current);
+        return enPassantSquare;
       },
       remove: (boardMap = board): void => {
         for (const squareObj of boardMap.values()) {
@@ -440,10 +442,17 @@ const Gameboard = (
       }
       return castleSide;
     },
-    castleRightsAfterMove: (square: Square, boardMap = board): CastleObj => {
+    castleRightsAfterMove: (
+      square: Square,
+      boardMap = board,
+      castleRights = CastleRights || Castle(true, true, true, true)
+    ): CastleObj => {
       const piece = at(square, boardMap).piece as PieceObj;
 
-      const castleRights = CastleRights || Castle(true, true, true, true);
+      castleRights = {
+        white: { ...castleRights.white },
+        black: { ...castleRights.black }
+      };
 
       if (
         castleRights[piece.color].kingside ||
@@ -507,8 +516,9 @@ const Gameboard = (
         return rookExists;
       }
     },
-    pieceMapsFromHistory: (history: HistoryType): AllPieceMap[] => {
-      const pieceMaps: AllPieceMap[] = [];
+    boardStatesFromHistory: (history: HistoryType): BoardStateInterface[] => {
+      const boardStates: BoardStateInterface[] = [];
+      let castleRights = Castle(true, true, true, true);
 
       const boardMap = createBoard();
       placePieces(startingPositions.standard, boardMap);
@@ -524,8 +534,17 @@ const Gameboard = (
 
         if (parsed.castle) {
           castle(color, parsed.castle, boardMap);
+
+          let colorRights: keyof typeof castleRights;
+          for (colorRights in castleRights) {
+            if (colorRights !== color) continue;
+
+            castleRights[colorRights].kingside = false;
+            castleRights[colorRights].queenside = false;
+          }
+
           pieceMap = get.pieceMap(boardMap);
-          pieceMaps.push(pieceMap);
+          boardStates.push({ pieceMap, castleRights });
           continue;
         }
 
@@ -554,6 +573,7 @@ const Gameboard = (
           break;
         }
 
+        let enPassantSquare = '';
         // make move
         if (piece.type === 'pawn') {
           if (enPassant.isCapture(s1, parsed.to, boardMap)) {
@@ -563,7 +583,7 @@ const Gameboard = (
           enPassant.remove(boardMap);
 
           if (enPassant.checkToggle(s1, parsed.to))
-            enPassant.toggle(color, parsed.to, boardMap);
+            enPassantSquare = enPassant.toggle(color, parsed.to, boardMap);
 
           if (parsed.promote) {
             at(s1, boardMap).promote(parsed.promote);
@@ -571,11 +591,20 @@ const Gameboard = (
         } else enPassant.remove(boardMap);
 
         from(s1, boardMap).to(parsed.to);
+        castleRights = get.castleRightsAfterMove(
+          parsed.to,
+          boardMap,
+          castleRights
+        );
         pieceMap = get.pieceMap(boardMap);
-        pieceMaps.push(pieceMap);
+        boardStates.push({
+          pieceMap,
+          castleRights,
+          enPassant: boardMap.get(enPassantSquare)?.enPassant
+        });
       }
 
-      return pieceMaps;
+      return boardStates;
     },
     moveNotation(
       from: Square,
