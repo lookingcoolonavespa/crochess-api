@@ -856,19 +856,17 @@ describe('testing gameboard.get functions', () => {
     expect(pieceMap).toEqual(expected);
   });
 
-  describe('getBoardStateFromHistory works', () => {
+  describe('getPieceMapsFromHistory works', () => {
     test('with one move', () => {
       const gameboard = Gameboard();
       const history = [['e4', 'e5']];
-      const boardStates = gameboard.get.boardStateFromHistory(history);
-      expect(boardStates.length).toBe(2);
+      const pieceMaps = gameboard.get.pieceMapsFromHistory(history);
+      expect(pieceMaps.length).toBe(2);
 
       const wPawn = { color: 'white', type: 'pawn' };
       const bPawn = { color: 'black', type: 'pawn' };
 
-      const pieceMap = gameboard.get.pieceMap(
-        boardStates[boardStates.length - 1]
-      );
+      const pieceMap = pieceMaps[pieceMaps.length - 1];
 
       expect(pieceMap.black.pawn).toEqual(
         expect.arrayContaining(['a7', 'b7', 'c7', 'd7', 'e5', 'f7', 'g7', 'h7'])
@@ -889,12 +887,10 @@ describe('testing gameboard.get functions', () => {
         ['Be2', 'Be7'],
         ['0-0', '0-0']
       ];
-      const boardStates = gameboard.get.boardStateFromHistory(history);
-      expect(boardStates.length).toBe(8);
+      const pieceMaps = gameboard.get.pieceMapsFromHistory(history);
+      expect(pieceMaps.length).toBe(8);
 
-      const pieceMap = gameboard.get.pieceMap(
-        boardStates[boardStates.length - 1]
-      );
+      const pieceMap = pieceMaps[pieceMaps.length - 1];
 
       expect(pieceMap).toEqual(
         expect.objectContaining({
@@ -954,12 +950,10 @@ describe('testing gameboard.get functions', () => {
         ['Nf3', 'Nf6'],
         ['d4', 'exd4']
       ];
-      const boardStates = gameboard.get.boardStateFromHistory(history);
-      expect(boardStates.length).toBe(6);
+      const pieceMaps = gameboard.get.pieceMapsFromHistory(history);
+      expect(pieceMaps.length).toBe(6);
 
-      const pieceMap = gameboard.get.pieceMap(
-        boardStates[boardStates.length - 1]
-      );
+      const pieceMap = pieceMaps[pieceMaps.length - 1];
 
       expect(pieceMap).toEqual(
         expect.objectContaining({
@@ -1018,12 +1012,10 @@ describe('testing gameboard.get functions', () => {
         ['Nf3', 'c5'],
         ['d4', 'exd4']
       ];
-      const boardStates = gameboard.get.boardStateFromHistory(history);
-      expect(boardStates.length).toBe(6);
+      const pieceMaps = gameboard.get.pieceMapsFromHistory(history);
+      expect(pieceMaps.length).toBe(6);
 
-      const pieceMap = gameboard.get.pieceMap(
-        boardStates[boardStates.length - 1]
-      );
+      const pieceMap = pieceMaps[pieceMaps.length - 1];
 
       expect(pieceMap).toEqual(
         expect.objectContaining({
@@ -1079,12 +1071,10 @@ describe('testing gameboard.get functions', () => {
         ['Nf3', 'c5'],
         ['d4', 'cxd4']
       ];
-      const boardStates2 = gameboard.get.boardStateFromHistory(history2);
-      expect(boardStates.length).toBe(6);
+      const pieceMaps2 = gameboard.get.pieceMapsFromHistory(history2);
+      expect(pieceMaps.length).toBe(6);
 
-      const pieceMap2 = gameboard.get.pieceMap(
-        boardStates2[boardStates2.length - 1]
-      );
+      const pieceMap2 = pieceMaps2[pieceMaps2.length - 1];
 
       expect(pieceMap2).toEqual(
         expect.objectContaining({
@@ -1149,12 +1139,10 @@ describe('testing gameboard.get functions', () => {
           ['Ne4', 'Ne5'],
           ['N2g3', 'N5g6']
         ];
-        const boardStates = gameboard.get.boardStateFromHistory(history);
-        expect(boardStates.length).toBe(16);
+        const pieceMaps = gameboard.get.pieceMapsFromHistory(history);
+        expect(pieceMaps.length).toBe(16);
 
-        const pieceMap = gameboard.get.pieceMap(
-          boardStates[boardStates.length - 1]
-        );
+        const pieceMap = pieceMaps[pieceMaps.length - 1];
 
         expect(pieceMap).toEqual(
           expect.objectContaining({
@@ -1213,12 +1201,10 @@ describe('testing gameboard.get functions', () => {
           ['Ne2', 'Nc6'],
           ['Nec3', 'Nce7']
         ];
-        const boardStates2 = gameboard.get.boardStateFromHistory(history2);
-        expect(boardStates2.length).toBe(8);
+        const pieceMaps2 = gameboard.get.pieceMapsFromHistory(history2);
+        expect(pieceMaps2.length).toBe(8);
 
-        const pieceMap2 = gameboard.get.pieceMap(
-          boardStates2[boardStates2.length - 1]
-        );
+        const pieceMap2 = pieceMaps2[pieceMaps2.length - 1];
 
         expect(pieceMap2).toEqual(
           expect.objectContaining({
@@ -1289,12 +1275,10 @@ describe('testing gameboard.get functions', () => {
           ['Nb3d4', 'e5']
         ];
 
-        const boardStates = gameboard.get.boardStateFromHistory(history);
-        expect(boardStates.length).toBe(26);
+        const pieceMaps = gameboard.get.pieceMapsFromHistory(history);
+        expect(pieceMaps.length).toBe(26);
 
-        const pieceMap = gameboard.get.pieceMap(
-          boardStates[boardStates.length - 1]
-        );
+        const pieceMap = pieceMaps[pieceMaps.length - 1];
 
         expect(pieceMap).toEqual(
           expect.objectContaining({
@@ -1348,12 +1332,10 @@ describe('testing gameboard.get functions', () => {
         ['axb8=Q', 'hxg2'],
         ['Qxa8', 'gxh1=N']
       ];
-      const boardStates = gameboard.get.boardStateFromHistory(history);
-      expect(boardStates.length).toBe(12);
+      const pieceMaps = gameboard.get.pieceMapsFromHistory(history);
+      expect(pieceMaps.length).toBe(12);
 
-      const pieceMap = gameboard.get.pieceMap(
-        boardStates[boardStates.length - 1]
-      );
+      const pieceMap = pieceMaps[pieceMaps.length - 1];
 
       expect(pieceMap).toEqual(
         expect.objectContaining({
@@ -1750,5 +1732,96 @@ describe('makeMove works', () => {
     expect(gameboard.at('h1').piece).toBe(null);
     expect(gameboard.at('g1').piece).toEqual(wKing);
     expect(gameboard.at('f1').piece).toEqual(wRook);
+  });
+});
+
+describe('isDraw works', () => {
+  describe('byStalemate', () => {
+    test('by queen', () => {
+      const pieceMap = {
+        white: {
+          king: ['h1']
+        },
+        black: {
+          king: ['b6'],
+          queen: ['g3']
+        }
+      };
+
+      const gameboard = Gameboard();
+      gameboard.placePieces(pieceMap);
+
+      const result = gameboard.isDraw.byStalemate('black');
+
+      expect(result).toBe(true);
+    });
+
+    test('with another piece on the board', () => {
+      const pieceMap = {
+        white: {
+          king: ['h7'],
+          pawn: ['a3']
+        },
+        black: {
+          king: ['f7'],
+          bishop: ['g7'],
+          pawn: ['a4']
+        }
+      };
+
+      const gameboard = Gameboard();
+      gameboard.placePieces(pieceMap);
+
+      const result = gameboard.isDraw.byStalemate('black');
+
+      expect(result).toBe(true);
+    });
+  });
+
+  describe('byInsufficientMaterial', () => {
+    test('works', () => {
+      const pm1 = { white: { king: ['e8'] }, black: { king: ['e2'] } };
+      const pm2 = {
+        white: { king: ['e8'] },
+        black: { king: ['e2'], bishop: ['e3'] }
+      };
+      const pm3 = {
+        white: { king: ['e8'], knight: ['e7'] },
+        black: { king: ['e2'] }
+      };
+      const pm4 = {
+        white: { king: ['e8'], bishop: ['d6'] },
+        black: { king: ['e2'], bishop: ['e3'] }
+      };
+
+      const gameboard = Gameboard();
+
+      expect(gameboard.isDraw.byInsufficientMaterial(pm1)).toBe(true);
+      expect(gameboard.isDraw.byInsufficientMaterial(pm2)).toBe(true);
+      expect(gameboard.isDraw.byInsufficientMaterial(pm3)).toBe(true);
+      expect(gameboard.isDraw.byInsufficientMaterial(pm4)).toBe(true);
+    });
+
+    test('returns false when theres more than one piece', () => {
+      const pm = {
+        white: { king: ['e8'] },
+        black: { king: ['e2'], bishop: ['e3', 'e4'] }
+      };
+
+      const gameboard = Gameboard();
+
+      expect(gameboard.isDraw.byInsufficientMaterial(pm)).toBe(false);
+    });
+
+    test('returns false when bishops are opposite colored', () => {
+      const pm = {
+        white: { king: ['e8'], bishop: ['e6'] },
+        black: { king: ['e2'], bishop: ['e3'] }
+      };
+
+      const gameboard = Gameboard();
+
+      expect(gameboard.isDraw.byInsufficientMaterial(pm)).toBe(false);
+    });
   });
 });

@@ -1,3 +1,4 @@
+import { files, ranks } from 'crochess-api';
 import {
   AllPieceMap,
   Coord,
@@ -8,14 +9,14 @@ import { PieceAbbreviation, Square } from '../types/types';
 export function toXY(square: Square): Coord {
   const [x, y] = square.split('');
   return {
-    x: ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'].indexOf(x.toLowerCase()),
+    x: files.indexOf(x.toLowerCase()),
     y: Number(y)
   };
 }
 
 export function fromXY(coord: Coord): Square {
   const { x, y } = coord;
-  const col = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'][x];
+  const col = files[x];
   if (!col) return '';
   return col.concat(y.toString());
 }
@@ -126,4 +127,16 @@ export function comparePieceMaps(pm1: AllPieceMap, pm2: AllPieceMap) {
   }
 
   return true;
+}
+
+/* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+export function compare1dArrayNoOrder(arr1: any[], arr2: any[]) {
+  return arr1.length === arr2.length && arr1.every((v) => arr2.includes(v));
+}
+
+export function isLightSquare(square: Square) {
+  const { x, y } = toXY(square);
+
+  if ((x % 2 === 0 && y % 2 === 0) || (x % 2 !== 0 && y % 2 !== 0)) return true;
+  else return false;
 }

@@ -353,7 +353,7 @@ function removeProtectedSquares(
   // bc king cant move if square is protected
   // set king piece on each square in possible moves to find which squares are protected
   const boardCopy = new Map(board);
-  possibleMoves.forEach((s) => boardCopy.set(s, { piece: king }));
+  enemyPiecesInVicinity.forEach((s) => boardCopy.set(s, { piece: king }));
 
   const squaresProtectedByRange = getAttackingMovesForColor(
     oppColor,
@@ -444,6 +444,7 @@ function getPiecesWithMove(
 
 export {
   getAttackingMovesForColor,
+  getAllMovesForColor,
   getLegalMoves,
   getLegalMovesInCheck,
   getDiscoveredCheck,

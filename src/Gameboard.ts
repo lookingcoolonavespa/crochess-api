@@ -3,9 +3,17 @@ import {
   getDiscoveredCheck,
   canBlockOrCaptureCheck,
   getAttackingMovesForColor,
+  getAllMovesForColor,
   getLegalMovesInCheck
 } from './utils/moves';
-import { toXY, fromXY, parseNotation, comparePieceMaps } from './utils/helpers';
+import {
+  toXY,
+  fromXY,
+  parseNotation,
+  comparePieceMaps,
+  compare1dArrayNoOrder,
+  isLightSquare
+} from './utils/helpers';
 import { ranks, files } from './ranksAndFiles';
 import {
   Color,
@@ -42,7 +50,7 @@ function createBoard(): Board {
 
 const Gameboard = (
   board = createBoard(),
-  squaresGivingCheck?: Moves,
+  squaresGivingCheck = [] as Moves,
   CastleRights?: CastleObj
 ): GameboardObj => {
   board = new Map(board);
@@ -190,6 +198,66 @@ const Gameboard = (
           return comparePieceMaps(pm, newPieceMap);
         }).length >= 3
       );
+    },
+    byStalemate: (turn: Color, boardMap = board) => {
+      const oppColor = turn === 'white' ? 'black' : 'white';
+
+      if (
+        !squaresGivingCheck.length &&
+        !getAllMovesForColor(oppColor, boardMap).length
+      )
+        return true;
+      else return false;
+    },
+    byInsufficientMaterial: (pieceMap = get.pieceMap()) => {
+      const piecesLeft = {
+        white: Object.keys(pieceMap.white) as PieceType[],
+        black: Object.keys(pieceMap.black) as PieceType[]
+      };
+
+      const insufficientMaterial = new Map();
+      insufficientMaterial.set(['king'].toString(), [
+        ['king'],
+        ['king', 'bishop'],
+        ['king', 'knight']
+      ]);
+      insufficientMaterial.set(['king', 'bishop'].toString(), [
+        ['king', 'bishop']
+      ]);
+
+      let color: keyof typeof pieceMap;
+      // if there's more than one of each piece, there's no draw
+      for (color in piecesLeft) {
+        for (const pieceType of piecesLeft[color]) {
+          if (pieceMap[color][pieceType].length !== 1) return false;
+        }
+      }
+
+      for (color in pieceMap) {
+        const oppColor = color === 'white' ? 'black' : 'white';
+
+        const drawPossibilities: PieceType[][] | undefined =
+          insufficientMaterial.get(piecesLeft[color].toString());
+        if (!drawPossibilities) continue;
+
+        // piecesLeft of oppColor has to match one of the draw possibilities
+        const drawImminent = drawPossibilities.some((a) => {
+          if (!compare1dArrayNoOrder(a, piecesLeft[oppColor])) return false;
+
+          if (piecesLeft[color].includes('bishop')) {
+            return (
+              isLightSquare(pieceMap[color].bishop[0]) ===
+              isLightSquare(pieceMap[oppColor].bishop[0])
+            );
+          }
+
+          return true;
+        });
+
+        if (drawImminent) return true;
+      }
+
+      return false;
     }
   };
 
