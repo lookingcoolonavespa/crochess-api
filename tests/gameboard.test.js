@@ -856,17 +856,14 @@ describe('testing gameboard.get functions', () => {
     expect(pieceMap).toEqual(expected);
   });
 
-  describe('getPieceMapsFromHistory works', () => {
+  describe('getboardStatesFromHistory works', () => {
     test('with one move', () => {
       const gameboard = Gameboard();
       const history = [['e4', 'e5']];
-      const pieceMaps = gameboard.get.pieceMapsFromHistory(history);
-      expect(pieceMaps.length).toBe(2);
+      const boardStates = gameboard.get.boardStatesFromHistory(history);
+      expect(boardStates.length).toBe(2);
 
-      const wPawn = { color: 'white', type: 'pawn' };
-      const bPawn = { color: 'black', type: 'pawn' };
-
-      const pieceMap = pieceMaps[pieceMaps.length - 1];
+      const pieceMap = boardStates[boardStates.length - 1].pieceMap;
 
       expect(pieceMap.black.pawn).toEqual(
         expect.arrayContaining(['a7', 'b7', 'c7', 'd7', 'e5', 'f7', 'g7', 'h7'])
@@ -887,10 +884,11 @@ describe('testing gameboard.get functions', () => {
         ['Be2', 'Be7'],
         ['0-0', '0-0']
       ];
-      const pieceMaps = gameboard.get.pieceMapsFromHistory(history);
-      expect(pieceMaps.length).toBe(8);
+      const boardStates = gameboard.get.boardStatesFromHistory(history);
+      expect(boardStates.length).toBe(8);
 
-      const pieceMap = pieceMaps[pieceMaps.length - 1];
+      const pieceMap = boardStates[boardStates.length - 1].pieceMap;
+      const castleRights = boardStates[boardStates.length - 1].castleRights;
 
       expect(pieceMap).toEqual(
         expect.objectContaining({
@@ -941,6 +939,17 @@ describe('testing gameboard.get functions', () => {
       expect(pieceMap.white.king.length).toBe(1);
       expect(pieceMap.white.bishop.length).toBe(2);
       expect(pieceMap.white.pawn.length).toBe(8);
+
+      expect(castleRights).toEqual({
+        white: {
+          kingside: false,
+          queenside: false
+        },
+        black: {
+          kingside: false,
+          queenside: false
+        }
+      });
     });
 
     test('with captures', () => {
@@ -950,10 +959,10 @@ describe('testing gameboard.get functions', () => {
         ['Nf3', 'Nf6'],
         ['d4', 'exd4']
       ];
-      const pieceMaps = gameboard.get.pieceMapsFromHistory(history);
-      expect(pieceMaps.length).toBe(6);
+      const boardStates = gameboard.get.boardStatesFromHistory(history);
+      expect(boardStates.length).toBe(6);
 
-      const pieceMap = pieceMaps[pieceMaps.length - 1];
+      const pieceMap = boardStates[boardStates.length - 1].pieceMap;
 
       expect(pieceMap).toEqual(
         expect.objectContaining({
@@ -1012,10 +1021,10 @@ describe('testing gameboard.get functions', () => {
         ['Nf3', 'c5'],
         ['d4', 'exd4']
       ];
-      const pieceMaps = gameboard.get.pieceMapsFromHistory(history);
-      expect(pieceMaps.length).toBe(6);
+      const boardStates = gameboard.get.boardStatesFromHistory(history);
+      expect(boardStates.length).toBe(6);
 
-      const pieceMap = pieceMaps[pieceMaps.length - 1];
+      const pieceMap = boardStates[boardStates.length - 1].pieceMap;
 
       expect(pieceMap).toEqual(
         expect.objectContaining({
@@ -1071,10 +1080,10 @@ describe('testing gameboard.get functions', () => {
         ['Nf3', 'c5'],
         ['d4', 'cxd4']
       ];
-      const pieceMaps2 = gameboard.get.pieceMapsFromHistory(history2);
-      expect(pieceMaps.length).toBe(6);
+      const boardStates2 = gameboard.get.boardStatesFromHistory(history2);
+      expect(boardStates.length).toBe(6);
 
-      const pieceMap2 = pieceMaps2[pieceMaps2.length - 1];
+      const pieceMap2 = boardStates2[boardStates2.length - 1].pieceMap;
 
       expect(pieceMap2).toEqual(
         expect.objectContaining({
@@ -1139,10 +1148,10 @@ describe('testing gameboard.get functions', () => {
           ['Ne4', 'Ne5'],
           ['N2g3', 'N5g6']
         ];
-        const pieceMaps = gameboard.get.pieceMapsFromHistory(history);
-        expect(pieceMaps.length).toBe(16);
+        const boardStates = gameboard.get.boardStatesFromHistory(history);
+        expect(boardStates.length).toBe(16);
 
-        const pieceMap = pieceMaps[pieceMaps.length - 1];
+        const pieceMap = boardStates[boardStates.length - 1].pieceMap;
 
         expect(pieceMap).toEqual(
           expect.objectContaining({
@@ -1201,10 +1210,10 @@ describe('testing gameboard.get functions', () => {
           ['Ne2', 'Nc6'],
           ['Nec3', 'Nce7']
         ];
-        const pieceMaps2 = gameboard.get.pieceMapsFromHistory(history2);
-        expect(pieceMaps2.length).toBe(8);
+        const boardStates2 = gameboard.get.boardStatesFromHistory(history2);
+        expect(boardStates2.length).toBe(8);
 
-        const pieceMap2 = pieceMaps2[pieceMaps2.length - 1];
+        const pieceMap2 = boardStates2[boardStates2.length - 1].pieceMap;
 
         expect(pieceMap2).toEqual(
           expect.objectContaining({
@@ -1275,10 +1284,10 @@ describe('testing gameboard.get functions', () => {
           ['Nb3d4', 'e5']
         ];
 
-        const pieceMaps = gameboard.get.pieceMapsFromHistory(history);
-        expect(pieceMaps.length).toBe(26);
+        const boardStates = gameboard.get.boardStatesFromHistory(history);
+        expect(boardStates.length).toBe(26);
 
-        const pieceMap = pieceMaps[pieceMaps.length - 1];
+        const pieceMap = boardStates[boardStates.length - 1].pieceMap;
 
         expect(pieceMap).toEqual(
           expect.objectContaining({
@@ -1332,10 +1341,10 @@ describe('testing gameboard.get functions', () => {
         ['axb8=Q', 'hxg2'],
         ['Qxa8', 'gxh1=N']
       ];
-      const pieceMaps = gameboard.get.pieceMapsFromHistory(history);
-      expect(pieceMaps.length).toBe(12);
+      const boardStates = gameboard.get.boardStatesFromHistory(history);
+      expect(boardStates.length).toBe(12);
 
-      const pieceMap = pieceMaps[pieceMaps.length - 1];
+      const pieceMap = boardStates[boardStates.length - 1].pieceMap;
 
       expect(pieceMap).toEqual(
         expect.objectContaining({
@@ -1368,6 +1377,111 @@ describe('testing gameboard.get functions', () => {
       expect(pieceMap.white.king.length).toBe(1);
       expect(pieceMap.white.bishop.length).toBe(2);
       expect(pieceMap.white.pawn.length).toBe(6);
+    });
+
+    test('correctly inserts enPassant object', () => {
+      const gameboard = Gameboard();
+      const history = [
+        ['a4', 'h5'],
+        ['a5', 'b5']
+      ];
+
+      const boardStates = gameboard.get.boardStatesFromHistory(history);
+      expect(boardStates.length).toBe(4);
+
+      const enPassant = boardStates[boardStates.length - 1].enPassant;
+
+      expect(enPassant).toEqual({
+        color: 'black',
+        current: 'b5'
+      });
+    });
+
+    test('enPassant is undefined when there isnt any', () => {
+      const gameboard = Gameboard();
+      const history = [['a4', 'h5'], ['a5', 'b5'], ['axb6']];
+
+      const boardStates = gameboard.get.boardStatesFromHistory(history);
+      expect(boardStates.length).toBe(5);
+
+      const enPassant = boardStates[boardStates.length - 1].enPassant;
+
+      expect(enPassant).toBe(undefined);
+    });
+
+    test('has correct castleRights when kings move', () => {
+      const gameboard = Gameboard();
+
+      const history = [
+        ['e4', 'e5'],
+        ['Ke2', 'Ke7']
+      ];
+
+      const boardStates = gameboard.get.boardStatesFromHistory(history);
+      expect(boardStates.length).toBe(4);
+
+      const castleRights = boardStates[boardStates.length - 1].castleRights;
+
+      expect(castleRights).toEqual({
+        white: {
+          kingside: false,
+          queenside: false
+        },
+        black: {
+          kingside: false,
+          queenside: false
+        }
+      });
+    });
+
+    test('castleRights persists', () => {
+      const gameboard = Gameboard();
+
+      const history = [
+        ['e4', 'e5'],
+        ['Ke2', 'Ke7'],
+        ['d4', 'd5']
+      ];
+
+      const boardStates = gameboard.get.boardStatesFromHistory(history);
+      expect(boardStates.length).toBe(6);
+
+      const castleRights = boardStates[boardStates.length - 1].castleRights;
+
+      expect(castleRights).toEqual({
+        white: {
+          kingside: false,
+          queenside: false
+        },
+        black: {
+          kingside: false,
+          queenside: false
+        }
+      });
+    });
+
+    test('has correct castleRights when rooks move', () => {
+      const gameboard = Gameboard();
+      const history = [
+        ['a4', 'h5'],
+        ['Ra2', 'Rh6']
+      ];
+
+      const boardStates = gameboard.get.boardStatesFromHistory(history);
+      expect(boardStates.length).toBe(4);
+
+      const castleRights = boardStates[boardStates.length - 1].castleRights;
+
+      expect(castleRights).toEqual({
+        white: {
+          kingside: true,
+          queenside: false
+        },
+        black: {
+          kingside: false,
+          queenside: true
+        }
+      });
     });
   });
 });
@@ -1736,6 +1850,70 @@ describe('makeMove works', () => {
 });
 
 describe('isDraw works', () => {
+  describe('byThreefoldRepetition', () => {
+    test('works', () => {
+      const gameboard = Gameboard();
+      const history = [
+        ['e4', 'e5'],
+        ['Ke2', 'Ke7'],
+        ['Ke1', 'Ke8'],
+        ['Ke2', 'Ke7'],
+        ['Ke1', 'Ke8'],
+        ['Ke2', 'Ke7']
+      ];
+
+      const boardStates = gameboard.get.boardStatesFromHistory(history);
+
+      expect(
+        gameboard.isDraw.byThreefoldRepetition(
+          boardStates.slice(0, boardStates.length - 1),
+          boardStates[boardStates.length - 1]
+        )
+      ).toBe(true);
+    });
+
+    test('works with castle rights', () => {
+      const gameboard = Gameboard();
+      const history = [
+        ['e4', 'e5'],
+        ['a3', 'h6'],
+        ['Ke2', 'Ke7'],
+        ['Ke1', 'Ke8'],
+        ['Ke2', 'Ke7'],
+        ['Ke1', 'Ke8'],
+        ['Ke2']
+      ];
+
+      const boardStates = gameboard.get.boardStatesFromHistory(history);
+
+      expect(
+        gameboard.isDraw.byThreefoldRepetition(
+          boardStates.slice(0, boardStates.length - 1),
+          boardStates[boardStates.length - 1]
+        )
+      ).toBe(false);
+    });
+
+    test('works with enPassant', () => {
+      const gameboard = Gameboard();
+      const history = [
+        ['e4', 'e5'],
+        ['Be2', 'Be7'],
+        ['Bf1', 'Bf8'],
+        ['Be2', 'Be7'],
+        ['Bf1', 'Bf8']
+      ];
+
+      const boardStates = gameboard.get.boardStatesFromHistory(history);
+
+      expect(
+        gameboard.isDraw.byThreefoldRepetition(
+          boardStates.slice(0, boardStates.length - 1),
+          boardStates[boardStates.length - 1]
+        )
+      ).toBe(false);
+    });
+  });
   describe('byStalemate', () => {
     test('by queen', () => {
       const pieceMap = {
@@ -1822,6 +2000,29 @@ describe('isDraw works', () => {
       const gameboard = Gameboard();
 
       expect(gameboard.isDraw.byInsufficientMaterial(pm)).toBe(false);
+    });
+
+    test('works when pieces are in reverse order', () => {
+      const pm1 = { white: { king: ['e8'] }, black: { king: ['e2'] } };
+      const pm2 = {
+        white: { king: ['e8'] },
+        black: { bishop: ['e3'], king: ['e2'] }
+      };
+      const pm3 = {
+        white: { knight: ['e7'], king: ['e8'] },
+        black: { king: ['e2'] }
+      };
+      const pm4 = {
+        white: { bishop: ['d6'], king: ['e8'] },
+        black: { bishop: ['e3'], king: ['e2'] }
+      };
+
+      const gameboard = Gameboard();
+
+      expect(gameboard.isDraw.byInsufficientMaterial(pm1)).toBe(true);
+      expect(gameboard.isDraw.byInsufficientMaterial(pm2)).toBe(true);
+      expect(gameboard.isDraw.byInsufficientMaterial(pm3)).toBe(true);
+      expect(gameboard.isDraw.byInsufficientMaterial(pm4)).toBe(true);
     });
   });
 });

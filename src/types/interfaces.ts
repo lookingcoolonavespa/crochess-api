@@ -88,9 +88,11 @@ export interface GameboardObj {
   castle: (color: Color, side: 'kingside' | 'queenside') => void;
   isDraw: {
     byThreefoldRepetition: (
-      allPieceMaps: AllPieceMap[],
-      newPieceMap: AllPieceMap
+      boardStates: BoardStateInterface[],
+      newBoardState: BoardStateInterface
     ) => boolean;
+    byStalemate: (turn: Color, boardMap: Board) => boolean;
+    byInsufficientMaterial: (pieceMap: AllPieceMap) => boolean;
   };
   enPassant: {
     checkToggle: (from: Square, to: Square) => boolean;

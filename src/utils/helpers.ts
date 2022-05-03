@@ -105,33 +105,8 @@ export function deepCopy2dArray(arr: string[][]): string[][] {
   return arr.map((n) => [...n]);
 }
 
-export function comparePieceMaps(pm1: AllPieceMap, pm2: AllPieceMap) {
-  let color: keyof typeof pm1;
-  for (color in pm1) {
-    const map = pm1[color];
-
-    let pieceType: keyof typeof map;
-    for (pieceType in map) {
-      const squares = map[pieceType];
-      const squares2 = pm2[color][pieceType];
-
-      if (squares.length !== squares2.length) return false;
-
-      for (let j = 0; j < squares.length; j++) {
-        if (color === 'black' && pieceType === 'pawn')
-          if (squares[j] !== squares2[j]) {
-            return false;
-          }
-      }
-    }
-  }
-
-  return true;
-}
-
-/* eslint-disable-next-line @typescript-eslint/no-explicit-any */
-export function compare1dArrayNoOrder(arr1: any[], arr2: any[]) {
-  return arr1.length === arr2.length && arr1.every((v) => arr2.includes(v));
+export function isObject(obj: { [key: string]: any }) {
+  return typeof obj === 'object' && obj !== null && !Array.isArray(obj);
 }
 
 export function isLightSquare(square: Square) {

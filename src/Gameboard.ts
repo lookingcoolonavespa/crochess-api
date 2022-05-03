@@ -6,14 +6,7 @@ import {
   getAllMovesForColor,
   getLegalMovesInCheck
 } from './utils/moves';
-import {
-  toXY,
-  fromXY,
-  parseNotation,
-  comparePieceMaps,
-  compare1dArrayNoOrder,
-  isLightSquare
-} from './utils/helpers';
+import { toXY, fromXY, parseNotation, isLightSquare } from './utils/helpers';
 import { ranks, files } from './ranksAndFiles';
 import {
   Color,
@@ -38,6 +31,7 @@ import Castle from './Castle';
 import { startingPositions } from './main';
 import moveNotation from './moveNotation';
 import Piece from './Piece';
+import { compareObjects, compare1dArrayNoOrder } from './utils/compare';
 
 function createBoard(): Board {
   return files.reduce((acc, file) => {
@@ -192,13 +186,13 @@ const Gameboard = (
 
   const isDraw = {
     byThreefoldRepetition: (
-      allPieceMaps: AllPieceMap[],
-      newPieceMap: AllPieceMap
+      boardStates: BoardStateInterface[],
+      newBoardState: BoardStateInterface
     ) => {
       return (
-        allPieceMaps.filter((pm) => {
-          return comparePieceMaps(pm, newPieceMap);
-        }).length >= 3
+        boardStates.filter((bs) => {
+          return compareObjects(bs, newBoardState);
+        }).length === 2
       );
     },
     byStalemate: (turn: Color, boardMap = board) => {
@@ -224,6 +218,9 @@ const Gameboard = (
         ['king', 'knight']
       ]);
       insufficientMaterial.set(['king', 'bishop'].toString(), [
+        ['king', 'bishop']
+      ]);
+      insufficientMaterial.set(['bishop', 'king'].toString(), [
         ['king', 'bishop']
       ]);
 
