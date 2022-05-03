@@ -87,10 +87,10 @@ export interface GameboardObj {
   makeMove: (s1: Square, s2: Square, promote?: PieceType) => Board | undefined;
   castle: (color: Color, side: 'kingside' | 'queenside') => void;
   isDraw: {
-    byThreefoldRepetition: (
+    byRepetition: (
       boardStates: BoardStateInterface[],
       newBoardState: BoardStateInterface
-    ) => boolean;
+    ) => { threefold: boolean; fivefold: boolean };
     byStalemate: (turn: Color, boardMap: Board) => boolean;
     byInsufficientMaterial: (pieceMap: AllPieceMap) => boolean;
   };

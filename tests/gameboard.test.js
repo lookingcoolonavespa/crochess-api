@@ -1850,7 +1850,7 @@ describe('makeMove works', () => {
 });
 
 describe('isDraw works', () => {
-  describe('byThreefoldRepetition', () => {
+  describe('byRepetition', () => {
     test('works', () => {
       const gameboard = Gameboard();
       const history = [
@@ -1865,10 +1865,10 @@ describe('isDraw works', () => {
       const boardStates = gameboard.get.boardStatesFromHistory(history);
 
       expect(
-        gameboard.isDraw.byThreefoldRepetition(
+        gameboard.isDraw.byRepetition(
           boardStates.slice(0, boardStates.length - 1),
           boardStates[boardStates.length - 1]
-        )
+        ).threefold
       ).toBe(true);
     });
 
@@ -1887,10 +1887,10 @@ describe('isDraw works', () => {
       const boardStates = gameboard.get.boardStatesFromHistory(history);
 
       expect(
-        gameboard.isDraw.byThreefoldRepetition(
+        gameboard.isDraw.byRepetition(
           boardStates.slice(0, boardStates.length - 1),
           boardStates[boardStates.length - 1]
-        )
+        ).threefold
       ).toBe(false);
     });
 
@@ -1907,10 +1907,10 @@ describe('isDraw works', () => {
       const boardStates = gameboard.get.boardStatesFromHistory(history);
 
       expect(
-        gameboard.isDraw.byThreefoldRepetition(
+        gameboard.isDraw.byRepetition(
           boardStates.slice(0, boardStates.length - 1),
           boardStates[boardStates.length - 1]
-        )
+        ).threefold
       ).toBe(false);
     });
   });
@@ -2023,6 +2023,297 @@ describe('isDraw works', () => {
       expect(gameboard.isDraw.byInsufficientMaterial(pm2)).toBe(true);
       expect(gameboard.isDraw.byInsufficientMaterial(pm3)).toBe(true);
       expect(gameboard.isDraw.byInsufficientMaterial(pm4)).toBe(true);
+    });
+  });
+
+  describe('byMoveRule', () => {
+    test('works', () => {
+      const history = [
+        ['d4', 'Nf6'],
+        ['c4', 'g6'],
+        ['Nc3', 'Bg7'],
+        ['e4', 'd6'],
+        ['Nf3', '0-0'],
+        ['Be2', 'e5'],
+        ['0-0', 'Nc6'],
+        ['d5', 'Ne7'],
+        ['Nd2', 'a5'],
+        ['Rb1', 'Nd7'],
+        ['a3', 'f5'],
+        ['b4', 'Kh8'],
+        ['f3', 'Ng8'],
+        ['Qc2', 'Ngf6'],
+        ['Nb5', 'axb4'],
+        ['axb4', 'Nh5'],
+        ['g3', 'Ndf6'],
+        ['c5', 'Bd7'],
+        ['Rb3', 'Nxg3'],
+        ['hxg3', 'Nh5'],
+        ['f4', 'exf4'],
+        ['c6', 'bxc6'],
+        ['dxc6', 'Nxg3'],
+        ['Rxg3', 'fxg3'],
+        ['cxd7', 'g2'],
+        ['Rf3', 'Qxd7'],
+        ['Bb2', 'fxe4'],
+        ['Rxf8+', 'Rxf8'],
+        ['Bxg7+', 'Qxg7'],
+        ['Qxe4', 'Qf6'],
+        ['Nf3', 'Qf4'],
+        ['Qe7', 'Rf7'],
+        ['Qe6', 'Rf6'],
+        ['Qe8+', 'Rf8'],
+        ['Qe7', 'Rf7'],
+        ['Qe6', 'Rf6'],
+        ['Qb3', 'g5'],
+        ['Nxc7', 'g4'],
+        ['Nd5', 'Qc1+'],
+        ['Qd1', 'Qxd1+'],
+        ['Bxd1', 'Rf5'],
+        ['Ne3', 'Rf4'],
+        ['Ne1', 'Rxb4'],
+        ['Bxg4', 'h5'],
+        ['Bf3', 'd5'],
+        ['N3xg2', 'h4'],
+        ['Nd3', 'Ra4'],
+        ['Ngf4', 'Kg7'],
+        ['Kg2', 'Kf6'],
+        ['Bxd5', 'Ra5'],
+        ['Bc6', 'Ra6'],
+        ['Bb7', 'Ra3'],
+        ['Be4', 'Ra4'],
+        ['Bd5', 'Ra5'],
+        ['Bc6', 'Ra6'],
+        ['Bb7', 'Ra3'],
+        ['Be4', 'Ra4'],
+        ['Bd5', 'Ra5'],
+        ['Bc6', 'Ra6'],
+        ['Bf3', 'Kg5'],
+        ['Bb7', 'Ra1'],
+        ['Bc8', 'Ra4'],
+        ['Kf3', 'Rc4'],
+        ['Bd7', 'Kf6'],
+        ['Bc6', 'Ra6'],
+        ['Bb7', 'Ra3'],
+        ['Be4', 'Ra4'],
+        ['Bd5', 'Ra5'],
+        ['Bc6', 'Ra6'],
+        ['Bb7', 'Ra3'],
+        ['Be4', 'Ra4'],
+        ['Bd5', 'Ra5'],
+        ['Bc6', 'Ra6'],
+        ['Bf3', 'Kg5'],
+        ['Bb7', 'Ra1'],
+        ['Bc8', 'Ra4'],
+        ['Kf3', 'Rc4'],
+        ['Bd7', 'Kf6'],
+        ['Bc6', 'Ra6'],
+        ['Bb7', 'Ra3'],
+        ['Be4', 'Ra4'],
+        ['Bd5', 'Ra5'],
+        ['Bc6', 'Ra6'],
+        ['Bb7', 'Ra3'],
+        ['Be4', 'Ra4'],
+        ['Bd5', 'Ra5'],
+        ['Bc6', 'Ra6'],
+        ['Bf3', 'Kg5'],
+        ['Bb7', 'Ra1'],
+        ['Bc8', 'Ra4'],
+        ['Kf3', 'Rc4'],
+        ['Bd7', 'Kf6'],
+        ['Bc6', 'Ra6'],
+        ['Bb7', 'Ra3'],
+        ['Be4', 'Ra4'],
+        ['Bd5', 'Ra5'],
+        ['Bc6', 'Ra6'],
+        ['Bb7', 'Ra3'],
+        ['Be4', 'Ra4'],
+        ['Bd5', 'Ra5'],
+        ['Bc6', 'Ra6'],
+        ['Bf3', 'Kg5'],
+        ['Bb7', 'Ra1'],
+        ['Bc8', 'Ra4'],
+        ['Kf3', 'Rc4'],
+        ['Bd7', 'Kf6'],
+        ['Bc6', 'Ra6'],
+        ['Bb7', 'Ra3'],
+        ['Be4', 'Ra4'],
+        ['Bd5', 'Ra5'],
+        ['Bc6', 'Ra6'],
+        ['Bb7', 'Ra3'],
+        ['Be4', 'Ra4'],
+        ['Bd5', 'Ra5'],
+        ['Bc6', 'Ra6'],
+        ['Bf3', 'Kg5'],
+        ['Bb7', 'Ra1'],
+        ['Bc8', 'Ra4'],
+        ['Kf3', 'Rc4'],
+        ['Bd7', 'Kf6'],
+        ['Bc6', 'Ra6'],
+        ['Bb7', 'Ra3'],
+        ['Be4', 'Ra4'],
+        ['Bd5', 'Ra5'],
+        ['Bc6', 'Ra6'],
+        ['Bb7', 'Ra3'],
+        ['Be4', 'Ra4'],
+        ['Bd5', 'Ra5'],
+        ['Bc6', 'Ra6'],
+        ['Bf3', 'Kg5'],
+        ['Bb7', 'Ra1'],
+        ['Bc8', 'Ra4'],
+        ['Kf3', 'Rc4'],
+        ['Bd7', 'Kf6']
+      ];
+
+      const gameboard = Gameboard();
+
+      expect(gameboard.isDraw.byMoveRule(history).fifty).toBe(true);
+      expect(gameboard.isDraw.byMoveRule(history).seventyfive).toBe(true);
+    });
+
+    test('no false positive', () => {
+      const history = [
+        ['d4', 'Nf6'],
+        ['c4', 'g6'],
+        ['Nc3', 'Bg7'],
+        ['e4', 'd6'],
+        ['Nf3', '0-0'],
+        ['Be2', 'e5'],
+        ['0-0', 'Nc6'],
+        ['d5', 'Ne7'],
+        ['Nd2', 'a5'],
+        ['Rb1', 'Nd7'],
+        ['a3', 'f5'],
+        ['b4', 'Kh8'],
+        ['f3', 'Ng8'],
+        ['Qc2', 'Ngf6'],
+        ['Nb5', 'axb4'],
+        ['axb4', 'Nh5'],
+        ['g3', 'Ndf6'],
+        ['c5', 'Bd7'],
+        ['Rb3', 'Nxg3'],
+        ['hxg3', 'Nh5'],
+        ['f4', 'exf4'],
+        ['c6', 'bxc6'],
+        ['dxc6', 'Nxg3'],
+        ['Rxg3', 'fxg3'],
+        ['cxd7', 'g2'],
+        ['Rf3', 'Qxd7'],
+        ['Bb2', 'fxe4'],
+        ['Rxf8+', 'Rxf8'],
+        ['Bxg7+', 'Qxg7'],
+        ['Qxe4', 'Qf6'],
+        ['Nf3', 'Qf4'],
+        ['Qe7', 'Rf7'],
+        ['Qe6', 'Rf6'],
+        ['Qe8+', 'Rf8'],
+        ['Qe7', 'Rf7'],
+        ['Qe6', 'Rf6'],
+        ['Qb3', 'g5'],
+        ['Nxc7', 'g4'],
+        ['Nd5', 'Qc1+'],
+        ['Qd1', 'Qxd1+'],
+        ['Bxd1', 'Rf5'],
+        ['Ne3', 'Rf4'],
+        ['Ne1', 'Rxb4'],
+        ['Bxg4', 'h5'],
+        ['Bf3', 'd5'],
+        ['N3xg2', 'h4'],
+        ['Nd3', 'Ra4'],
+        ['Ngf4', 'Kg7'],
+        ['Kg2', 'Kf6'],
+        ['Bxd5', 'Ra5'],
+        ['Bc6', 'Ra6'],
+        ['Bb7', 'Ra3'],
+        ['Be4', 'Ra4'],
+        ['Bd5', 'Ra5'],
+        ['Bc6', 'Ra6'],
+        ['Bb7', 'Ra3'],
+        ['Be4', 'Ra4'],
+        ['Bd5', 'Ra5'],
+        ['Bc6', 'Ra6'],
+        ['Bf3', 'Kg5'],
+        ['Bb7', 'Ra1'],
+        ['Bc8', 'Ra4'],
+        ['Kf3', 'Rc4'],
+        ['Bd7', 'Kf6'],
+        ['Bc6', 'Ra6'],
+        ['Bb7', 'Ra3'],
+        ['Be4', 'Ra4'],
+        ['Bd5', 'Ra5'],
+        ['Bc6', 'Ra6'],
+        ['Bb7', 'Ra3'],
+        ['Be4', 'Ra4'],
+        ['Bd5', 'Ra5'],
+        ['Bc6', 'Ra6'],
+        ['Bf3', 'Kg5'],
+        ['Bb7', 'Ra1'],
+        ['Bc8', 'Ra4'],
+        ['Kf3', 'Rc4'],
+        ['Bd7', 'Kf6'],
+        ['Bc6', 'Ra6'],
+        ['Bb7', 'Ra3'],
+        ['Be4', 'Ra4'],
+        ['Bd5', 'Ra5'],
+        ['Bc6', 'Ra6'],
+        ['Bb7', 'Ra3'],
+        ['Be4', 'Ra4'],
+        ['Bd5', 'Ra5'],
+        ['Bc6', 'Ra6'],
+        ['Bf3', 'Kg5'],
+        ['Bb7', 'Ra1'],
+        ['Bc8', 'Ra4'],
+        ['Kf3', 'Rc4'],
+        ['Bd7', 'Kf6'],
+        ['Bc6', 'Ra6'],
+        ['Bb7', 'Ra3'],
+        ['Be4', 'Ra4'],
+        ['Bd5', 'Ra5'],
+        ['Bc6', 'Ra6'],
+        ['Bb7', 'Ra3'],
+        ['Be4', 'Ra4'],
+        ['Bd5', 'Ra5'],
+        ['Bc6', 'Ra6'],
+        ['Bf3', 'Kg5'],
+        ['Bb7', 'Ra1'],
+        ['Bc8', 'Ra4'],
+        ['Kf3', 'Rc4'],
+        ['Bd7', 'Kf6'],
+        ['Bc6', 'Ra6'],
+        ['Bb7', 'Ra3'],
+        ['Be4', 'Ra4'],
+        ['Bd5', 'Ra5'],
+        ['Bc6', 'Ra6'],
+        ['Bb7', 'Ra3'],
+        ['Be4', 'Ra4'],
+        ['Bd5', 'Ra5'],
+        ['Bc6', 'Ra6'],
+        ['Bf3', 'Kg5'],
+        ['Bb7', 'Ra1'],
+        ['Bc8', 'Ra4'],
+        ['Kf3', 'Rc4'],
+        ['Bd7', 'Kf6'],
+        ['Bc6', 'Ra6'],
+        ['Bb7', 'Ra3'],
+        ['Be4', 'Ra4'],
+        ['Bd5', 'Ra5'],
+        ['Bc6', 'Ra6'],
+        ['Bb7', 'Ra3'],
+        ['Be4', 'Ra4'],
+        ['Bd5', 'Ra5'],
+        ['Bc6', 'Ra6'],
+        ['Bf3', 'Kg5'],
+        ['Bb7', 'Ra1'],
+        ['Bc8', 'Ra4'],
+        ['Kf3', 'Rc4'],
+        ['Bd7', 'Kf6'],
+        ['e4']
+      ];
+
+      const gameboard = Gameboard();
+
+      expect(gameboard.isDraw.byMoveRule(history).fifty).toBe(false);
+      expect(gameboard.isDraw.byMoveRule(history).seventyfive).toBe(false);
     });
   });
 });

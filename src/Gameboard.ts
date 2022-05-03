@@ -185,15 +185,37 @@ const Gameboard = (
   })();
 
   const isDraw = {
-    byThreefoldRepetition: (
+    byRepetition: (
       boardStates: BoardStateInterface[],
       newBoardState: BoardStateInterface
     ) => {
-      return (
-        boardStates.filter((bs) => {
-          return compareObjects(bs, newBoardState);
-        }).length === 2
-      );
+      const repeated = boardStates.filter((bs) => {
+        return compareObjects(bs, newBoardState);
+      }).length;
+
+      return {
+        threefold: repeated >= 2,
+        fivefold: repeated === 4
+      };
+    },
+    byMoveRule: (history: HistoryType) => {
+      const flat = history.flat();
+
+      const lastPawnMoveOrCaptureIdx =
+        flat.length -
+        1 -
+        [...flat].reverse().findIndex((m) => {
+          return m[0].toLowerCase() === m[0] || m.includes('x');
+        });
+
+      const movesSinceLastPawnMoveOrCapture = flat.slice(
+        lastPawnMoveOrCaptureIdx
+      ).length;
+
+      return {
+        fifty: movesSinceLastPawnMoveOrCapture >= 100,
+        seventyfive: movesSinceLastPawnMoveOrCapture >= 150
+      };
     },
     byStalemate: (turn: Color, boardMap = board) => {
       const oppColor = turn === 'white' ? 'black' : 'white';
