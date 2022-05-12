@@ -91,10 +91,15 @@ export interface GameboardObj {
       boardStates: BoardStateInterface[],
       newBoardState: BoardStateInterface
     ) => { threefold: boolean; fivefold: boolean };
-    byStalemate: (turn: Color, boardMap: Board) => boolean;
+    byStalemate: (turn: Color, boardMap?: Board) => boolean;
     byInsufficientMaterial: (pieceMap: AllPieceMap) => boolean;
+    byMoveRule: (history: HistoryType) => {
+      fifty: boolean;
+      seventyfive: boolean;
+    };
   };
   enPassant: {
+    getSquare: (current: Square, color: Color) => Square;
     checkToggle: (from: Square, to: Square) => boolean;
     toggle: (color: Color, current: Square) => Square;
     remove: () => void;

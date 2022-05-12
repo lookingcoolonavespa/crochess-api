@@ -145,13 +145,12 @@ const Gameboard = (
   }
 
   const enPassant = (() => {
-    function getSquare(current: Square, color: Color): Square {
-      const { x, y } = toXY(current);
-      const newY = color === 'white' ? y - 1 : y + 1;
-      return fromXY({ x, y: newY });
-    }
-
     return {
+      getSquare: (current: Square, color: Color): Square => {
+        const { x, y } = toXY(current);
+        const newY = color === 'white' ? y - 1 : y + 1;
+        return fromXY({ x, y: newY });
+      },
       checkToggle: (from: Square, to: Square): boolean => {
         const { y: y1 } = toXY(from);
         const { y: y2 } = toXY(to);
@@ -159,7 +158,7 @@ const Gameboard = (
         return Math.abs(y1 - y2) === 2;
       },
       toggle: (color: Color, current: Square, boardMap = board): Square => {
-        const enPassantSquare = getSquare(current, color);
+        const enPassantSquare = enPassant.getSquare(current, color);
         at(enPassantSquare, boardMap).setEnPassant(color, current);
         return enPassantSquare;
       },
@@ -554,13 +553,12 @@ const Gameboard = (
         if (parsed.castle) {
           castle(color, parsed.castle, boardMap);
 
-          let colorRights: keyof typeof castleRights;
-          for (colorRights in castleRights) {
-            if (colorRights !== color) continue;
-
-            castleRights[colorRights].kingside = false;
-            castleRights[colorRights].queenside = false;
-          }
+          castleRights = {
+            white: { ...castleRights.white },
+            black: { ...castleRights.black }
+          };
+          castleRights[color].kingside = false;
+          castleRights[color].queenside = false;
 
           pieceMap = get.pieceMap(boardMap);
           boardStates.push({ pieceMap, castleRights });
