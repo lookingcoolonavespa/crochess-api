@@ -1,5 +1,7 @@
 # crochess-api
 
+Written in Typescript, tests written using Jest
+
 ## Using the Gameboard module
 
 Gameboard takes in 3 possible arguments, all of them are optional:
