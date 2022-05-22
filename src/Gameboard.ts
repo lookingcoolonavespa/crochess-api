@@ -46,7 +46,7 @@ function createBoard(): Board {
 const Gameboard = (
   board = createBoard(),
   squaresGivingCheck = [] as Moves,
-  CastleRights?: CastleObj
+  CastleRights = Castle(true, true, true, true)
 ): GameboardObj => {
   board = new Map(board);
 
@@ -122,8 +122,10 @@ const Gameboard = (
   ): void {
     const castleSquares = get.castleSquares(color)[side];
 
-    const kingPos = get.kingPosition(color, boardMap) as Square;
-    const rookPos = getRookPos() as Square;
+    const kingPos: Square | undefined = get.kingPosition(color, boardMap);
+    const rookPos: Square | undefined = getRookPos();
+
+    if (!rookPos || !kingPos) return;
 
     from(rookPos, boardMap).to(castleSquares[0]);
     from(kingPos, boardMap).to(castleSquares[1]);
@@ -132,9 +134,10 @@ const Gameboard = (
       const pieceMap = get.pieceMap(boardMap);
       const rookPos = pieceMap[color].rook.find((square) => {
         const file = square.split('')[0];
-        return side === 'kingside'
-          ? files.indexOf(file) > 3
-          : files.indexOf(file) < 3;
+        const indexOfFile = files.indexOf(file);
+        if (indexOfFile === -1) return false;
+
+        return side === 'kingside' ? indexOfFile > 3 : indexOfFile < 3;
       });
 
       return rookPos;
@@ -213,7 +216,7 @@ const Gameboard = (
 
       return {
         fifty: movesSinceLastPawnMoveOrCapture >= 100,
-        seventyfive: movesSinceLastPawnMoveOrCapture >= 150
+        seventyFive: movesSinceLastPawnMoveOrCapture >= 150
       };
     },
     byStalemate: (turn: Color, boardMap = board) => {
@@ -463,7 +466,7 @@ const Gameboard = (
     castleRightsAfterMove: (
       square: Square,
       boardMap = board,
-      castleRights = CastleRights || Castle(true, true, true, true)
+      castleRights = CastleRights
     ): CastleObj => {
       const piece = at(square, boardMap).piece as PieceObj;
 
@@ -647,6 +650,10 @@ const Gameboard = (
             ?.includes(to) as boolean;
           moveDetails.capture = capture;
           if (capture) moveDetails.differentiation = from[0];
+          break;
+        }
+        case 'king': {
+          moveDetails.castle = get.castleSide(color, to) || undefined;
           break;
         }
         default: {

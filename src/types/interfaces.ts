@@ -95,7 +95,7 @@ export interface GameboardObj {
     byInsufficientMaterial: (pieceMap: AllPieceMap) => boolean;
     byMoveRule: (history: HistoryType) => {
       fifty: boolean;
-      seventyfive: boolean;
+      seventyFive: boolean;
     };
   };
   enPassant: {

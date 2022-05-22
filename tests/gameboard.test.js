@@ -1706,6 +1706,32 @@ describe('castle stuff', () => {
       });
     });
   });
+
+  describe('castling works', () => {
+    test('kingside', () => {
+      const gameboard = Gameboard();
+      gameboard.placePieces(startingPositions.standard);
+
+      gameboard.at('f1').remove();
+      gameboard.at('g1').remove();
+
+      const notation = gameboard.get.moveNotation('e1', 'g1');
+
+      expect(notation).toBe('0-0');
+    });
+    test('queenside', () => {
+      const gameboard = Gameboard();
+      gameboard.placePieces(startingPositions.standard);
+
+      gameboard.at('d1').remove();
+      gameboard.at('c1').remove();
+      gameboard.at('b1').remove();
+
+      const notation = gameboard.get.moveNotation('e1', 'c1');
+
+      expect(notation).toBe('0-0-0');
+    });
+  });
 });
 
 describe('validate works', () => {
@@ -2168,7 +2194,7 @@ describe('isDraw works', () => {
       const gameboard = Gameboard();
 
       expect(gameboard.isDraw.byMoveRule(history).fifty).toBe(true);
-      expect(gameboard.isDraw.byMoveRule(history).seventyfive).toBe(true);
+      expect(gameboard.isDraw.byMoveRule(history).seventyFive).toBe(true);
     });
 
     test('no false positive', () => {
@@ -2313,7 +2339,7 @@ describe('isDraw works', () => {
       const gameboard = Gameboard();
 
       expect(gameboard.isDraw.byMoveRule(history).fifty).toBe(false);
-      expect(gameboard.isDraw.byMoveRule(history).seventyfive).toBe(false);
+      expect(gameboard.isDraw.byMoveRule(history).seventyFive).toBe(false);
     });
   });
 });
