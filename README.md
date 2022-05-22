@@ -66,7 +66,7 @@ Gameboard.castle('black', 'kingside', board?)
 
 Gameboard.castle takes a color, a side, and a board as arguments. Only board is optional.
 If no board is given, Gameboard.castle uses the board Gameboard is initialized with. 
-No validation is done. Gameboard.side moves the appropriate king and appropriate rook to the castle positions. If no king or rook is found, the function bails out.
+No validation is done. Gameboard.castle moves the appropriate king and appropriate rook to the castle positions. If no king or rook is found, the function bails out.
 
 ---
 
