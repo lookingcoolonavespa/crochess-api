@@ -5,7 +5,7 @@ Written in Typescript, tests written using Jest
 ## Using the Gameboard module
 
 Gameboard takes in 3 possible arguments, all of them are optional:
-1. board: a map object that holds the state of the board. It records enPassant possibilities, and positions of the pieces. If left undefined, it defaults to an empty board. The map object holds square notation as its keys, and for its values, an object containing piece and/or enPassant values. All mutations and reads will happen on this board map unless another board is given for the method call. 
+1. board: a map object that holds the state of the board. It records enPassant possibilities, and positions of the pieces. If left undefined, it defaults to an empty board. The map object holds square notation as its keys, and for its values, an object containing piece and/or enPassant values. A copy of this map object is made. All mutations and reads will happen on this copy unless another board is input into the method call. 
 3. squaresGivingCheck: an array of all the squares of the pieces giving check. If left empty, it will initiliaze to an empty array.
 4. castleRights: an object that holds the castle rights state. If left empty, it initializes to a state where all castle rights are avaiable. 
 
